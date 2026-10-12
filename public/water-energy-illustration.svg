@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="540" viewBox="0 0 640 540" fill="none">
+  <title>Illustrative solar and water infrastructure</title>
+  <desc>Architectural drawing of solar panels, a water storage tank, a pump and connected pipes. This is an illustration, not a Mias project.</desc>
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" stroke="#6c8b6d" stroke-width=".5" opacity=".3"/></pattern>
+    <linearGradient id="glass" x1="72" y1="292" x2="290" y2="420" gradientUnits="userSpaceOnUse"><stop stop-color="#5d8480"/><stop offset="1" stop-color="#294f4c"/></linearGradient>
+  </defs>
+  <rect width="640" height="540" fill="#173f35"/>
+  <rect x="25" y="15" width="590" height="500" fill="url(#grid)"/>
+  <circle cx="488" cy="112" r="39" fill="#d6a269"/>
+  <circle cx="488" cy="112" r="55" stroke="#98aa7a" stroke-width="1" stroke-dasharray="2 7"/>
+  <path d="M32 357L196 274L465 365L608 322V408L350 519L32 408Z" fill="#456449"/>
+  <path d="M32 385L201 303L608 348V408L350 519L32 408Z" fill="#a4af7c"/>
+  <path d="M32 408L350 519L608 408V435L350 540L32 433Z" fill="#71845d"/>
+  <path d="M350 519V540M32 408L350 519L608 408" stroke="#d3d7a4" stroke-width="1"/>
+  <!-- Raised water tank and frame. -->
+  <path d="M323 208V351M389 208V351M323 351L389 258M389 351L323 258M323 258H389M323 307H389" stroke="#d6dcc1" stroke-width="6" stroke-linejoin="round"/>
+  <ellipse cx="356" cy="349" rx="58" ry="15" fill="#6f835d"/>
+  <path d="M310 139C310 126 402 126 402 139V210C402 230 310 230 310 210Z" fill="#e9ead3"/>
+  <ellipse cx="356" cy="139" rx="46" ry="13" fill="#f5f2dd" stroke="#c9d3b2"/>
+  <path d="M311 155C333 166 378 166 401 155M311 185C333 196 378 196 401 185M311 207C333 218 378 218 401 207" stroke="#b5c5a3" stroke-width="2"/>
+  <path d="M355 127V114H367" stroke="#e9ead3" stroke-width="5" stroke-linecap="round"/>
+  <!-- Building. -->
+  <path d="M433 289L502 260L563 282V378L499 405L433 381Z" fill="#ecebd4"/>
+  <path d="M499 311L563 282V378L499 405Z" fill="#bdc8a0"/>
+  <path d="M420 289L500 242L576 280L499 314Z" fill="#768d68"/>
+  <path d="M420 289L499 314L576 280" stroke="#dae1bc" stroke-width="2"/>
+  <path d="M453 321L475 329V354L453 347Z" fill="#557770"/>
+  <path d="M516 339L540 328V377L516 387Z" fill="#557770"/>
+  <!-- Solar panel support and cells. -->
+  <path d="M94 365V424M259 365V449M94 403L259 426" stroke="#e8e6cc" stroke-width="5"/>
+  <path d="M64 310L229 348L288 411L119 370Z" fill="url(#glass)" stroke="#e9edcf" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M105 319L161 380M147 329L203 391M188 338L245 401M91 340L258 379" stroke="#c8d9bb" stroke-width="1.5"/>
+  <path d="M64 310L119 370L288 411V418L116 377L64 317Z" fill="#b0c1a2"/>
+  <!-- Pump, control enclosure and connected pipework. -->
+  <path d="M287 366L326 379V416L287 403Z" fill="#e9ead3"/>
+  <path d="M326 379L345 371V409L326 416Z" fill="#a9bb94"/>
+  <path d="M287 366L307 358L345 371L326 379Z" fill="#f2f1d9"/>
+  <circle cx="304" cy="383" r="4" fill="#b44c20"/>
+  <path d="M255 406L278 398L303 407L280 417Z" fill="#567c70"/>
+  <path d="M255 406V424L280 434L303 424V407M280 417V434" stroke="#c3d9bc" stroke-width="2"/>
+  <path d="M274 414L259 440L369 478L441 447V401M441 401V371L433 369M397 216V329L411 335V401H441" stroke="#accdc0" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M231 356L272 368L287 382" stroke="#d4ae78" stroke-width="2" stroke-dasharray="5 4"/>
+  <!-- Technical guide lines, without invented specifications. -->
+  <path d="M99 227H260M99 221V233M260 221V233M430 168H549M549 162V174" stroke="#9bad83" stroke-width="1"/>
+  <circle cx="270" cy="227" r="3" fill="#b9c994"/>
+  <path d="M180 175L180 213M174 181L180 175L186 181" stroke="#9bad83" stroke-width="1"/>
+  <path d="M84 465L103 472M573 439L590 431M466 453L480 459" stroke="#d0d4a1" stroke-width="3" stroke-linecap="round"/>
+</svg>
