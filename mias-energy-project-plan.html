@@ -1,0 +1,843 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Sixteen-week engineering plan for the Mias Energy Solutions website and digital lead platform.">
+  <title>Mias Energy Solutions — 16-Week Project Plan</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --navy-950: #071a2d;
+      --navy-900: #0b243d;
+      --navy-800: #103552;
+      --blue-600: #0b6fa4;
+      --blue-100: #dff3fb;
+      --cyan-500: #16a3b6;
+      --green-600: #24865b;
+      --green-100: #e2f5eb;
+      --amber-500: #c47a13;
+      --amber-100: #fff1cf;
+      --red-600: #b53a3a;
+      --white: #ffffff;
+      --paper: #f4f8fa;
+      --ink: #122233;
+      --muted: #5f6f7d;
+      --line: #d6e1e7;
+      --shadow: 0 18px 55px rgba(7, 26, 45, 0.10);
+      --radius: 18px;
+      --radius-sm: 11px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    a { color: inherit; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, a:focus-visible, input:focus-visible {
+      outline: 3px solid #f6bd60;
+      outline-offset: 3px;
+    }
+    .skip-link {
+      position: absolute;
+      top: -100px;
+      left: 1rem;
+      z-index: 100;
+      background: var(--white);
+      color: var(--navy-950);
+      padding: .8rem 1rem;
+      border-radius: .5rem;
+    }
+    .skip-link:focus { top: 1rem; }
+    .wrap { width: min(calc(100% - 2rem), var(--max)); margin-inline: auto; }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 82% 18%, rgba(22, 163, 182, .32), transparent 27rem),
+        linear-gradient(135deg, var(--navy-950), var(--navy-800));
+      color: var(--white);
+      padding: 1.25rem 0 4.5rem;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -7rem;
+      bottom: -12rem;
+      width: 32rem;
+      height: 32rem;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 50%;
+      box-shadow: 0 0 0 4rem rgba(255,255,255,.035), 0 0 0 8rem rgba(255,255,255,.025);
+    }
+    .topbar, .hero-grid, .hero-stats { position: relative; z-index: 1; }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding-bottom: 3.5rem;
+    }
+    .brand { display: flex; align-items: center; gap: .8rem; font-weight: 750; letter-spacing: .01em; }
+    .brand-mark {
+      width: 2.5rem;
+      height: 2.5rem;
+      display: grid;
+      place-items: center;
+      border-radius: 50% 50% 50% 12%;
+      background: linear-gradient(145deg, #49c9d6, #67d18c);
+      color: var(--navy-950);
+      font-weight: 900;
+      transform: rotate(-12deg);
+    }
+    .brand-mark span { transform: rotate(12deg); }
+    .print-btn {
+      border: 1px solid rgba(255,255,255,.35);
+      color: var(--white);
+      background: rgba(255,255,255,.08);
+      border-radius: 999px;
+      padding: .65rem 1rem;
+      font-weight: 700;
+    }
+    .print-btn:hover { background: rgba(255,255,255,.16); }
+    .hero-grid { display: grid; grid-template-columns: 1.55fr .8fr; gap: 3rem; align-items: end; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      color: #95e3ea;
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before { content: ""; width: 1.5rem; height: 2px; background: currentColor; }
+    h1, h2, h3 { margin-top: 0; line-height: 1.12; letter-spacing: -.025em; }
+    h1 { max-width: 850px; margin: .85rem 0 1.25rem; font-size: clamp(2.35rem, 6vw, 5.6rem); }
+    h2 { font-size: clamp(1.7rem, 3vw, 2.75rem); }
+    h3 { font-size: 1.2rem; }
+    .hero-copy { max-width: 700px; margin: 0; color: #dbe8ef; font-size: clamp(1.02rem, 2vw, 1.22rem); }
+    .hero-note {
+      padding: 1.25rem;
+      border-left: 3px solid #5bd1d8;
+      background: rgba(255,255,255,.07);
+      backdrop-filter: blur(8px);
+    }
+    .hero-note strong { display: block; margin-bottom: .35rem; color: #fff; }
+    .hero-note p { margin: 0; color: #dbe8ef; }
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-top: 3rem;
+    }
+    .hero-stat { border-top: 1px solid rgba(255,255,255,.22); padding-top: .9rem; }
+    .hero-stat b { display: block; font-size: 1.5rem; }
+    .hero-stat span { color: #c8d8e1; font-size: .88rem; }
+
+    .phase-nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(244,248,250,.93);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+    }
+    .phase-nav .wrap { display: flex; gap: .45rem; overflow-x: auto; padding-block: .65rem; scrollbar-width: thin; }
+    .phase-nav a {
+      flex: 0 0 auto;
+      text-decoration: none;
+      border-radius: 999px;
+      padding: .55rem .8rem;
+      color: var(--navy-800);
+      font-size: .84rem;
+      font-weight: 750;
+    }
+    .phase-nav a:hover { background: var(--blue-100); }
+
+    main { padding: 4rem 0 5rem; }
+    section { scroll-margin-top: 5rem; }
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 2rem;
+      align-items: end;
+      margin-bottom: 1.5rem;
+    }
+    .section-head p { max-width: 630px; margin: 0; color: var(--muted); }
+    .kicker { color: var(--blue-600); font-weight: 800; text-transform: uppercase; font-size: .75rem; letter-spacing: .12em; }
+
+    .progress-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 1.25rem 2rem;
+      align-items: center;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.35rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 3rem;
+    }
+    .progress-title { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: .65rem; }
+    .progress-title strong { color: var(--navy-900); }
+    .progress-title span { color: var(--muted); font-size: .9rem; }
+    .track { height: .72rem; border-radius: 999px; background: #e5edf1; overflow: hidden; }
+    .bar { width: 0%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--blue-600), var(--green-600)); transition: width .25s ease; }
+    .reset-btn {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--white);
+      color: var(--navy-800);
+      padding: .65rem .9rem;
+      font-weight: 750;
+    }
+
+    .principles-grid, .audience-grid, .success-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    .panel {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.35rem;
+    }
+    .panel p:last-child, .panel ul:last-child { margin-bottom: 0; }
+    .panel p { color: var(--muted); }
+    .panel.accent { background: var(--navy-900); border-color: var(--navy-900); color: var(--white); }
+    .panel.accent p { color: #cfdee7; }
+    .panel.warning { background: var(--amber-100); border-color: #efd399; }
+    .panel.warning p { color: #654a1f; }
+    .principle { display: flex; gap: .8rem; align-items: flex-start; }
+    .principle + .principle { margin-top: 1rem; }
+    .principle-index {
+      display: grid;
+      place-items: center;
+      flex: 0 0 2rem;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background: var(--blue-100);
+      color: var(--blue-600);
+      font-weight: 850;
+      font-size: .8rem;
+    }
+    .principle b { display: block; color: var(--navy-900); }
+    .principle span { display: block; color: var(--muted); font-size: .9rem; }
+
+    .roadmap { margin-top: 4.5rem; }
+    .phase { margin-top: 3.25rem; }
+    .phase-banner {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .phase-number {
+      display: grid;
+      place-items: center;
+      width: 3rem;
+      height: 3rem;
+      border-radius: 50%;
+      background: var(--navy-900);
+      color: var(--white);
+      font-size: 1.1rem;
+      font-weight: 850;
+    }
+    .phase-banner h2 { margin: 0 0 .2rem; font-size: clamp(1.35rem, 3vw, 2rem); }
+    .phase-banner p { margin: 0; color: var(--muted); }
+    .weeks-label { color: var(--blue-600); font-size: .82rem; font-weight: 850; text-transform: uppercase; letter-spacing: .08em; }
+    .weeks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    .week-card {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.35rem;
+      min-width: 0;
+    }
+    .week-card.is-complete { border-color: #72c499; box-shadow: 0 0 0 3px var(--green-100); }
+    .week-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+    .week-num { color: var(--blue-600); font-size: .76rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 850; }
+    .week-card h3 { margin: .25rem 0 .6rem; color: var(--navy-900); }
+    .week-card > p { margin: 0 0 1rem; color: var(--muted); }
+    .done-control {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      flex: 0 0 auto;
+      color: var(--muted);
+      font-size: .82rem;
+      font-weight: 750;
+    }
+    .done-control input { width: 1.15rem; height: 1.15rem; accent-color: var(--green-600); }
+    .deliverables { margin: 0; padding: 0; list-style: none; }
+    .deliverables li { position: relative; padding-left: 1.15rem; margin-top: .48rem; color: #34495a; font-size: .92rem; }
+    .deliverables li::before { content: ""; position: absolute; left: 0; top: .62em; width: .42rem; height: .42rem; border-radius: 50%; background: var(--cyan-500); }
+    .gate {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: .9rem;
+      align-items: start;
+      background: var(--green-100);
+      border-left: 4px solid var(--green-600);
+      border-radius: var(--radius-sm);
+      padding: 1.1rem 1.2rem;
+    }
+    .gate-mark { color: var(--green-600); font-weight: 900; }
+    .gate strong { display: block; color: #155b3a; }
+    .gate p { margin: .25rem 0 0; color: #2c654a; }
+
+    .workflow {
+      margin-top: 4.5rem;
+      display: grid;
+      grid-template-columns: .8fr 1.2fr;
+      gap: 1rem;
+    }
+    .workflow ol { margin: 1rem 0 0; padding: 0; list-style: none; counter-reset: process; }
+    .workflow li {
+      counter-increment: process;
+      display: grid;
+      grid-template-columns: 2.2rem 1fr;
+      gap: .7rem;
+      padding: .62rem 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .workflow li:last-child { border-bottom: 0; }
+    .workflow li::before {
+      content: counter(process, decimal-leading-zero);
+      color: var(--blue-600);
+      font-weight: 850;
+      font-size: .78rem;
+      padding-top: .18rem;
+    }
+    .workflow li b { color: var(--navy-900); }
+    .workflow li span { display: block; color: var(--muted); font-size: .88rem; }
+
+    .task-section { margin-top: 4.5rem; }
+    .task-card {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 2rem;
+      background: linear-gradient(135deg, var(--navy-900), #0f4765);
+      color: var(--white);
+      border-radius: calc(var(--radius) + 4px);
+      padding: clamp(1.4rem, 4vw, 2.5rem);
+      box-shadow: var(--shadow);
+    }
+    .task-card p { color: #d7e6ed; }
+    .task-card ul { margin-bottom: 0; padding-left: 1.25rem; color: #eef7fa; }
+    .task-card li + li { margin-top: .45rem; }
+    .time-chip {
+      display: inline-block;
+      margin-bottom: 1rem;
+      border-radius: 999px;
+      background: rgba(255,255,255,.12);
+      padding: .45rem .75rem;
+      font-weight: 800;
+      font-size: .82rem;
+    }
+    .todo-list { display: grid; gap: .65rem; align-content: start; }
+    .todo {
+      display: flex;
+      align-items: flex-start;
+      gap: .7rem;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: var(--radius-sm);
+      padding: .75rem;
+      background: rgba(255,255,255,.06);
+    }
+    .todo input { width: 1.15rem; height: 1.15rem; margin-top: .2rem; accent-color: #69d99a; }
+    .todo span { color: #eef7fa; }
+
+    .scope, .success { margin-top: 4.5rem; }
+    .scope-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .scope ul { margin: 0; padding-left: 1.2rem; }
+    .scope li + li { margin-top: .45rem; }
+    .in-scope { border-top: 4px solid var(--green-600); }
+    .later { border-top: 4px solid var(--amber-500); }
+    .unknown { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .82rem; color: var(--red-600); }
+
+    .footer {
+      background: var(--navy-950);
+      color: #d9e6ed;
+      padding: 2.2rem 0;
+    }
+    .footer .wrap { display: flex; justify-content: space-between; gap: 1rem; align-items: center; }
+    .footer p { margin: 0; }
+    .footer small { color: #9fb4c1; }
+
+    @media (max-width: 850px) {
+      .hero-grid, .workflow, .task-card { grid-template-columns: 1fr; }
+      .hero-stats { grid-template-columns: repeat(2, 1fr); }
+      .principles-grid, .audience-grid, .success-grid { grid-template-columns: 1fr 1fr; }
+      .phase-banner { grid-template-columns: auto 1fr; }
+      .weeks-label { grid-column: 2; }
+    }
+    @media (max-width: 650px) {
+      .hero { padding-bottom: 3rem; }
+      .topbar { padding-bottom: 2.5rem; }
+      .brand-text { max-width: 12rem; line-height: 1.2; }
+      .hero-stats, .weeks, .principles-grid, .audience-grid, .scope-grid, .success-grid { grid-template-columns: 1fr; }
+      .section-head, .footer .wrap { align-items: flex-start; flex-direction: column; }
+      .progress-panel { grid-template-columns: 1fr; }
+      .reset-btn { justify-self: start; }
+      .phase-banner { align-items: start; }
+      .phase-number { width: 2.55rem; height: 2.55rem; }
+      .gate { grid-column: auto; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition-duration: .01ms !important; }
+    }
+    @media print {
+      body { background: #fff; color: #111; font-size: 10.5pt; }
+      .hero { background: #fff; color: #111; padding: 0 0 1.5rem; }
+      .hero::after, .phase-nav, .print-btn, .reset-btn, .done-control { display: none; }
+      .hero-copy, .hero-note p, .hero-stat span { color: #333; }
+      .hero-note { border-left-color: #333; background: #eee; }
+      .hero-note strong, .eyebrow { color: #111; }
+      .topbar { padding-bottom: 1.5rem; }
+      .brand-mark { background: #ddd; color: #111; }
+      .wrap { width: 100%; }
+      main { padding: 1rem 0; }
+      .panel, .week-card, .progress-panel, .task-card { box-shadow: none; break-inside: avoid; }
+      .task-card, .panel.accent { background: #eee; color: #111; }
+      .task-card p, .task-card ul, .panel.accent p, .todo span { color: #222; }
+      .todo { background: transparent; border-color: #aaa; }
+      .phase { break-before: page; }
+      .weeks { display: block; }
+      .week-card { margin-bottom: .8rem; }
+      .footer { background: #fff; color: #111; border-top: 1px solid #aaa; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to project plan</a>
+
+  <header class="hero">
+    <div class="wrap">
+      <div class="topbar">
+        <div class="brand" aria-label="Mias Energy Solutions">
+          <div class="brand-mark" aria-hidden="true"><span>M</span></div>
+          <div class="brand-text">Mias Energy Solutions</div>
+        </div>
+        <button class="print-btn" type="button" onclick="window.print()">Print plan</button>
+      </div>
+
+      <div class="hero-grid">
+        <div>
+          <span class="eyebrow">Agentic engineering roadmap</span>
+          <h1>From discovery to a real digital lead platform.</h1>
+          <p class="hero-copy">A 16-week, human-led plan to research, design, build, test, document and launch a professional website for a water and renewable-energy company in Lusaka, Zambia.</p>
+        </div>
+        <aside class="hero-note" aria-label="Primary project objective">
+          <strong>Primary business outcome</strong>
+          <p>Help a mobile visitor understand the business and begin a qualified inquiry by WhatsApp, phone or quotation form in about 30 seconds.</p>
+        </aside>
+      </div>
+
+      <div class="hero-stats" aria-label="Project summary">
+        <div class="hero-stat"><b>16</b><span>weeks</span></div>
+        <div class="hero-stat"><b>8</b><span>delivery phases</span></div>
+        <div class="hero-stat"><b>90+</b><span>Lighthouse target</span></div>
+        <div class="hero-stat"><b>MVP</b><span>before optional features</span></div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="phase-nav" aria-label="Project phase navigation">
+    <div class="wrap">
+      <a href="#overview">Overview</a>
+      <a href="#phase-1">1 · Discover</a>
+      <a href="#phase-2">2 · Design</a>
+      <a href="#phase-3">3 · Build</a>
+      <a href="#phase-4">4 · Content</a>
+      <a href="#phase-5">5 · Convert</a>
+      <a href="#phase-6">6 · Verify</a>
+      <a href="#phase-7">7 · Launch</a>
+      <a href="#phase-8">8 · Handover</a>
+      <a href="#next-action">Next action</a>
+    </div>
+  </nav>
+
+  <main id="main">
+    <div class="wrap">
+      <section id="overview" aria-labelledby="overview-title">
+        <div class="section-head">
+          <div>
+            <span class="kicker">Project overview</span>
+            <h2 id="overview-title">A business product, not just a collection of pages</h2>
+          </div>
+          <p>The site must create value for Mias while demonstrating responsible AI-assisted engineering, documented decisions and genuine technical ownership.</p>
+        </div>
+
+        <div class="progress-panel" aria-label="Roadmap completion">
+          <div>
+            <div class="progress-title">
+              <strong>Roadmap progress</strong>
+              <span id="progressText" aria-live="polite">0 of 16 weeks complete</span>
+            </div>
+            <div class="track" role="progressbar" aria-label="Completed weeks" aria-valuemin="0" aria-valuemax="16" aria-valuenow="0" id="progressTrack">
+              <div class="bar" id="progressBar"></div>
+            </div>
+          </div>
+          <button class="reset-btn" type="button" id="resetProgress">Reset progress</button>
+        </div>
+
+        <div class="principles-grid">
+          <article class="panel">
+            <h3>Business first</h3>
+            <div class="principle"><span class="principle-index">01</span><div><b>Qualified inquiries</b><span>Every major page supports a real customer decision or contact action.</span></div></div>
+            <div class="principle"><span class="principle-index">02</span><div><b>Verified claims</b><span>Unknown facts stay marked for owner confirmation.</span></div></div>
+          </article>
+          <article class="panel">
+            <h3>Engineering discipline</h3>
+            <div class="principle"><span class="principle-index">03</span><div><b>Incremental delivery</b><span>Small, testable changes with focused Git commits.</span></div></div>
+            <div class="principle"><span class="principle-index">04</span><div><b>Measured quality</b><span>Accessibility and performance claims require evidence.</span></div></div>
+          </article>
+          <article class="panel accent">
+            <h3>Human ownership</h3>
+            <p>The developer approves architecture, scope, data storage, recurring costs, external services, security-sensitive behavior and deployment decisions.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="roadmap" aria-labelledby="roadmap-title">
+        <div class="section-head">
+          <div>
+            <span class="kicker">16-week roadmap</span>
+            <h2 id="roadmap-title">Eight phases with approval gates</h2>
+          </div>
+          <p>Check off a week when its deliverables are verified, documented and understood. Progress is stored only in this browser.</p>
+        </div>
+
+        <section class="phase" id="phase-1" aria-labelledby="phase-1-title">
+          <div class="phase-banner">
+            <div class="phase-number" aria-hidden="true">1</div>
+            <div><h2 id="phase-1-title">Discovery, requirements &amp; foundation</h2><p>Understand the business problem before deciding what to build.</p></div>
+            <span class="weeks-label">Weeks 1–2</span>
+          </div>
+          <div class="weeks">
+            <article class="week-card" data-week="1">
+              <div class="week-head"><div><span class="week-num">Week 01</span><h3>Business discovery</h3></div><label class="done-control"><input type="checkbox" class="week-check" value="1"> Done</label></div>
+              <p>Collect evidence, define users and agree on the business problem.</p>
+              <ul class="deliverables">
+                <li>Owner/stakeholder interview</li><li>Project brief and business goals</li><li>Target users, needs and pain points</li><li>Content and asset inventory</li><li>Assumption, unknown and risk register</li><li>Week 1 engineering journal</li>
+              </ul>
+            </article>
+            <article class="week-card" data-week="2">
+              <div class="week-head"><div><span class="week-num">Week 02</span><h3>Scope and foundation</h3></div><label class="done-control"><input type="checkbox" class="week-check" value="2"> Done</label></div>
+              <p>Translate discovery into an approved, testable project definition.</p>
+              <ul class="deliverables">
+                <li>Functional and non-functional requirements</li><li>User journeys and conversion paths</li><li>MVP definition and sitemap</li><li>Competitor analysis: structure, trust, mobile, SEO and conversion</li><li>Mobile and desktop wireframes</li><li>Technology evaluation, repository and basic deployment pipeline</li>
+              </ul>
+            </article>
+            <div class="gate"><span class="gate-mark" aria-hidden="true">✓</span><div><strong>Discovery approval gate</strong><p>Proceed only when we can answer: who are we building for, what problem are we solving, and what is the smallest credible website that solves it?</p></div></div>
+          </div>
+        </section>
+
+        <section class="phase" id="phase-2" aria-labelledby="phase-2-title">
+          <div class="phase-banner">
+            <div class="phase-number" aria-hidden="true">2</div>
+            <div><h2 id="phase-2-title">Design system &amp; architecture</h2><p>Create clear visual rules and a maintainable technical structure.</p></div>
+            <span class="weeks-label">Weeks 3–4</span>
+          </div>
+          <div class="weeks">
+            <article class="week-card" data-week="3">
+              <div class="week-head"><div><span class="week-num">Week 03</span><h3>Visual foundation</h3></div><label class="done-control"><input type="checkbox" class="week-check" value="3"> Done</label></div>
+              <p>Define an engineering-company identity that remains clear and usable on small screens.</p>
+              <ul class="deliverables">
+                <li>Confirmed palette and typography</li><li>Spacing, grid and responsive rules</li><li>Buttons, forms, navigation and footer</li><li>Service, project and CTA card patterns</li><li>Focus, error, hover and reduced-motion states</li><li>Accessibility rules documented</li>
+              </ul>
+            </article>
+            <article class="week-card" data-week="4">
+              <div class="week-head"><div><span class="week-num">Week 04</span><h3>Technical architecture</h3></div><label class="done-control"><input type="checkbox" class="week-check" value="4"> Done</label></div>
+              <p>Approve only the technology needed for the defined product.</p>
+              <ul class="deliverables">
+                <li>Folder and component strategy</li><li>Structured content model</li><li>Image and media strategy</li><li>SEO and metadata architecture</li><li>Framework and content-management ADRs</li><li>Reusable components verified across breakpoints</li>
+              </ul>
+            </article>
+            <div class="gate"><span class="gate-mark" aria-hidden="true">✓</span><div><strong>Architecture approval gate</strong><p>Human approval is required for framework, content management, data storage, external services, recurring cost and deployment architecture.</p></div></div>
+          </div>
+        </section>
+
+        <section class="phase" id="phase-3" aria-labelledby="phase-3-title">
+          <div class="phase-banner">
+            <div class="phase-number" aria-hidden="true">3</div>
+            <div><h2 id="phase-3-title">Core website</h2><p>Build the smallest complete customer-facing experience.</p></div>
+            <span class="weeks-label">Weeks 5–7</span>
+          </div>
+          <div class="weeks">
+            <article class="week-card" data-week="5">
+              <div class="week-head"><div><span class="week-num">Week 05</span><h3>Homepage</h3></div><label class="done-control"><input type="checkbox" class="week-check" value="5"> Done</label></div>
+              <p>Let visitors identify the business, services and next action within seconds.</p>
+              <ul class="deliverables"><li>Hero and value proposition</li><li>Service overview</li><li>Evidence-based reasons to consider Mias</li><li>Featured-project structure</li><li>Primary and final conversion CTAs</li><li>Mobile navigation and responsive verification</li></ul>
+            </article>
+            <article class="week-card" data-week="6">
+              <div class="week-head"><div><span class="week-num">Week 06</span><h3>Services</h3></div><label class="done-control"><input type="checkbox" class="week-check" value="6"> Done</label></div>
+              <p>Explain each confirmed service in practical customer language.</p>
+              <ul class="deliverables"><li>Services overview page</li><li>Reusable service-page template</li><li>Problem, audience and solution guidance</li><li>Service-specific contact paths</li><li>Internal links and descriptive URLs</li><li>Semantic structure and image placeholders</li></ul>
+            </article>
+            <article class="week-card" data-week="7">
+              <div class="week-head"><div><span class="week-num">Week 07</span><h3>About, projects &amp; contact</h3></div><label class="done-control"><input type="checkbox" class="week-check" value="7"> Done</label></div>
+              <p>Complete the credibility and inquiry journey without unsupported claims.</p>
+              <ul class="deliverables"><li>About / Why Mias page</li><li>Projects/gallery structure</li><li>Clearly labelled development placeholders</li><li>Contact page and contact options</li><li>Basic form interface</li><li>Confirmed public business details only</li></ul>
+            </article>
+            <div class="gate"><span class="gate-mark" aria-hidden="true">✓</span><div><strong>Core experience gate</strong><p>A user can navigate every primary page on mobile and begin an inquiry. No invented testimonials, projects, credentials or statistics appear.</p></div></div>
+          </div>
+        </section>
+
+        <section class="phase" id="phase-4" aria-labelledby="phase-4-title">
+          <div class="phase-banner">
+            <div class="phase-number" aria-hidden="true">4</div>
+            <div><h2 id="phase-4-title">Content, SEO &amp; local search</h2><p>Turn verified business information into useful, discoverable content.</p></div>
+            <span class="weeks-label">Weeks 8–9</span>
+          </div>
+          <div class="weeks">
+            <article class="week-card" data-week="8">
+              <div class="week-head"><div><span class="week-num">Week 08</span><h3>Content development</h3></div><label class="done-control"><input type="checkbox" class="week-check" value="8"> Done</label></div>
+              <p>Write concise, credible copy based on customer needs and confirmed facts.</p>
+              <ul class="deliverables"><li>Homepage and company positioning copy</li><li>Service-page content</li><li>Contact and CTA microcopy</li><li>Project-content template</li><li>Owner fact-check and approval</li><li>Content inventory updated</li></ul>
+            </article>
+            <article class="week-card" data-week="9">
+              <div class="week-head"><div><span class="week-num">Week 09</span><h3>Technical and local SEO</h3></div><label class="done-control"><input type="checkbox" class="week-check" value="9"> Done</label></div>
+              <p>Make pages understandable to search engines without keyword stuffing.</p>
+              <ul class="deliverables"><li>Titles, descriptions and canonical strategy</li><li>Open Graph metadata</li><li>Sitemap and robots configuration</li><li>LocalBusiness schema using confirmed facts</li><li>Alt text and internal-link review</li><li>SEO strategy documentation</li></ul>
+            </article>
+            <div class="gate"><span class="gate-mark" aria-hidden="true">✓</span><div><strong>Content approval gate</strong><p>The business owner approves all published claims, contact information and project material before it can be considered production-ready.</p></div></div>
+          </div>
+        </section>
+
+        <section class="phase" id="phase-5" aria-labelledby="phase-5-title">
+          <div class="phase-banner">
+            <div class="phase-number" aria-hidden="true">5</div>
+            <div><h2 id="phase-5-title">Lead generation &amp; interactivity</h2><p>Build secure, understandable inquiry flows with useful feedback.</p></div>
+            <span class="weeks-label">Weeks 10–11</span>
+          </div>
+          <div class="weeks">
+            <article class="week-card" data-week="10">
+              <div class="week-head"><div><span class="week-num">Week 10</span><h3>Contact-form architecture</h3></div><label class="done-control"><input type="checkbox" class="week-check" value="10"> Done</label></div>
+              <p>Select and implement the simplest reliable submission path.</p>
+              <ul class="deliverables"><li>Contact-form ADR</li><li>Minimal field and privacy review</li><li>Client- and server-side validation</li><li>Secure environment variables</li><li>Loading, success and error states</li><li>Submission delivery verified end to end</li></ul>
+            </article>
+            <article class="week-card" data-week="11">
+              <div class="week-head"><div><span class="week-num">Week 11</span><h3>Conversion details</h3></div><label class="done-control"><input type="checkbox" class="week-check" value="11"> Done</label></div>
+              <p>Reduce friction while avoiding unnecessary interactive features.</p>
+              <ul class="deliverables"><li>WhatsApp links with appropriate context</li><li>Click-to-call behavior</li><li>Service-specific quote CTAs</li><li>Spam and rate-limit protection</li><li>Analytics event preparation</li><li>Evidence-based decision on service selector</li></ul>
+            </article>
+            <div class="gate"><span class="gate-mark" aria-hidden="true">✓</span><div><strong>Security and service approval gate</strong><p>Approve form provider/backend, stored data, privacy behavior, anti-spam measures, analytics and any recurring cost before production use.</p></div></div>
+          </div>
+        </section>
+
+        <section class="phase" id="phase-6" aria-labelledby="phase-6-title">
+          <div class="phase-banner">
+            <div class="phase-number" aria-hidden="true">6</div>
+            <div><h2 id="phase-6-title">Testing, accessibility &amp; performance</h2><p>Measure the experience, fix real problems and document evidence.</p></div>
+            <span class="weeks-label">Weeks 12–13</span>
+          </div>
+          <div class="weeks">
+            <article class="week-card" data-week="12">
+              <div class="week-head"><div><span class="week-num">Week 12</span><h3>Systematic QA</h3></div><label class="done-control"><input type="checkbox" class="week-check" value="12"> Done</label></div>
+              <p>Test critical journeys on representative devices, viewports and browsers.</p>
+              <ul class="deliverables"><li>Mobile, desktop and browser matrix</li><li>Navigation, link and form tests</li><li>Keyboard and focus testing</li><li>Error-state and empty-state testing</li><li>Metadata and structured-data checks</li><li>Defect log with severity and resolution</li></ul>
+            </article>
+            <article class="week-card" data-week="13">
+              <div class="week-head"><div><span class="week-num">Week 13</span><h3>Evidence-led optimization</h3></div><label class="done-control"><input type="checkbox" class="week-check" value="13"> Done</label></div>
+              <p>Use measured bottlenecks to improve performance and accessibility.</p>
+              <ul class="deliverables"><li>Lighthouse baseline and final results</li><li>Image, font and JavaScript review</li><li>Layout-shift and loading analysis</li><li>Contrast and screen-reader checks</li><li>WCAG 2.2 AA practice review</li><li>Testing and accessibility documentation</li></ul>
+            </article>
+            <div class="gate"><span class="gate-mark" aria-hidden="true">✓</span><div><strong>Quality gate</strong><p>Critical journeys work, severe issues are resolved, and performance/accessibility claims are supported by recorded test results.</p></div></div>
+          </div>
+        </section>
+
+        <section class="phase" id="phase-7" aria-labelledby="phase-7-title">
+          <div class="phase-banner">
+            <div class="phase-number" aria-hidden="true">7</div>
+            <div><h2 id="phase-7-title">Production deployment &amp; launch</h2><p>Connect real business information and prove that inquiries arrive.</p></div>
+            <span class="weeks-label">Weeks 14–15</span>
+          </div>
+          <div class="weeks">
+            <article class="week-card" data-week="14">
+              <div class="week-head"><div><span class="week-num">Week 14</span><h3>Production preparation</h3></div><label class="done-control"><input type="checkbox" class="week-check" value="14"> Done</label></div>
+              <p>Configure a secure production environment and remove development placeholders.</p>
+              <ul class="deliverables"><li>Domain and HTTPS configuration</li><li>Production environment variables</li><li>Real contact and service information</li><li>Approved project assets</li><li>Analytics and search readiness</li><li>Launch and recovery checklists</li></ul>
+            </article>
+            <article class="week-card" data-week="15">
+              <div class="week-head"><div><span class="week-num">Week 15</span><h3>Soft launch and public launch</h3></div><label class="done-control"><input type="checkbox" class="week-check" value="15"> Done</label></div>
+              <p>Test with real stakeholders, verify lead delivery and release deliberately.</p>
+              <ul class="deliverables"><li>Soft-launch stakeholder review</li><li>Final content and device QA</li><li>Real WhatsApp, phone and form tests</li><li>Search-engine readiness check</li><li>Owner launch approval</li><li>Production launch and monitoring</li></ul>
+            </article>
+            <div class="gate"><span class="gate-mark" aria-hidden="true">✓</span><div><strong>Launch approval gate</strong><p>No public launch until the owner approves content and a real test inquiry successfully reaches the responsible person.</p></div></div>
+          </div>
+        </section>
+
+        <section class="phase" id="phase-8" aria-labelledby="phase-8-title">
+          <div class="phase-banner">
+            <div class="phase-number" aria-hidden="true">8</div>
+            <div><h2 id="phase-8-title">Documentation, handover &amp; portfolio</h2><p>Turn the delivered product and decisions into transferable understanding.</p></div>
+            <span class="weeks-label">Week 16</span>
+          </div>
+          <div class="weeks">
+            <article class="week-card" data-week="16">
+              <div class="week-head"><div><span class="week-num">Week 16</span><h3>Ownership and presentation</h3></div><label class="done-control"><input type="checkbox" class="week-check" value="16"> Done</label></div>
+              <p>Complete the technical record, business handover and agentic-engineering case study.</p>
+              <ul class="deliverables"><li>Comprehensive README and architecture overview</li><li>Setup, deployment and content-update guides</li><li>Final testing report</li><li>Portfolio case study and project results</li><li>Presentation / walkthrough material</li><li>Final reflection, lessons and future work</li></ul>
+            </article>
+            <div class="gate"><span class="gate-mark" aria-hidden="true">✓</span><div><strong>Final definition of done</strong><p>The product satisfies its requirements, works across relevant devices, has tested error behavior, includes documented decisions and can be confidently explained by the human developer.</p></div></div>
+          </div>
+        </section>
+      </section>
+
+      <section class="workflow" aria-labelledby="workflow-title">
+        <article class="panel accent">
+          <span class="kicker" style="color:#8fe0e6">Working agreement</span>
+          <h2 id="workflow-title">Human in the loop</h2>
+          <p>AI may accelerate research and implementation, but important product and engineering decisions remain visible, reviewed and owned by the developer.</p>
+        </article>
+        <article class="panel">
+          <ol>
+            <li><div><b>Understand</b><span>Restate the objective and expected outcome.</span></div></li>
+            <li><div><b>Define acceptance criteria</b><span>Agree what must be true for completion.</span></div></li>
+            <li><div><b>Identify decisions</b><span>Surface product, UX, security, accessibility and performance choices.</span></div></li>
+            <li><div><b>Consider alternatives</b><span>Compare realistic options, cost, complexity and maintenance.</span></div></li>
+            <li><div><b>Recommend and approve</b><span>Explain the fit; pause for major human decisions.</span></div></li>
+            <li><div><b>Implement incrementally</b><span>Build the smallest complete change.</span></div></li>
+            <li><div><b>Verify</b><span>Run proportional tests; do not infer success from generated code.</span></div></li>
+            <li><div><b>Document and teach</b><span>Record the decision, explain the implementation and check understanding.</span></div></li>
+          </ol>
+        </article>
+      </section>
+
+      <section class="scope" aria-labelledby="scope-title">
+        <div class="section-head">
+          <div><span class="kicker">MVP boundary</span><h2 id="scope-title">Launch essentials before enhancements</h2></div>
+          <p>A focused first release protects the schedule and gives the business a useful product sooner.</p>
+        </div>
+        <div class="scope-grid">
+          <article class="panel in-scope">
+            <h3>Included in production MVP</h3>
+            <ul><li>Home, services, About / Why Mias, projects/gallery and contact</li><li>Reusable service pages and responsive navigation</li><li>WhatsApp, click-to-call and validated quote/contact form</li><li>Accessible semantic HTML and optimized images</li><li>SEO, local SEO, metadata, structured data, sitemap and robots</li><li>Secure submission handling and basic spam protection</li><li>Production deployment, HTTPS and documentation</li></ul>
+          </article>
+          <article class="panel later">
+            <h3>Deferred until justified</h3>
+            <ul><li>Quote estimator or multi-step wizard</li><li>Automated service recommendation</li><li>Customer accounts or payments</li><li>Advanced CMS or database</li><li>Blog and resource library</li><li>Analytics dashboards</li><li>Complex animation and multilingual support</li></ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="task-section" id="next-action" aria-labelledby="task-title">
+        <div class="task-card">
+          <div>
+            <span class="time-chip">First human task · 45–60 minutes</span>
+            <h2 id="task-title">Interview the business owner</h2>
+            <p>Capture exact answers about business identity, priority services, customers, inquiry handling, evidence, content, legal constraints and launch ownership.</p>
+            <ul>
+              <li>Record facts exactly as given.</li>
+              <li>Do not convert opinions into claims.</li>
+              <li>Mark every uncertain answer <span class="unknown">TODO: Confirm with business owner</span>.</li>
+              <li>Return the answers for review before application development begins.</li>
+            </ul>
+          </div>
+          <div class="todo-list" aria-label="Discovery materials checklist">
+            <label class="todo"><input type="checkbox" class="task-check" value="logo"><span>Collect logo and brand files</span></label>
+            <label class="todo"><input type="checkbox" class="task-check" value="contacts"><span>Confirm public phone, WhatsApp, email and location details</span></label>
+            <label class="todo"><input type="checkbox" class="task-check" value="services"><span>Confirm active and priority services</span></label>
+            <label class="todo"><input type="checkbox" class="task-check" value="photos"><span>Collect legally usable project photographs</span></label>
+            <label class="todo"><input type="checkbox" class="task-check" value="evidence"><span>Collect verifiable registrations, policies and supporting evidence</span></label>
+            <label class="todo"><input type="checkbox" class="task-check" value="process"><span>Document quotation and lead-response process</span></label>
+          </div>
+        </div>
+      </section>
+
+      <section class="success" aria-labelledby="success-title">
+        <div class="section-head">
+          <div><span class="kicker">Success criteria</span><h2 id="success-title">What a successful Week 16 looks like</h2></div>
+        </div>
+        <div class="success-grid">
+          <article class="panel"><h3>Business</h3><p>A real customer can discover Mias, understand its services, trust the evidence presented and initiate an inquiry quickly.</p></article>
+          <article class="panel"><h3>Engineering</h3><p>The system demonstrates maintainable TypeScript, responsive components, accessibility, SEO, secure form handling, testing and deployment.</p></article>
+          <article class="panel"><h3>Ownership</h3><p>The developer can explain the architecture, decisions, data flow, trade-offs, verification, AI collaboration and lessons learned.</p></article>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <p><strong>Mias Energy Solutions</strong><br><small>Professional Business Website &amp; Digital Lead Platform</small></p>
+      <p><small>Human Developer / Technical Lead: [Your Full Name]</small></p>
+    </div>
+  </footer>
+
+  <script>
+    (() => {
+      const storageKey = "mias-project-plan-progress-v1";
+      const weekChecks = [...document.querySelectorAll(".week-check")];
+      const taskChecks = [...document.querySelectorAll(".task-check")];
+      const progressBar = document.getElementById("progressBar");
+      const progressText = document.getElementById("progressText");
+      const progressTrack = document.getElementById("progressTrack");
+      const resetButton = document.getElementById("resetProgress");
+
+      const loadState = () => {
+        try {
+          return JSON.parse(localStorage.getItem(storageKey)) || { weeks: [], tasks: [] };
+        } catch {
+          return { weeks: [], tasks: [] };
+        }
+      };
+
+      const saveState = () => {
+        const state = {
+          weeks: weekChecks.filter(item => item.checked).map(item => item.value),
+          tasks: taskChecks.filter(item => item.checked).map(item => item.value)
+        };
+        localStorage.setItem(storageKey, JSON.stringify(state));
+      };
+
+      const updateProgress = () => {
+        const complete = weekChecks.filter(item => item.checked).length;
+        const percentage = Math.round((complete / weekChecks.length) * 100);
+        progressBar.style.width = `${percentage}%`;
+        progressText.textContent = `${complete} of ${weekChecks.length} weeks complete · ${percentage}%`;
+        progressTrack.setAttribute("aria-valuenow", String(complete));
+        weekChecks.forEach(item => {
+          item.closest(".week-card").classList.toggle("is-complete", item.checked);
+        });
+      };
+
+      const state = loadState();
+      weekChecks.forEach(item => {
+        item.checked = state.weeks.includes(item.value);
+        item.addEventListener("change", () => { saveState(); updateProgress(); });
+      });
+      taskChecks.forEach(item => {
+        item.checked = state.tasks.includes(item.value);
+        item.addEventListener("change", saveState);
+      });
+
+      resetButton.addEventListener("click", () => {
+        const confirmed = window.confirm("Reset all saved week progress and discovery checklist items?");
+        if (!confirmed) return;
+        weekChecks.forEach(item => { item.checked = false; });
+        taskChecks.forEach(item => { item.checked = false; });
+        localStorage.removeItem(storageKey);
+        updateProgress();
+      });
+
+      updateProgress();
+    })();
+  </script>
+</body>
+</html>
