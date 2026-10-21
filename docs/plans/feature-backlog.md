@@ -128,7 +128,7 @@ Order chosen so that each step delivers something usable and unblocks the next. 
 
 ### Current step
 
-Increment 005 built 2026-10-21 with sample data ([results](../testing/005-results.md)). To finish it, replace the sample values in `src/content/projects.ts` with real figures, and add the portrait/bio, hours and real photos as they arrive. Increment 006 (local backend and working inquiry form) built 2026-10-21 ([results](../testing/006-results.md)). Next increment: **007, customer and company logins**. It needs the decisions listed in §3 first: who can sign up, the staff roles, and how organisations share access. Meanwhile, Henry and Israel can fill in the project list (§2 table). It can be a spreadsheet, a WhatsApp message or a markdown table; one row per project is enough to begin.
+Increment 005 built 2026-10-21 with sample data ([results](../testing/005-results.md)). To finish it, replace the sample values in `src/content/projects.ts` with real figures, and add the portrait/bio, hours and real photos as they arrive. Increment 006 (local backend and working inquiry form) built 2026-10-21 ([results](../testing/006-results.md)). Next increment: **007, customer and company logins**. Product decisions approved 2026-10-21: self sign-up, Owner and Staff roles with Henry and Israel as Owners, company accounts later, email and password. Spec approved 2026-10-21: [specs/007-accounts-and-logins.md](../../specs/007-accounts-and-logins.md). Meanwhile, Henry and Israel can fill in the project list (§2 table). It can be a spreadsheet, a WhatsApp message or a markdown table; one row per project is enough to begin.
 
 ## 5. Running costs and local-first build
 
