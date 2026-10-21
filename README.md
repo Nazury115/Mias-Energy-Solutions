@@ -4,7 +4,11 @@ Responsive website and digital lead platform for Mias Energy Solutions, Lusaka, 
 
 ## Current increment
 
-Increment 003 expands the foundation into Home, Services, three service-family pages, a shared solar-pumping page, Projects with filters and three example stories, About and Contact. Israel's confirmed phone, email and WhatsApp are active links. The inquiry composer validates details and prepares a WhatsApp message; the visitor must still send it in WhatsApp. There is no backend submission, saved inquiry or delivery confirmation.
+**Start here:** [CHANGELOG.md](CHANGELOG.md) (what changed and why), [docs/plans/feature-backlog.md](docs/plans/feature-backlog.md) (features still to build and the plan) and [AGENTS.md](AGENTS.md) (working rules for any AI assistant or new maintainer).
+
+Increment 004 (branch `feature/004-scroll-redesign`) redesigns the public site around scroll-driven effects: a zoom hero, a pinned service story, parallax imagery, fade-in reveals and a "From the field" gallery of real work photos with a full-screen viewer. Large atmospheric spots use illustrative Unsplash photos that are never captioned as Mias work; see [image sources](docs/content/image-sources.md).
+
+Increment 003 expanded the foundation into Home, Services, three service-family pages, a shared solar-pumping page, Projects with filters and three example stories, About and Contact. Israel's confirmed phone, email and WhatsApp are active links. The inquiry composer validates details and prepares a WhatsApp message; the visitor must still send it in WhatsApp. There is no backend submission, saved inquiry or delivery confirmation.
 
 The three stories are visibly fictional, with no customer attribution or fabricated testimonials. Real customer names are listed separately. This preview remains `noindex, nofollow` and has not been deployed publicly.
 
@@ -25,10 +29,12 @@ See the [competitor review](docs/research/loxlak-review-2026-10-19.md), [photogr
 
 ## Run the website
 
-Run commands from the folder containing `package.json`, not a parent folder. On this computer that is:
+Run commands from the folder containing `package.json`, not a parent folder. This computer has two working copies of the same repository (see [AGENTS.md](AGENTS.md#two-working-copies)):
 
 ```powershell
 Set-Location "C:\Users\nazur\Desktop\AI Projects"
+# or
+Set-Location "D:\CS\Projects\Mias Enterprise Project\AI Projects"
 ```
 
 If the current PowerShell cannot find `node` or `pnpm`, these commands use the runtime already available on this computer:
