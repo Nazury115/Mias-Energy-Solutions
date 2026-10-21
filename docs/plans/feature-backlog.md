@@ -113,19 +113,44 @@ Start with email (magic link or password). Phone or WhatsApp one-time codes suit
 
 ## 4. Implementation plan
 
-Order chosen so that each step delivers something usable and unblocks the next. Logins need a host and database, which are decided in 006. The map and content work in 005 need no backend, so they can start now.
+Order chosen so that each step delivers something usable and unblocks the next. **Decision (Henry, 2026-10-21): build and verify everything locally first; choose and pay for online services only at launch (012).** Every backend feature therefore runs on free local stand-ins built to be swapped for hosted services through configuration, not a rewrite (see §5).
 
 | # | Increment | Includes | Needs from Henry/Israel | Done when |
 | --- | --- | --- | --- | --- |
 | **005** | **Public-site completion + coverage map** | Province map (§2); Contact page and 404 in the new design; real case studies replacing fictional stories where records exist; Israel's portrait/bio; hours wording; sitemap, Open Graph, LocalBusiness data | Project list with provinces; at least 1–3 full project records; portrait/bio; working days; permission for people/premises in photos | Map shows only confirmed data; no fictional content in launch mode; all pages pass phone/laptop checks |
-| **006** | **Hosting + reliable inquiries** (first backend) | Choose host, database and email provider (§3 options); inquiry form with server validation, spam protection, real delivery to Israel and honest success/failure messages; staging site behind access control | Receiving mailbox, who responds, budget approval, company email account if wanted | A consented real test inquiry reaches Israel; failures are visible, not reported as success |
+| **006** | **Local backend foundation + reliable inquiries** (first backend) | Local PostgreSQL-compatible database and migrations; a development inbox that captures every outgoing email; inquiry form with server validation, spam protection, a stored request with a reference number, delivery to the inbox, and honest success/failure messages | Who responds to inquiries, and the fields Israel needs | Inquiries are stored and "delivered" locally; failures are visible, never reported as success; switching to real email/database is a configuration change |
 | **007** | **Accounts: customer + company login** | Sign-in, logout, recovery, email verification, invited staff accounts, roles, server-side permission checks, session expiry | Enrollment rules, staff roles, organisation access rules | Two test customers and two staff roles cannot see or change each other's data, including by direct requests |
 | **008** | **Requests, jobs and progress** | Logged-in requests with reference numbers; staff triage → job; status history; customer-visible updates vs internal notes; optional private uploads | Real job stages, upload limits, retention | Request → job → progress → completion works end to end; internal notes never leak |
 | **009** | **Staff publishing (CMS-01)** | Staff create/edit projects (with province, so the map updates), photos and genuine testimonials; draft → preview → publish/unpublish with approval record | Who approves publishing; testimonial permissions process | Staff update public content without code; drafts stay private |
 | **010** | **Quotations and invoices** | Drafts, approval, issue, numbering, revisions, PDF download limited to the right customer | Sanitised real quote/invoice samples, tax/rounding/validity rules | Owner-approved worked totals reproduce exactly; only the intended customer can download |
 | **011** | **Solar planner** | Load summary first (appliances, hours, energy); equipment/cost suggestions only with approved rules | Technical reviewer, product catalogue, price list, 3 worked examples | Approved examples reproduce; unsupported loads route to assessment. Can move earlier, since it needs no login |
-| **012** | **Release verification and launch** | Production-build test run, real devices, Lighthouse, accessibility, security/privacy review, private pilot, domain, launch | Launch approval, domain, operating owner | All release gates in the [launch-readiness plan](next-steps-and-launch-readiness.md#6-release-gates) pass |
+| **012** | **Choose services, release verification and launch** | Compare and choose host, database, email and file storage within the budget (§5); connect them; production-build test run, real devices, Lighthouse, accessibility, security/privacy review, private pilot with a real test inquiry to Israel, domain, launch | Launch approval, domain, operating owner | All release gates in the [launch-readiness plan](next-steps-and-launch-readiness.md#6-release-gates) pass |
 
 ### Current step
 
-Increment 005 built 2026-10-21 with sample data ([results](../testing/005-results.md)). To finish it, replace the sample values in `src/content/projects.ts` with real figures, and add the portrait/bio, hours and real photos as they arrive. Next increment: 006, hosting and reliable inquiries. Meanwhile, Henry and Israel can fill in the project list (§2 table). It can be a spreadsheet, a WhatsApp message or a markdown table; one row per project is enough to begin.
+Increment 005 built 2026-10-21 with sample data ([results](../testing/005-results.md)). To finish it, replace the sample values in `src/content/projects.ts` with real figures, and add the portrait/bio, hours and real photos as they arrive. Next increment: 006, local backend foundation and reliable inquiries; spec approved 2026-10-21: [specs/006-local-backend-and-inquiries.md](../../specs/006-local-backend-and-inquiries.md). Meanwhile, Henry and Israel can fill in the project list (§2 table). It can be a spreadsheet, a WhatsApp message or a markdown table; one row per project is enough to begin.
+
+## 5. Running costs and local-first build
+
+Recorded 2026-10-21. Henry considers **US$20–50 a month** acceptable once the site goes live, and wants everything built and proven locally first. Prices are rough guides; check current prices at decision time in increment 012.
+
+| Feature | Paid service needed when live | Free local stand-in while building | Rough live cost |
+| --- | --- | --- | --- |
+| Public website | Hosting, domain | Local dev/production server | Domain ~$10–30/year; hosting $0–20/month (some free plans forbid commercial sites) |
+| Inquiry delivery (006) | Email-sending service; database | Development inbox; local PostgreSQL-compatible database | Usually $0 at small volumes |
+| Logins (007) | None beyond database and email (open-source login library) | Same | Included |
+| Jobs, progress, messages (008) | Database | Local database | Free plans exist; ~$25/month for reliability and backups |
+| Uploads (008, 009) | File storage | Private local folder outside `public/` | Usually $0 at first |
+| Staff publishing (009) | Database, file storage | Local | Included |
+| Quotations and invoices (010) | None (PDFs generated in-app) | — | $0 |
+| Solar planner (011) | None (runs in the browser) | — | $0 |
+
+Estimated total once live: about $20–50 a month plus the domain. Starting nearer $0 on free plans is possible.
+
+Optional extras, not planned, each needing Henry's decision:
+
+- SMS or automated WhatsApp alerts (charged per message).
+- Online or mobile-money payments (transaction fees).
+- A business mailbox such as info@… (usually a few dollars per user per month).
+
+The spec for each increment names the paid services that feature will need when live.
