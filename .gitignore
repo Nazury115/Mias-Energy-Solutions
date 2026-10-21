@@ -13,3 +13,5 @@ test-results/
 .openai/
 # Raw supplied evidence stays local; publication copies live in public/images/work.
 Proof of service/
+# Local development database (PGlite) and its lock file.
+.data/

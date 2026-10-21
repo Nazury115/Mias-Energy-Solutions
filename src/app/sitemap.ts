@@ -7,6 +7,6 @@ import { siteUrl } from "@/lib/site-metadata";
 export default function sitemap(): MetadataRoute.Sitemap {
   const stories = visibleProjects(projectStories, process.env.MIAS_PUBLIC_LAUNCH === "true");
   const paths = ["/", "/services", ...serviceFamilies.map(family => `/services/${family.slug}`), "/services/solar-water-pumping",
-    "/projects", ...stories.map(story => `/projects/${story.slug}`), "/about", "/contact"];
+    "/projects", ...stories.map(story => `/projects/${story.slug}`), "/about", "/contact", "/privacy"];
   return paths.map(path => ({ url: new URL(path, siteUrl).toString() }));
 }

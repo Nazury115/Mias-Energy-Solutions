@@ -21,7 +21,7 @@ Every increment below follows the project's SDD loop: **spec → implementation/
 | Public site | Real high-resolution photos replacing stock in the hero and service spots | Waiting for photos | PUB-09 |
 | Public site | Final logo | Concept awaiting review | — |
 | Public site | SEO: metadata, sitemap, robots, Open Graph, LocalBusiness data | Done for preview; domain and launch switch pending | PUB-10, 005 SEO |
-| Intake | Inquiry form that really delivers (email and/or stored request) | Not started; WhatsApp composer only | PUB-08, FR-09–12 |
+| Intake | Inquiry form that really delivers (email and/or stored request) | **Done locally** (saved + development inbox); real email at launch | PUB-08, 006 |
 | Accounts | **Customer login** | Not started, see §3 | PORT-01, 02, 09 |
 | Accounts | **Company/staff login** with roles | Not started, see §3 | PORT-01, 02 |
 | Portal | Requests → jobs → status history | Not started | PORT-03–05, 08 |
@@ -128,7 +128,7 @@ Order chosen so that each step delivers something usable and unblocks the next. 
 
 ### Current step
 
-Increment 005 built 2026-10-21 with sample data ([results](../testing/005-results.md)). To finish it, replace the sample values in `src/content/projects.ts` with real figures, and add the portrait/bio, hours and real photos as they arrive. Next increment: 006, local backend foundation and reliable inquiries; spec approved 2026-10-21: [specs/006-local-backend-and-inquiries.md](../../specs/006-local-backend-and-inquiries.md). Meanwhile, Henry and Israel can fill in the project list (§2 table). It can be a spreadsheet, a WhatsApp message or a markdown table; one row per project is enough to begin.
+Increment 005 built 2026-10-21 with sample data ([results](../testing/005-results.md)). To finish it, replace the sample values in `src/content/projects.ts` with real figures, and add the portrait/bio, hours and real photos as they arrive. Increment 006 (local backend and working inquiry form) built 2026-10-21 ([results](../testing/006-results.md)). Next increment: **007, customer and company logins**. It needs the decisions listed in §3 first: who can sign up, the staff roles, and how organisations share access. Meanwhile, Henry and Israel can fill in the project list (§2 table). It can be a spreadsheet, a WhatsApp message or a markdown table; one row per project is enough to begin.
 
 ## 5. Running costs and local-first build
 

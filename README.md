@@ -6,6 +6,8 @@ Responsive website and digital lead platform for Mias Energy Solutions, Lusaka, 
 
 **Start here:** [CHANGELOG.md](CHANGELOG.md) (what changed and why), [docs/plans/feature-backlog.md](docs/plans/feature-backlog.md) (features still to build and the plan) and [AGENTS.md](AGENTS.md) (working rules for any AI assistant or new maintainer).
 
+Increment 006 makes the Contact form work locally. Inquiries are saved with a reference number in a local PostgreSQL database (PGlite, created automatically in `.data/`), and notification emails are captured in a **development inbox at `/dev/inbox`** instead of being sent. The visitor is always told honestly whether the inquiry was received, saved without notification, or not saved. Nothing online is used or paid for yet.
+
 Increment 005 adds the Zambia province coverage map on Projects (sample data for now), redesigned Contact and 404 pages, real-case-study support, and sitemap/robots/share-preview/structured-data groundwork. **Project stories and map figures are edited in one file, `src/content/projects.ts`**, whose header explains how to replace the sample values.
 
 Increment 004 (branch `feature/004-scroll-redesign`) redesigns the public site around scroll-driven effects: a zoom hero, a pinned service story, parallax imagery, fade-in reveals and a "From the field" gallery of real work photos with a full-screen viewer. Large atmospheric spots use illustrative Unsplash photos that are never captioned as Mias work; see [image sources](docs/content/image-sources.md).
@@ -57,6 +59,8 @@ pnpm dev
 
 Open the Local URL printed by Next.js (normally `http://127.0.0.1:3000`). Stop the server with Ctrl+C.
 
+The local database is created automatically the first time a page needs it. While the dev server runs, `http://127.0.0.1:3000/dev/inbox` shows saved inquiries and the notification emails Mias would receive, and has switches to simulate failures. `pnpm inquiry:delete <reference>` deletes an inquiry; stop the server first, since only one process can use the database at a time. For `pnpm start` (production mode), create `.env.local` with `MIAS_FORM_SECRET=<any long random text>`, otherwise the form stays switched off; see `.env.example`.
+
 ```powershell
 pnpm typecheck
 pnpm build
@@ -103,6 +107,10 @@ Browser tests use an isolated headless Edge profile, not your personal browsing 
 | `src/content/projects.ts` | **Project stories and coverage-map figures (sample data until replaced).** Validated on load. |
 | `src/lib/coverage.ts`, `src/components/coverage-map.tsx` | Coverage counting/validation (unit-tested through Node) and the interactive province map. |
 | `src/content/zambia-map.ts`, `scripts/build-province-map.py` | Generated province outlines and the script that builds them from geoBoundaries data. |
+| `src/server/` | Server-only code: database (`db/`), inquiry saving/delivery (`inquiries.ts`), form tokens and hashing (`form-token.ts`), email transport (`mail/`). Never import it from client components. |
+| `src/lib/inquiry-submission.ts`, `src/app/contact/actions.ts`, `src/components/inquiry-composer.tsx` | Inquiry rules (unit-tested through Node), the server action, and the form. |
+| `drizzle/`, `drizzle.config.ts`, `scripts/db.mjs` | Versioned database migrations (`pnpm db:generate` after schema changes) and database maintenance. |
+| `src/app/dev/inbox/`, `src/app/privacy/` | Development-only inbox; draft privacy notice. |
 | `src/app/sitemap.ts`, `robots.ts`, `opengraph-image.tsx`, `src/lib/site-metadata.ts`, `src/lib/structured-data.ts` | Search/sharing groundwork; `MIAS_SITE_URL` sets the absolute address once a domain exists. |
 | `src/app/services/[slug]/page.tsx` | Shared service-detail template and metadata. |
 | `src/app/projects` | Project listing and individual stories. |

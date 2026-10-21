@@ -8,6 +8,58 @@ Newest first. Each entry records what changed, where, and why, so work can conti
 - How to keep them in sync: [AGENTS.md › Two working copies](AGENTS.md#two-working-copies).
 - `Proof of service/` (the 30 original WhatsApp photos) exists in both folders but is deliberately not in git.
 
+## [006] Local backend and working inquiry form — 2026-10-21
+
+Spec: [specs/006-local-backend-and-inquiries.md](specs/006-local-backend-and-inquiries.md). Plan: [docs/plans/006-local-backend-and-inquiries.md](docs/plans/006-local-backend-and-inquiries.md). Results: [docs/testing/006-results.md](docs/testing/006-results.md). Made with Claude.
+
+### What it does
+
+The Contact page form now saves every inquiry with a reference such as `MES-26-7K3QP` and queues a notification email to Mias. It tells the visitor honestly what happened:
+
+- **Received:** the reference, and how Israel will reply.
+- **Saved, but Mias couldn't be notified:** the reference, plus "please also call/WhatsApp"; the notification is retried automatically.
+- **Not saved:** what was typed is kept, and the direct contacts are shown.
+
+Everything runs locally and costs nothing. Notifications go to a **development inbox** at `/dev/inbox`, which exists only in development.
+
+### Added
+
+- **Database:** PostgreSQL via [PGlite](https://pglite.dev) with Drizzle ORM. Data lives in `.data/pglite` (git-ignored) and is created automatically on first use. The schema is in [src/server/db/schema.ts](src/server/db/schema.ts), and versioned migrations in `drizzle/`.
+- **Inquiry logic** [src/server/inquiries.ts](src/server/inquiries.ts):
+  - Validation, plus spam checks: a hidden trap field and a signed "form opened" time (minimum 3 s).
+  - Rate limits: 5 an hour per network (stored only as a one-way hash), and 3 a day per phone or email.
+  - Duplicate protection through a per-form key, and saving in one transaction.
+  - Delivery and retries (up to 4 attempts).
+- **Validation rules** [src/lib/inquiry-submission.ts](src/lib/inquiry-submission.ts): Zambian phone normalisation (`0977 123 456` → `+260977123456`), the field rules, readable reference codes (no I, L, O or U) and spaced phone display.
+- **Contact form** [inquiry-composer.tsx](src/components/inquiry-composer.tsx):
+  - Name, phone and/or email, how Israel should reply (WhatsApp / phone call / email), service, area and details.
+  - "Send inquiry to Mias" works with or without JavaScript. "Prepare WhatsApp message" remains as the second option.
+- **Development inbox** `/dev/inbox`: every saved inquiry with its notification email and delivery status, buttons to simulate database or notification failures (this browser only), and delete.
+- **Privacy notice** `/privacy` (draft, awaiting the owner's approval), linked from the form and the footer.
+- **Scripts:** `pnpm db:migrate`, `pnpm inquiry:delete <reference>` (refuses to run while the website is running) and `pnpm db:generate` (after schema changes).
+- **`.env.example`** documents every setting. In a production build, `MIAS_FORM_SECRET` is required, otherwise the form switches off gracefully.
+
+### Changed
+
+- `next.config.ts` marks PGlite as an external server package.
+- `tsconfig.json` allows `.ts` extensions in imports, so unit-tested modules can share code.
+- The Claude preview config starts the dev server inside the project folder.
+- `/privacy` was added to the sitemap.
+
+### Dependencies
+
+`@electric-sql/pglite` 0.5.10, `drizzle-orm` 0.45.4 and `drizzle-kit` 0.31.11 (dev). All are free and open-source.
+
+### Paid services this will need at launch (increment 012)
+
+- An email-sending service (usually free at this volume).
+- A hosted PostgreSQL database (free to about $25/month).
+- Hosting that runs server code ($0–20/month).
+
+### Tests
+
+45 new tests (32 unit, 13 page/browser), so the suite now has 160.
+
 ## [005] Coverage map and public-site completion — 2026-10-21 (sample data)
 
 Spec: [specs/005-public-completion-and-coverage-map.md](specs/005-public-completion-and-coverage-map.md), including Henry's amendment. Plan: [docs/plans/005-public-completion.md](docs/plans/005-public-completion.md). Results: [docs/testing/005-results.md](docs/testing/005-results.md). Made with Claude.

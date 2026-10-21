@@ -344,6 +344,49 @@ html:has(.work-viewer[open]) { overflow: hidden; }
 .story-facts dd { margin: 0; font-size: 15px; font-weight: 600; }
 .story-photos { padding-block: 32px; border-bottom: 1px solid var(--line); }
 .profile-portrait { width: 96px; height: 96px; margin-bottom: 22px; border-radius: 50%; object-fit: cover; }
+.contact-fields, .reply-choice { min-width: 0; margin: 0; padding: 0; border: 0; }
+.contact-fields legend, .reply-choice legend { margin: 20px 0 8px; padding: 0; font-size: 12px; font-weight: 700; }
+.contact-fields legend span { font-weight: 400; color: var(--muted); }
+.contact-fields .form-grid label { margin-top: 0; }
+.reply-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.reply-options label { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin: 0; padding: 10px 16px; border: 1px solid #c9d7e2; border-radius: 999px; font-weight: 600; cursor: pointer; }
+.reply-options input { width: auto; margin: 0; accent-color: var(--blue); }
+.reply-options label:has(input:checked) { border-color: var(--blue); background: #eef4fc; color: var(--blue); }
+.reply-options label:has(input:focus-visible) { outline: 3px solid #ad5700; outline-offset: 3px; }
+.trap-field { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 22px; margin-top: 25px; }
+form .form-actions .button { margin-top: 0; }
+.text-button { min-height: 44px; padding: 10px 0; border: 0; background: none; color: var(--blue); font-size: 13px; font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
+.privacy-note { margin-top: 14px; font-size: 12px; color: var(--muted); }
+.privacy-note a { color: var(--blue); text-decoration: underline; text-underline-offset: 3px; }
+.form-alert { margin-top: 22px; padding: 16px 18px; border-radius: 14px; background: #fdecec; color: #7a1d1d; font-size: 13px; line-height: 1.7; }
+.form-alert a { font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.inquiry-result h2 { margin-bottom: 14px; }
+.inquiry-result.is-warning { border-top: 4px solid #c59100; }
+.inquiry-result p:not(.eyebrow) { margin-top: 12px; font-size: 15px; line-height: 1.8; color: var(--ink); }
+.reference { display: inline-block; padding: 2px 12px; border-radius: 999px; background: #eef4fc; color: var(--blue); font-weight: 700; letter-spacing: .04em; white-space: nowrap; }
+.result-summary { display: grid; gap: 8px; margin: 22px 0 26px; padding: 18px 20px; border-radius: 14px; background: #f4f7fa; font-size: 13px; }
+.result-summary div { display: grid; grid-template-columns: 110px 1fr; gap: 12px; }
+.result-summary dt { font-weight: 700; color: var(--muted); }
+.result-summary dd { margin: 0; overflow-wrap: anywhere; }
+.dev-inbox { padding-block: 60px 96px; }
+.dev-switches { display: grid; gap: 10px; margin: 24px 0 32px; padding: 18px 20px; border: 1px dashed #c59100; border-radius: 16px; background: #fffbea; font-size: 13px; }
+.dev-switches div { display: flex; flex-wrap: wrap; gap: 8px; }
+.dev-switches form .button, .dev-inbox-list form .text-button { margin-top: 0; }
+.dev-switches .button[aria-pressed="true"] { background: var(--navy); color: white; }
+.dev-inbox-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.dev-inbox-list article { padding: 20px 22px; border: 1px solid var(--line); border-radius: 18px; background: white; }
+.dev-inbox-list header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; }
+.dev-status { padding: 3px 10px; border-radius: 999px; background: #eef3f7; font-size: 12px; font-weight: 700; }
+.dev-status-sent { background: #e5f5ea; color: #1d6b37; }
+.dev-status-failed { background: #fdecec; color: #8a1f1f; }
+.dev-status-pending { background: #fff3bd; color: #5e4c15; }
+.dev-inbox-list dl { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 14px 0 0; font-size: 13px; }
+.dev-inbox-list dt { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.dev-inbox-list dd { margin: 0; }
+.dev-message { margin-top: 12px; font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.dev-inbox-list details { margin-top: 12px; font-size: 13px; }
+.dev-inbox-list pre { padding: 14px; border-radius: 10px; background: #f4f7fa; font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
 @media (hover: none) {
   .work-tile button::after, .work-caption { opacity: 1; translate: none; }
 }

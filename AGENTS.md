@@ -24,6 +24,8 @@ $env:Path = "C:\Users\nazur\.cache\codex-runtimes\codex-primary-runtime\dependen
 node node_modules/next/dist/bin/next dev --webpack --hostname 127.0.0.1   # dev server on :3000
 node node_modules/typescript/bin/tsc --noEmit                              # type check
 node node_modules/next/dist/bin/next build --webpack                       # production build
+node node_modules/drizzle-kit/bin.cjs generate --name <change>             # new migration after editing src/server/db/schema.ts
+node scripts/db.mjs migrate | delete <reference>                           # database maintenance (server must be stopped)
 .\.venv\Scripts\python.exe -m pytest -q                                    # full suite (dev server must be running)
 .\.venv\Scripts\python.exe -m pytest -m unit -q                            # unit tests only
 ```
@@ -44,6 +46,16 @@ Spec-driven: **spec → implementation/test plan → tests first → build → r
 - `Proof of service/` holds the raw originals. It stays out of git and is never modified.
 - Hours, portrait and bio stay `null` in `src/content/site.ts` until supplied. Never fill them with guesses.
 - Henry's private contact details never appear on the site. Israel's phone, email and WhatsApp are approved for display.
+
+## Backend conventions
+
+- Server-only code lives in `src/server/` and is used only from server components, server actions and route handlers.
+- The local database is PGlite in `.data/pglite`; only one process can open it at a time. The website writes `.data/pglite.lock`, and `scripts/db.mjs` refuses to run while that process is alive. Never point a second server at the same folder; use `MIAS_DB_DIR` for a separate one.
+- Schema changes go through Drizzle migrations in `drizzle/`; never edit generated migration files.
+- Paths resolve from `process.cwd()`, so start the server from the project folder.
+- Visitors only see success after data is saved. Failures stay visible, never silent (spec 006).
+- Development switches (`mias-simulate` cookie, `/dev/inbox`) must stay inert when `NODE_ENV=production`.
+- Secrets come from environment variables (`.env.local`, never committed); see `.env.example`.
 
 ## Design conventions
 
