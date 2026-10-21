@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import type { ProjectStory } from "@/content/site";
+import type { ProjectStory } from "@/content/projects";
 import { ProjectCard } from "./project-card";
 
 export function ProjectGallery({ projects }: { projects: ProjectStory[] }) {

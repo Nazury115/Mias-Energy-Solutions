@@ -12,15 +12,15 @@ Every increment below follows the project's SDD loop: **spec → implementation/
 | --- | --- | --- | --- |
 | Public site | Home, Services, 3 service families + solar water pumping, Projects, About, Contact | Done (local preview) | 003 |
 | Public site | Scroll-driven redesign, real work gallery, stock imagery | Done | 004, see [CHANGELOG](../../CHANGELOG.md) |
-| Public site | Contact page and 404 in the new design | Not started | 004 follow-up |
-| Public site | **Zambia province coverage map** on Projects | **Spec approved, not started**, see §2 | 005: MAP-01–09 |
-| Public site | Verified case studies replacing the 3 fictional stories | Waiting for project records | PUB-03 |
+| Public site | Contact page and 404 in the new design | Done | 005 |
+| Public site | **Zambia province coverage map** on Projects | **Built with sample data**; waiting for real figures | 005: MAP-01–09 |
+| Public site | Verified case studies replacing the 3 fictional stories | Template built; waiting for project records | PUB-03, 005 CASE |
 | Public site | Israel's portrait and short bio | Waiting for photo/bio | PUB-06 |
 | Public site | Confirmed working days and hours wording | Waiting | PUB-07 |
 | Public site | Genuine testimonials | Waiting for approved reviews | PUB-05 |
 | Public site | Real high-resolution photos replacing stock in the hero and service spots | Waiting for photos | PUB-09 |
 | Public site | Final logo | Concept awaiting review | — |
-| Public site | SEO: per-page metadata done; sitemap, Open Graph, LocalBusiness data pending | Partial | PUB-10, FR-13/14 |
+| Public site | SEO: metadata, sitemap, robots, Open Graph, LocalBusiness data | Done for preview; domain and launch switch pending | PUB-10, 005 SEO |
 | Intake | Inquiry form that really delivers (email and/or stored request) | Not started; WhatsApp composer only | PUB-08, FR-09–12 |
 | Accounts | **Customer login** | Not started, see §3 | PORT-01, 02, 09 |
 | Accounts | **Company/staff login** with roles | Not started, see §3 | PORT-01, 02 |
@@ -128,4 +128,4 @@ Order chosen so that each step delivers something usable and unblocks the next. 
 
 ### Current step
 
-Increment 005 spec approved 2026-10-21 with the recommended decisions: [specs/005-public-completion-and-coverage-map.md](../../specs/005-public-completion-and-coverage-map.md). Next: its implementation/test plan. Meanwhile, Henry and Israel can fill in the project list (§2 table). It can be a spreadsheet, a WhatsApp message or a markdown table; one row per project is enough to begin.
+Increment 005 built 2026-10-21 with sample data ([results](../testing/005-results.md)). To finish it, replace the sample values in `src/content/projects.ts` with real figures, and add the portrait/bio, hours and real photos as they arrive. Next increment: 006, hosting and reliable inquiries. Meanwhile, Henry and Israel can fill in the project list (§2 table). It can be a spreadsheet, a WhatsApp message or a markdown table; one row per project is enough to begin.

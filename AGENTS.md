@@ -39,8 +39,10 @@ Spec-driven: **spec → implementation/test plan → tests first → build → r
 - Never invent facts: customers, reviews, ratings, project counts, certifications, capacities, prices, dates or locations.
 - `public/images/stock/` is illustrative Unsplash photography. Never caption or describe it as Mias work, staff, customers or Zambian locations.
 - `public/images/work/` holds real proof photos. Captions describe only what is visible until project facts are confirmed. Record every image in `docs/content/image-sources.md`.
-- Fictional story records keep `fictional: true` and stay labelled. `MIAS_PUBLIC_LAUNCH=true` hides them.
+- Project stories and coverage-map figures live only in `src/content/projects.ts`. Sample items keep `sample: true` / `fictional: true` and stay labelled. Real ones need `confirmedBy`/`confirmedOn` or `approval`. Sample and real data are never shown together, and `MIAS_PUBLIC_LAUNCH=true` hides all sample content.
+- Map outlines are generated: edit `scripts/build-province-map.py` and regenerate `src/content/zambia-map.ts`; never hand-edit the module.
 - `Proof of service/` holds the raw originals. It stays out of git and is never modified.
+- Hours, portrait and bio stay `null` in `src/content/site.ts` until supplied. Never fill them with guesses.
 - Henry's private contact details never appear on the site. Israel's phone, email and WhatsApp are approved for display.
 
 ## Design conventions

@@ -1,12 +1,18 @@
-import { audiences, customers, serviceFamilies, workPhotos } from "@/content/site";
+import Image from "next/image";
+import { audiences, business, customers, leadership, operatingHours, serviceFamilies, workPhotos } from "@/content/site";
 import { ContactPanel } from "@/components/contact-panel";
 import { ScrollStatement } from "@/components/scroll-statement";
 import { ServiceStory } from "@/components/service-story";
 import { WorkGallery } from "@/components/work-gallery";
 import { ZoomHero } from "@/components/zoom-hero";
+import { siteUrl } from "@/lib/site-metadata";
+import { localBusinessJsonLd } from "@/lib/structured-data";
 
 export default function Home() {
+  const structuredData = localBusinessJsonLd({ name: business.name, description: business.description, phone: business.contacts.phone,
+    email: business.contacts.email, siteUrl, logoPath: "/brand/mias-logo-concept.png", openingHours: operatingHours?.schema ?? null });
   return <main id="main-content" tabIndex={-1}>
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
     <ZoomHero />
 
     <section className="statement-section" aria-label="What Mias does"><div className="site-container">
@@ -29,7 +35,7 @@ export default function Home() {
 
     <section id="about" className="about-section section-space" aria-labelledby="about-heading" tabIndex={-1}><div className="site-container about-grid">
       <div data-reveal><p className="eyebrow">GET TO KNOW MIAS / 03</p><h2 id="about-heading">Water. Energy.<br /><span className="blue-text">People at the centre.</span></h2><p className="section-copy">Mias Energy Solutions provides water, electrical and renewable energy services from Lusaka, Zambia. Our work includes installation, maintenance and technical support.</p><a className="text-link" href="/about">Meet Mias Energy Solutions <span aria-hidden="true">↗</span></a></div>
-      <div className="people-card" data-reveal><p className="eyebrow">A DIRECT CONVERSATION</p><div className="profile-monogram" aria-hidden="true">IM</div><h3>Israel Masauso</h3><p className="profile-role">Director & CEO</p><p>Israel handles business inquiries and project discussions. Tell him what you need and where your project is based.</p><div className="audience-list" aria-label="Who we serve">{audiences.map(audience => <span key={audience}>{audience}</span>)}</div></div>
+      <div className="people-card" data-reveal><p className="eyebrow">A DIRECT CONVERSATION</p>{leadership.portrait ? <Image className="profile-portrait" src={leadership.portrait.src} alt="Israel Masauso, Director & CEO of Mias Energy Solutions" width={leadership.portrait.width} height={leadership.portrait.height} sizes="96px" /> : <div className="profile-monogram" aria-hidden="true">IM</div>}<h3>Israel Masauso</h3><p className="profile-role">Director & CEO</p><p>{leadership.bio ?? "Israel handles business inquiries and project discussions. Tell him what you need and where your project is based."}</p><div className="audience-list" aria-label="Who we serve">{audiences.map(audience => <span key={audience}>{audience}</span>)}</div></div>
     </div></section>
     <ContactPanel />
   </main>;

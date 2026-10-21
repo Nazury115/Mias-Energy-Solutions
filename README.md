@@ -6,6 +6,8 @@ Responsive website and digital lead platform for Mias Energy Solutions, Lusaka, 
 
 **Start here:** [CHANGELOG.md](CHANGELOG.md) (what changed and why), [docs/plans/feature-backlog.md](docs/plans/feature-backlog.md) (features still to build and the plan) and [AGENTS.md](AGENTS.md) (working rules for any AI assistant or new maintainer).
 
+Increment 005 adds the Zambia province coverage map on Projects (sample data for now), redesigned Contact and 404 pages, real-case-study support, and sitemap/robots/share-preview/structured-data groundwork. **Project stories and map figures are edited in one file, `src/content/projects.ts`**, whose header explains how to replace the sample values.
+
 Increment 004 (branch `feature/004-scroll-redesign`) redesigns the public site around scroll-driven effects: a zoom hero, a pinned service story, parallax imagery, fade-in reveals and a "From the field" gallery of real work photos with a full-screen viewer. Large atmospheric spots use illustrative Unsplash photos that are never captioned as Mias work; see [image sources](docs/content/image-sources.md).
 
 Increment 003 expanded the foundation into Home, Services, three service-family pages, a shared solar-pumping page, Projects with filters and three example stories, About and Contact. Israel's confirmed phone, email and WhatsApp are active links. The inquiry composer validates details and prepares a WhatsApp message; the visitor must still send it in WhatsApp. There is no backend submission, saved inquiry or delivery confirmation.
@@ -97,7 +99,11 @@ Browser tests use an isolated headless Edge profile, not your personal browsing 
 | `src/app/page.tsx` | Homepage section composition. |
 | `src/app/layout.tsx` | Shared shell and page metadata. |
 | `src/app/globals.css` | Visual tokens, component styles and responsive rules. |
-| `src/content/site.ts` | Business identity, service groups, navigation and contact details. |
+| `src/content/site.ts` | Business identity, service groups, navigation, contact details, work photos, and the `operatingHours` / `leadership` slots (null until supplied). |
+| `src/content/projects.ts` | **Project stories and coverage-map figures (sample data until replaced).** Validated on load. |
+| `src/lib/coverage.ts`, `src/components/coverage-map.tsx` | Coverage counting/validation (unit-tested through Node) and the interactive province map. |
+| `src/content/zambia-map.ts`, `scripts/build-province-map.py` | Generated province outlines and the script that builds them from geoBoundaries data. |
+| `src/app/sitemap.ts`, `robots.ts`, `opengraph-image.tsx`, `src/lib/site-metadata.ts`, `src/lib/structured-data.ts` | Search/sharing groundwork; `MIAS_SITE_URL` sets the absolute address once a domain exists. |
 | `src/app/services/[slug]/page.tsx` | Shared service-detail template and metadata. |
 | `src/app/projects` | Project listing and individual stories. |
 | `src/components/project-gallery.tsx` | Browser-side category filtering. |

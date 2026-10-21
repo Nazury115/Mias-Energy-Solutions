@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { serviceFamilies, stockImages, workPhotos, type ServiceFamily } from "@/content/site";
 import { ContactPanel } from "@/components/contact-panel";
+import { pageMetadata } from "@/lib/site-metadata";
 import { ParallaxImage } from "@/components/parallax-image";
 import { WorkGallery } from "@/components/work-gallery";
 
@@ -22,7 +23,7 @@ type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const family = pages.find(item => item.slug === slug);
-  return { title: `${family?.title ?? "Service not found"} | Mias Energy Solutions`, description: family?.description };
+  return pageMetadata(`${family?.title ?? "Service not found"} | Mias Energy Solutions`, family?.description ?? "", `/services/${slug}`);
 }
 export default async function ServiceDetail({ params }: Props) {
   const { slug } = await params;

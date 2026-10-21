@@ -10,6 +10,13 @@ export const navigation = [
   { label: "Projects", href: "/projects" }, { label: "About Mias", href: "/about" }, { label: "Contact", href: "/contact" },
 ] as const;
 export const customers = ["Lusaka Water and Sewerage Company", "Plumbfix", "Family Legacy"];
+
+// Confirmed working days/hours, e.g. { label: "Monday to Friday, 09:00–17:00 (Zambia time, CAT)", schema: "Mo-Fr 09:00-17:00" }.
+// Shown on Contact, in the footer and in structured data; null keeps hours hidden everywhere until confirmed.
+export const operatingHours: { label: string; schema: string } | null = null;
+// Israel's approved portrait (put the file in public/images/people/) and short bio, word for word as approved.
+// null keeps the "IM" monogram and the current text. Never use a generated likeness.
+export const leadership: { portrait: { src: string; width: number; height: number } | null; bio: string | null } = { portrait: null, bio: null };
 export const audiences = ["Homeowners", "Farms", "Businesses", "NGOs", "Schools & institutions", "Property developers"];
 
 export type ServiceFamily = {
@@ -54,38 +61,6 @@ export const serviceFamilies: ServiceFamily[] = [
       { name: "Installation & maintenance", description: "Installation and related technical support for renewable energy systems. Existing equipment details help Mias understand the work needed." },
     ],
     questions: ["What would you like to power?", "When do you use it, and for how long?", "Do you already have solar equipment?"],
-  },
-];
-
-export type ProjectStory = {
-  slug: string; family: string; category: string; title: string; summary: string;
-  image: string; alt: string; fictional: boolean; problem: string; approach: string; outcome: string;
-};
-// Deliberate demo records; never attribute these to the real customers above.
-export const projectStories: ProjectStory[] = [
-  {
-    slug: "home-water-pressure", family: "water", category: "Water", title: "A better water supply at home",
-    summary: "An example of how a pressure-boosting project could be explained, from the first concern to handover.",
-    image: "/images/stock/water-pipe-flow.jpg", alt: "Illustrative stock photograph of water flowing from a pipe, not evidence of this fictional story.", fictional: true,
-    problem: "In this fictional scenario, a household experiences inconsistent water pressure when several taps are used together.",
-    approach: "An example project could begin with a review of the water source and demand, followed by an appropriate booster-pump arrangement and checks at the outlets.",
-    outcome: "A real case study would record the work actually completed, the checks performed and the customer's confirmed experience. No outcome is claimed for this example.",
-  },
-  {
-    slug: "control-panel-renewal", family: "electrical", category: "Electrical", title: "Giving a pump system clearer control",
-    summary: "A sample story showing how a control-panel upgrade might be presented for a business premises.",
-    image: "/images/stock/electrical-panel-testing.jpg", alt: "Illustrative stock photograph of a control panel being tested, not evidence of this fictional story.", fictional: true,
-    problem: "This fictional business wants to review the way its existing pump equipment is controlled and monitored.",
-    approach: "A project story could explain the existing arrangement, the agreed control functions and the installation and checking of a suitable panel.",
-    outcome: "The finished story would include verified panel functions and handover details. This preview does not claim an installation, certification or customer endorsement.",
-  },
-  {
-    slug: "home-solar-backup", family: "renewable-energy", category: "Renewable energy", title: "Planning solar around everyday life",
-    summary: "An illustrative household solar story, starting with the appliances that matter most.",
-    image: "/images/stock/solar-installation.jpg", alt: "Illustrative stock photograph of solar panel installation, not evidence of this fictional story.", fictional: true,
-    problem: "In this fictional scenario, a household is considering solar power for a selected set of everyday appliances.",
-    approach: "The story could describe a load assessment, a technically reviewed equipment choice and an installation planned around the property.",
-    outcome: "A verified story would record the installed equipment and observed performance. No capacity, savings, runtime or price is invented for this example.",
   },
 ];
 

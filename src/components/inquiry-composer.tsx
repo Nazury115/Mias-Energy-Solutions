@@ -4,8 +4,8 @@ import { business } from "@/content/site";
 import { getContactLinks } from "@/lib/contact-links";
 import { inquiryServices, prepareInquiry, type InquiryInput, type InquiryErrors } from "@/lib/inquiry";
 
-export function InquiryComposer({ initialService }: { initialService: string }) {
-  const [input, setInput] = useState<InquiryInput>({ name: "", service: initialService, area: "", message: "" });
+export function InquiryComposer({ initialService, initialArea = "" }: { initialService: string; initialArea?: string }) {
+  const [input, setInput] = useState<InquiryInput>({ name: "", service: initialService, area: initialArea, message: "" });
   const [errors, setErrors] = useState<InquiryErrors>({});
   const [prepared, setPrepared] = useState<string | null>(null);
   const form = useRef<HTMLFormElement>(null);

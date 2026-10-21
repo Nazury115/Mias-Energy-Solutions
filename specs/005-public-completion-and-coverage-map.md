@@ -137,6 +137,14 @@ This increment excludes:
 
 The `MIAS_PUBLIC_LAUNCH` flag continues to hide fictional content but does not itself approve launch or remove `noindex`.
 
+## Amendment — 2026-10-21 (Henry's build instruction)
+
+Henry asked to start building now with sample data and to keep every sample/fictional item editable in one place, so that going live means updating existing values. This changes:
+
+- **Sample dataset:** sample province totals shade Lusaka, Copperbelt, Southern and Western in the darkest band. The other six provinces are lighter. All are labelled sample (MAP-09).
+- **REC-04 replaced:** fictional stories now carry a sample province and live with the map data in `src/content/projects.ts`. Like sample totals, they count toward the map only in sample mode. As soon as any real total or story exists, all sample data leaves the map, so the two are never mixed. They remain labelled "Fictional example" and hidden in launch mode.
+- **MAP-04 refined:** hovering a province shows its name and count in a floating label. The detail panel changes only on click, tap or keyboard selection. Testing showed that hover-driven panels can switch under the pointer, for example while the page scrolls.
+
 ## Approval record
 
 | Date | Record |

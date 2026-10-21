@@ -19,6 +19,14 @@ All are free under the [Unsplash License](https://unsplash.com/license): commerc
 
 Because none of these places are in Zambia, captions over them avoid location claims.
 
+## Map data (`src/content/zambia-map.ts`)
+
+Province outlines come from [geoBoundaries](https://www.geoboundaries.org) gbOpen ZMB ADM1, release `9469f09`, built Dec 12, 2023. The original source is the Zambia Data Hub (2020), via zambia-nsdi-mlnr.hub.arcgis.com. The data has 10 provinces, including Muchinga, and is licensed **CC BY 4.0**; the credit is shown under the map.
+
+- The simplified GeoJSON (743 KB) was downloaded with Henry's approval on 2026-10-21 and kept outside the repository.
+- `scripts/build-province-map.py` projects it, simplifies it and writes the 29 KB module.
+- To regenerate: `python -I scripts/build-province-map.py <geojson> src/content/zambia-map.ts`.
+
 ## Mias work photographs (`public/images/work/`)
 
 Used as proof of work in the "From the field" galleries. Copies of supplied WhatsApp photos; originals stay unchanged in `Proof of service/`. Captions describe only what is visible (see [the photo inventory](proof-of-service-inventory.md)); customer, date and scope remain unconfirmed.
