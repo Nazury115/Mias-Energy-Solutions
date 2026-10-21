@@ -13,7 +13,7 @@ Every increment below follows the project's SDD loop: **spec → implementation/
 | Public site | Home, Services, 3 service families + solar water pumping, Projects, About, Contact | Done (local preview) | 003 |
 | Public site | Scroll-driven redesign, real work gallery, stock imagery | Done | 004, see [CHANGELOG](../../CHANGELOG.md) |
 | Public site | Contact page and 404 in the new design | Not started | 004 follow-up |
-| Public site | **Zambia province coverage map** on Projects | **New, not started**, see §2 | new: MAP-01–06 |
+| Public site | **Zambia province coverage map** on Projects | **Spec approved, not started**, see §2 | 005: MAP-01–09 |
 | Public site | Verified case studies replacing the 3 fictional stories | Waiting for project records | PUB-03 |
 | Public site | Israel's portrait and short bio | Waiting for photo/bio | PUB-06 |
 | Public site | Confirmed working days and hours wording | Waiting | PUB-07 |
@@ -126,6 +126,6 @@ Order chosen so that each step delivers something usable and unblocks the next. 
 | **011** | **Solar planner** | Load summary first (appliances, hours, energy); equipment/cost suggestions only with approved rules | Technical reviewer, product catalogue, price list, 3 worked examples | Approved examples reproduce; unsupported loads route to assessment. Can move earlier, since it needs no login |
 | **012** | **Release verification and launch** | Production-build test run, real devices, Lighthouse, accessibility, security/privacy review, private pilot, domain, launch | Launch approval, domain, operating owner | All release gates in the [launch-readiness plan](next-steps-and-launch-readiness.md#6-release-gates) pass |
 
-### Suggested first step
+### Current step
 
-Start increment 005 by writing `specs/005-public-completion-and-coverage-map.md` for approval. While that is reviewed, Henry and Israel fill in the project list (§2 table). It can be a spreadsheet, a WhatsApp message or a markdown table; one row per project is enough to begin.
+Increment 005 spec approved 2026-10-21 with the recommended decisions: [specs/005-public-completion-and-coverage-map.md](../../specs/005-public-completion-and-coverage-map.md). Next: its implementation/test plan. Meanwhile, Henry and Israel can fill in the project list (§2 table). It can be a spreadsheet, a WhatsApp message or a markdown table; one row per project is enough to begin.
