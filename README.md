@@ -4,7 +4,15 @@ Responsive website and digital lead platform for Mias Energy Solutions, Lusaka, 
 
 ## Current increment
 
-Increment 001 implements the homepage, service overview, About section, contact entry point, responsive navigation and a useful 404 page. Phone, WhatsApp and email remain unconfirmed, so no inquiry submissions or dummy contact links are offered. This preview is marked `noindex, nofollow` and has not been deployed publicly.
+Increment 003 expands the foundation into Home, Services, three service-family pages, a shared solar-pumping page, Projects with filters and three example stories, About and Contact. Israel's confirmed phone, email and WhatsApp are active links. The inquiry composer validates details and prepares a WhatsApp message; the visitor must still send it in WhatsApp. There is no backend submission, saved inquiry or delivery confirmation.
+
+The three stories are visibly fictional, with no customer attribution or fabricated testimonials. Real customer names are listed separately. This preview remains `noindex, nofollow` and has not been deployed publicly.
+
+## Approved direction and remaining work
+
+The [business platform specification](specs/002-business-platform-expansion.md) records the approved direction. The implemented public increment is bounded by [its specification](specs/003-public-website.md) and [implementation/test plan](docs/plans/003-public-website.md). Customer/company workspaces, staff project/testimonial publishing, job tracking, quotations/invoices and a solar planner remain future increments with their own architecture and SDD gates.
+
+See the [competitor review](docs/research/loxlak-review-2026-10-19.md), [photograph inventory](docs/content/proof-of-service-inventory.md) and [information worksheet](docs/content/business-intake.md). The final production MVP is not complete merely because the local public preview works.
 
 ## Stack and requirements
 
@@ -16,6 +24,23 @@ Increment 001 implements the homepage, service overview, About section, contact 
 - Microsoft Edge for browser tests, or another installed Playwright browser selected by `MIAS_BROWSER_CHANNEL`.
 
 ## Run the website
+
+Run commands from the folder containing `package.json`, not a parent folder. On this computer that is:
+
+```powershell
+Set-Location "C:\Users\nazur\Desktop\AI Projects"
+```
+
+If the current PowerShell cannot find `node` or `pnpm`, these commands use the runtime already available on this computer:
+
+```powershell
+$env:Path = "C:\Users\nazur\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin;$env:Path"
+& "C:\Users\nazur\.cache\codex-runtimes\codex-primary-runtime\dependencies\bin\fallback\pnpm.cmd" dev
+```
+
+This PATH change lasts only for that PowerShell session. Keep the terminal open while using the website. If the server is already running, refresh the browser instead of starting a second server. These bundled paths are specific to this computer.
+
+On a machine where Node and pnpm are already on PATH, install dependencies once for a fresh checkout, then start the server:
 
 ```powershell
 pnpm install --frozen-lockfile --ignore-scripts
@@ -31,6 +56,8 @@ pnpm start
 ```
 
 `pnpm start` serves the production build for local verification. It does not publish the website.
+
+Stop the development server first if you want to run `pnpm start` on the same port. For ordinary editing, keep using `pnpm dev`.
 
 ## Run the tests
 
@@ -56,22 +83,35 @@ Browser tests use an isolated headless Edge profile, not your personal browsing 
 | --- | --- |
 | `specs/mias-website-mvp.md` | Approved product baseline and SDD workflow. |
 | `specs/001-responsive-foundation.md` | First increment's scope and acceptance criteria. |
+| `specs/003-public-website.md` | Current public increment and demo-content boundaries. |
 | `docs/plans/001-responsive-foundation.md` | Implementation/test plan and rationale. |
+| `docs/plans/003-public-website.md` | Current increment's implementation and test plan. |
+| `docs/testing/003-public-website-results.md` | Measured checks, results and remaining verification limits. |
+| `docs/journal/003-public-website.md` | Explanation of the implementation and knowledge check. |
 | `src/app/page.tsx` | Homepage section composition. |
 | `src/app/layout.tsx` | Shared shell and page metadata. |
 | `src/app/globals.css` | Visual tokens, component styles and responsive rules. |
 | `src/content/site.ts` | Business identity, service groups, navigation and contact details. |
+| `src/app/services/[slug]/page.tsx` | Shared service-detail template and metadata. |
+| `src/app/projects` | Project listing and individual stories. |
+| `src/components/project-gallery.tsx` | Browser-side category filtering. |
+| `src/components/inquiry-composer.tsx` | Accessible inquiry fields and explicit WhatsApp handoff. |
+| `src/lib/inquiry.ts` | Pure validation and message preparation, exercised directly by pytest through Node. |
+| `src/lib/project-visibility.ts` | Excludes fictional stories when preparing for public launch. |
 | `src/components/site-header.tsx` | Mobile navigation state and keyboard behavior. |
 | `src/components/contact-panel.tsx` | Confirmed contact actions or truthful unavailable state. |
 | `src/lib/contact-links.ts` | Validated destination URLs; no credentials or submissions. |
-| `public/water-energy-illustration.svg` | Original illustrative artwork, not a real project. |
+| `public/images` | Selected local-preview copies of supplied work photos; originals are preserved. |
+| `public/brand/mias-logo-concept.png` | Generated logo refinement for review; original is in `docs/assets`. |
 | `tests` | Pytest unit, HTTP integration and browser checks. |
 
 ## Content updates
 
 Edit `src/content/site.ts` and confirm business facts with the owner before publication. Contact numbers must use international format such as `+` followed by a country code and digits, with no spaces; keep unknown values `null`. Confirm the destination's ownership separately: format validation cannot prove that a number belongs to Mias. Keep logo/palette choices provisional until reviewed. Update meaningful image alt text when replacing artwork; obtain usage permission for project photographs.
 
-Run type checks, the affected tests and a production build after changes. Services currently link to the contact section; individual service routes will be a later approved increment.
+Run type checks, affected tests and a production build after changes. Service-family content and story records are structured in `src/content/site.ts`. The three demo records have `fictional: true`; do not change that flag simply to make them appear published. Replace them with real, approved records or remove them before launch. `MIAS_PUBLIC_LAUNCH=true` suppresses fictional stories from pages and detail-route generation after a rebuild. It does not authorize launch or remove noindex metadata.
+
+No public CMS is implemented yet. Staff editing will need authenticated authoring, draft/review/publish states, permission records and separation from private job attachments. See the [asset and content notes](docs/content/003-assets-and-preview.md).
 
 ## Working process
 
@@ -79,6 +119,6 @@ Approved specification → implementation/test plan → defined and validated py
 
 ## Before production
 
-Real contact destinations, form delivery and privacy decisions, owner-approved branding/content, individual pages, full SEO, physical-device testing, deployment and domain configuration remain future work. Do not remove the preview indexing restriction or publish placeholder content until launch has been approved. Do not commit secrets; `.env*`, build outputs, dependencies and test environments are ignored.
+Backend form delivery/storage decisions, owner/client publication permissions, final branding, verified real stories, complete SEO, physical-device testing, deployment and domain configuration remain future work. Do not remove preview indexing restrictions or publish fictional stories. Direct contacts have been confirmed, but link checks do not establish that a human message was received. Do not commit secrets; `.env*`, build outputs, dependencies and test environments are ignored.
 
 The original `mias-energy-project-plan.html` is retained as historical planning material. The approved specification supersedes its calendar schedule.

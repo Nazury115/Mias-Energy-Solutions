@@ -28,7 +28,7 @@ def test_mobile_menu_selection_and_escape(browser, base_url):
         toggle.click()
         assert page.get_by_role("button", name="Close navigation").get_attribute("aria-expanded") == "true"
         page.get_by_role("navigation", name="Mobile navigation").get_by_role("link", name="Services", exact=True).click()
-        assert page.url.endswith("#services")
+        assert page.url.endswith("/services")
         assert page.get_by_role("button", name="Open navigation").get_attribute("aria-expanded") == "false"
         page.get_by_role("button", name="Open navigation").click()
         page.keyboard.press("Escape")
@@ -47,6 +47,6 @@ def test_skip_link_and_contact_entry(browser, base_url):
         assert page.url.endswith("#main-content")
         page.get_by_role("link", name="Discuss your project", exact=True).click()
         assert page.url.endswith("#contact")
-        assert page.get_by_text("TODO: Confirm with business owner", exact=True).is_visible()
+        assert page.get_by_role("link", name="WhatsApp Mias", exact=True).first.is_visible()
     finally:
         page.close()

@@ -54,16 +54,16 @@ def test_supplied_services_are_explained(homepage, service):
 def test_all_fragment_links_have_real_destinations(homepage):
     ids = {attrs["id"] for _, attrs in homepage.tags if "id" in attrs}
     fragments = [attrs["href"] for tag, attrs in homepage.tags if tag == "a" and attrs.get("href", "").startswith("#")]
-    assert len(fragments) >= 4
+    assert fragments
     assert all(fragment[1:] in ids for fragment in fragments)
     assert {"services", "about", "contact", "main-content"} <= ids
 
 
-def test_unknown_contacts_are_truthful_and_not_submittable(homepage):
-    text = " ".join(homepage.text)
-    assert "TODO: Confirm with business owner" in text
+def test_approved_contacts_are_available_without_fake_submission(homepage):
     links = [attrs.get("href", "") for tag, attrs in homepage.tags if tag == "a"]
-    assert not any(link.startswith(("tel:", "mailto:", "https://wa.me")) for link in links)
+    assert "tel:+260977747285" in links
+    assert any(link.startswith("mailto:imasauso@gmail.com") for link in links)
+    assert any(link.startswith("https://wa.me/260977747285") for link in links)
     assert not any(tag == "form" for tag, _ in homepage.tags)
 
 

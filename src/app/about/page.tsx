@@ -1,0 +1,12 @@
+import type { Metadata } from "next";
+import { audiences, business } from "@/content/site";
+import { getContactLinks } from "@/lib/contact-links";
+import { ContactPanel } from "@/components/contact-panel";
+export const metadata: Metadata = { title: "About Mias & Israel Masauso | Mias Energy Solutions", description: "Meet Mias Energy Solutions in Lusaka, Zambia, and contact Director and CEO Israel Masauso about water, electrical and renewable energy projects." };
+export default function About() {
+  const links = getContactLinks(business.contacts);
+  return <main id="main-content" tabIndex={-1}><section className="site-container page-intro"><p className="eyebrow">ABOUT MIAS ENERGY SOLUTIONS</p><h1>Local roots.<br /><span className="blue-text">Connected services.</span></h1><p>Based in Lusaka, Zambia, Mias brings together water, electrical and renewable energy services for homes, farms, businesses and institutions.</p></section>
+    <section className="site-container about-grid section-bottom"><div><h2>From installation<br />to ongoing support.</h2><p className="lead">Our services include borehole and booster pumps, solar systems, water treatment, irrigation, plumbing, control panels and electrical work.</p><p className="muted">Installation, maintenance, upgrades and breakdown support can all start with a conversation about what you need.</p><div className="audience-list">{audiences.map(audience => <span key={audience}>{audience}</span>)}</div><h3 className="spaced">Where we work</h3><p className="muted">Lusaka is our base for faster response. Projects elsewhere in Zambia are arranged with the customer and may require several days of coordination and travel. Confirm availability directly before planning a visit.</p></div>
+      <aside className="people-card"><div className="profile-monogram" aria-hidden="true">IM</div><p className="eyebrow">MEET THE DIRECTOR</p><h2>Israel Masauso</h2><p className="profile-role">Director & CEO</p><p>Israel manages business inquiries and project discussions at Mias Energy Solutions.</p><div className="profile-contacts"><a href={`tel:${business.contacts.phone}`}>{business.phoneDisplay}</a><a href={`mailto:${business.contacts.email}`}>{business.contacts.email}</a></div><a className="button" href={links.find(link => link.kind === "whatsapp")!.href}>Talk to Israel on WhatsApp <span aria-hidden="true">↗</span></a></aside>
+    </section><ContactPanel /></main>;
+}
