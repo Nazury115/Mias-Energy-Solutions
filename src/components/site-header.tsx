@@ -7,6 +7,7 @@ import { business, navigation } from "@/content/site";
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const toggle = useRef<HTMLButtonElement>(null);
   const pathname = usePathname();
   const current = (href: string) => href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -23,12 +24,20 @@ export function SiteHeader() {
     return () => window.removeEventListener("keydown", closeOnEscape);
   }, [open]);
 
+  useEffect(() => {
+    const update = () => setScrolled(window.scrollY > 40);
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
+  }, []);
+
   return (
-    <header className="site-header">
-      <div className="header-top"><div className="site-container"><span>Lusaka, Zambia <span aria-hidden="true">/</span> Water · Electrical · Renewable energy</span><a href={`tel:${business.contacts.phone}`}>{business.phoneDisplay}</a></div></div>
+    <>
+    <div className="header-top"><div className="site-container"><span>Lusaka, Zambia <span aria-hidden="true">/</span> Water · Electrical · Renewable energy</span><a href={`tel:${business.contacts.phone}`}>{business.phoneDisplay}</a></div></div>
+    <header className={scrolled ? "site-header is-scrolled" : "site-header"}>
       <div className="site-container header-inner">
         <a className="brand" href="/" aria-label={`${business.name} home`}>
-          <Image src="/brand/mias-logo-concept.png" alt={business.name} width={2135} height={737} priority sizes="220px" />
+          <Image src="/brand/mias-logo-concept.png" alt={business.name} width={2135} height={737} priority sizes="180px" />
         </a>
         <nav className="desktop-nav" aria-label="Main navigation">
           {navigation.map(item => <a key={item.href} href={item.href} aria-current={current(item.href) ? "page" : undefined}>{item.label}</a>)}
@@ -44,5 +53,6 @@ export function SiteHeader() {
         </div>
       </nav>
     </header>
+    </>
   );
 }

@@ -8,10 +8,7 @@ Date: 2026-10-19. See [Increment 003](../../specs/003-public-website.md).
 | --- | --- |
 | `docs/assets/mias-original-logo.png` | User's attached existing logo, preserved unchanged. |
 | `public/brand/mias-logo-concept.png` | New concept created with the built-in image-generation tool from the supplied logo. Blue/yellow identity and the energy mark retained; upright typography replaces the compressed italic text. Reviewable, not final brand approval. |
-| `public/images/pumping-equipment.jpeg` | Unchanged copy of `WhatsApp Image 2026-10-19 at 09.26.22.jpeg`. |
-| `public/images/rooftop-solar.jpeg` | Unchanged copy of `WhatsApp Image 2026-10-19 at 09.26.22 (1).jpeg`. |
-| `public/images/control-panel.jpeg` | Unchanged copy of `WhatsApp Image 2026-10-19 at 09.26.24.jpeg`; assembly-stage caption, not a commissioned-installation claim. |
-| `public/images/solar-battery.jpeg` | Unchanged copy of `WhatsApp Image 2026-10-19 at 09.26.21 (1).jpeg`. |
+| `public/images/work/`, `public/images/stock/` | Supplied work photos (proof) and illustrative Unsplash photos. Superseded the four single copies on 2026-10-21; see [image sources](image-sources.md). |
 
 Original photographs remain in `Proof of service/`. Next Image generates appropriately sized browser assets. CSS crops select a viewing window; the source copies are not retouched. Public launch still requires permission review for premises/people and removal of unnecessary metadata. These photos do not identify the fictional example projects.
 

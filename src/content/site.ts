@@ -21,7 +21,7 @@ export const serviceFamilies: ServiceFamily[] = [
   {
     slug: "water", number: "01", title: "Water solutions", shortTitle: "Water", tagline: "From the source to where it matters.",
     description: "Pumping, treatment and plumbing for water supply at home, on the farm and across your business.",
-    image: "/images/pumping-equipment.jpeg", alt: "Pumps and connected pipework in a photograph supplied by Mias.",
+    image: "/images/stock/water-pipe-flow.jpg", alt: "Water flowing from a pipe into green crops.",
     services: [
       { name: "Borehole pumps", description: "Installation, maintenance and support for pumps that bring borehole water to your property. Tell us about your water source and the existing equipment." },
       { name: "Booster pumps", description: "Pumping solutions for properties that need additional water pressure. Start with where the pressure drops and how the water is used." },
@@ -35,7 +35,7 @@ export const serviceFamilies: ServiceFamily[] = [
   {
     slug: "electrical", number: "02", title: "Electrical solutions", shortTitle: "Electrical", tagline: "The connections behind your operations.",
     description: "Electrical installations, upgrades and maintenance, with control panels for pumping and electrical systems.",
-    image: "/images/control-panel.jpeg", alt: "Open electrical control panel during assembly, supplied by Mias.",
+    image: "/images/stock/electrical-panel-testing.jpg", alt: "Electrician testing wiring inside a control panel with a multimeter.",
     services: [
       { name: "Electrical installations", description: "Electrical work for a new installation or an existing property. Discuss the application, location and equipment you need to connect." },
       { name: "Electrical upgrades", description: "Changes to existing electrical systems as your needs develop. Mias can discuss the work after reviewing the current installation." },
@@ -47,7 +47,7 @@ export const serviceFamilies: ServiceFamily[] = [
   {
     slug: "renewable-energy", number: "03", title: "Renewable energy", shortTitle: "Renewable energy", tagline: "Put sunlight to work.",
     description: "Solar PV systems and solar-powered pumping for homes, farms and businesses exploring renewable energy.",
-    image: "/images/rooftop-solar.jpeg", alt: "Solar panels on a roof during installation, supplied by Mias.",
+    image: "/images/stock/solar-installation.jpg", alt: "Installer working on a solar panel array.",
     services: [
       { name: "Solar PV systems", description: "Solar electrical systems matched to your intended use. Start with the appliances or equipment you want to power and when you use them." },
       { name: "Solar water pumping", description: "Solar-powered pumping for water supply and agricultural needs.", href: "/services/solar-water-pumping" },
@@ -66,7 +66,7 @@ export const projectStories: ProjectStory[] = [
   {
     slug: "home-water-pressure", family: "water", category: "Water", title: "A better water supply at home",
     summary: "An example of how a pressure-boosting project could be explained, from the first concern to handover.",
-    image: "/images/pumping-equipment.jpeg", alt: "Illustrative supplied photograph of pumping equipment, not evidence of this fictional story.", fictional: true,
+    image: "/images/stock/water-pipe-flow.jpg", alt: "Illustrative stock photograph of water flowing from a pipe, not evidence of this fictional story.", fictional: true,
     problem: "In this fictional scenario, a household experiences inconsistent water pressure when several taps are used together.",
     approach: "An example project could begin with a review of the water source and demand, followed by an appropriate booster-pump arrangement and checks at the outlets.",
     outcome: "A real case study would record the work actually completed, the checks performed and the customer's confirmed experience. No outcome is claimed for this example.",
@@ -74,7 +74,7 @@ export const projectStories: ProjectStory[] = [
   {
     slug: "control-panel-renewal", family: "electrical", category: "Electrical", title: "Giving a pump system clearer control",
     summary: "A sample story showing how a control-panel upgrade might be presented for a business premises.",
-    image: "/images/control-panel.jpeg", alt: "Illustrative supplied photograph of a panel during assembly, not evidence of this fictional story.", fictional: true,
+    image: "/images/stock/electrical-panel-testing.jpg", alt: "Illustrative stock photograph of a control panel being tested, not evidence of this fictional story.", fictional: true,
     problem: "This fictional business wants to review the way its existing pump equipment is controlled and monitored.",
     approach: "A project story could explain the existing arrangement, the agreed control functions and the installation and checking of a suitable panel.",
     outcome: "The finished story would include verified panel functions and handover details. This preview does not claim an installation, certification or customer endorsement.",
@@ -82,9 +82,40 @@ export const projectStories: ProjectStory[] = [
   {
     slug: "home-solar-backup", family: "renewable-energy", category: "Renewable energy", title: "Planning solar around everyday life",
     summary: "An illustrative household solar story, starting with the appliances that matter most.",
-    image: "/images/solar-battery.jpeg", alt: "Illustrative supplied photograph of solar and battery equipment, not evidence of this fictional story.", fictional: true,
+    image: "/images/stock/solar-installation.jpg", alt: "Illustrative stock photograph of solar panel installation, not evidence of this fictional story.", fictional: true,
     problem: "In this fictional scenario, a household is considering solar power for a selected set of everyday appliances.",
     approach: "The story could describe a load assessment, a technically reviewed equipment choice and an installation planned around the property.",
     outcome: "A verified story would record the installed equipment and observed performance. No capacity, savings, runtime or price is invented for this example.",
   },
+];
+
+// Illustrative stock photography (Unsplash License); sources are recorded in docs/content/image-sources.md.
+export const stockImages = {
+  hero: { src: "/images/stock/hero-solar-field.jpg", alt: "Rows of solar panels in a green field under a cloudy sky." },
+  solarPumping: { src: "/images/stock/irrigation-pivot.jpg", alt: "Centre-pivot irrigation over a field at dusk." },
+  about: { src: "/images/stock/irrigated-valley-aerial.jpg", alt: "Aerial view of irrigated fields in a dry, hilly landscape." },
+};
+
+export type WorkPhoto = {
+  src: string; caption: string; family: "water" | "electrical" | "renewable-energy";
+  width: number; height: number; shape: "wide" | "tall" | "large" | "square";
+};
+// Supplied photographs from Mias work sites (originals in "Proof of service/"). Captions describe only what is
+// visible; customers, dates and scope are unconfirmed. Permission for people and premises is needed before launch.
+export const workPhotos: WorkPhoto[] = [
+  { src: "/images/work/crane-lift.jpeg", caption: "Crane lifting a long pump assembly", family: "water", width: 1080, height: 486, shape: "wide" },
+  { src: "/images/work/pump-station.jpeg", caption: "Indoor pump station during works", family: "water", width: 1080, height: 810, shape: "large" },
+  { src: "/images/work/booster-set.jpeg", caption: "Twin booster pumps with controllers", family: "water", width: 486, height: 1080, shape: "tall" },
+  { src: "/images/work/control-panel.jpeg", caption: "Pump control panel during assembly", family: "electrical", width: 810, height: 720, shape: "square" },
+  { src: "/images/work/rooftop-solar.jpeg", caption: "Rooftop solar array during installation", family: "renewable-energy", width: 1080, height: 486, shape: "wide" },
+  { src: "/images/work/inverter-batteries.jpeg", caption: "Inverters and wall-mounted battery units", family: "renewable-energy", width: 608, height: 1080, shape: "tall" },
+  { src: "/images/work/manifold-install.jpeg", caption: "Pipe manifold and pumps during installation", family: "water", width: 1080, height: 486, shape: "wide" },
+  { src: "/images/work/tank-equipment-close.jpeg", caption: "Close view of tank-mounted equipment", family: "water", width: 1080, height: 810, shape: "square" },
+  { src: "/images/work/tank-equipment.jpeg", caption: "Tank-mounted equipment and control panels", family: "water", width: 1080, height: 810, shape: "large" },
+  { src: "/images/work/vertical-pumps.jpeg", caption: "Vertical multistage pumps", family: "water", width: 486, height: 1080, shape: "tall" },
+  { src: "/images/work/pumps-and-panel.jpeg", caption: "Vertical pumps beside an open control panel", family: "electrical", width: 486, height: 1080, shape: "tall" },
+  { src: "/images/work/site-lifting.jpeg", caption: "Lifting equipment and pumps on site", family: "water", width: 1080, height: 486, shape: "wide" },
+  { src: "/images/work/pumping-set.jpeg", caption: "Horizontal pumping set and pipe manifold", family: "water", width: 1080, height: 486, shape: "wide" },
+  { src: "/images/work/pipe-assemblies.jpeg", caption: "Pump assemblies laid out during work", family: "water", width: 1080, height: 486, shape: "wide" },
+  { src: "/images/work/manifold-wide.jpeg", caption: "Outdoor pumping manifold", family: "water", width: 1080, height: 486, shape: "wide" },
 ];

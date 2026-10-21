@@ -101,7 +101,10 @@ Browser tests use an isolated headless Edge profile, not your personal browsing 
 | `src/components/site-header.tsx` | Mobile navigation state and keyboard behavior. |
 | `src/components/contact-panel.tsx` | Confirmed contact actions or truthful unavailable state. |
 | `src/lib/contact-links.ts` | Validated destination URLs; no credentials or submissions. |
-| `public/images` | Selected local-preview copies of supplied work photos; originals are preserved. |
+| `src/components/zoom-hero.tsx`, `scroll-statement.tsx`, `service-story.tsx`, `parallax-image.tsx` | Scroll-driven effects; all fall back to static layouts under reduced motion. |
+| `src/lib/use-scroll-progress.ts` | Shared scroll-progress hook behind those effects (writes a `--progress` CSS variable). |
+| `src/components/work-gallery.tsx` | "From the field" photo mosaic/strip and full-screen viewer. |
+| `public/images/work`, `public/images/stock` | Supplied work photos (proof) and illustrative Unsplash photos; see `docs/content/image-sources.md`. Originals are preserved. |
 | `public/brand/mias-logo-concept.png` | Generated logo refinement for review; original is in `docs/assets`. |
 | `tests` | Pytest unit, HTTP integration and browser checks. |
 

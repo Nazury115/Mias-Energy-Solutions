@@ -116,3 +116,24 @@ def test_new_pages_reflow(browser, base_url, width):
         assert not errors
     finally:
         page.close()
+
+
+@pytest.mark.browser
+def test_work_gallery_viewer(browser, base_url):
+    page = browser.new_page(viewport={"width": 1366, "height": 900})
+    try:
+        page.goto(base_url + "/projects", wait_until="networkidle")
+        photos = page.locator("[data-work-photo]")
+        assert photos.count() >= 12
+        photos.first.click()
+        viewer = page.get_by_role("dialog", name="Work photo viewer")
+        assert viewer.is_visible()
+        first = viewer.locator("figcaption").inner_text()
+        page.keyboard.press("ArrowRight")
+        assert viewer.locator("figcaption").inner_text() != first
+        page.get_by_role("button", name="Previous photo").click()
+        assert viewer.locator("figcaption").inner_text() == first
+        page.keyboard.press("Escape")
+        assert not viewer.is_visible()
+    finally:
+        page.close()
