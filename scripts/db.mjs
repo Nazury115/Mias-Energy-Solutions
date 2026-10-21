@@ -1,7 +1,7 @@
 // Local database maintenance (run from the project folder):
 //   node scripts/db.mjs migrate              apply migrations (the website also does this on first use)
 //   node scripts/db.mjs delete MES-26-XXXXX  delete an inquiry and its notifications (privacy requests)
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { PGlite } from "@electric-sql/pglite";
 import { drizzle } from "drizzle-orm/pglite";
@@ -26,6 +26,7 @@ if (command !== "migrate" && !(command === "delete" && reference)) {
   console.error("Usage: node scripts/db.mjs migrate | delete <reference>");
   process.exit(1);
 }
+mkdirSync(dir, { recursive: true }); // a fresh copy has no .data folder yet
 const client = await PGlite.create(dir);
 try {
   if (command === "migrate") {
