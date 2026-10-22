@@ -10,9 +10,12 @@ export type Viewer = { id: string; name: string; email: string; phone: string | 
 
 /** The signed-in person, or null. Deactivated accounts and staff sessions older than 12 hours are signed out here. */
 export async function getViewer(): Promise<Viewer | null> {
+  // Read the request first: this marks every page that checks the viewer as rendered per request.
+  // Otherwise a production build could pre-render a protected page once, with nobody signed in.
+  const requestHeaders = await headers();
   if (!accountsReady()) return null;
   const auth = await getAuth();
-  const current = await auth.api.getSession({ headers: await headers() });
+  const current = await auth.api.getSession({ headers: requestHeaders });
   if (!current) return null;
   const { user, session } = current;
   const inactive = user.status !== "active";

@@ -4,6 +4,8 @@ import { WorkspaceHeader } from "@/components/workspace-header";
 import { searchInquiries } from "@/server/inquiries";
 import { requireViewer } from "@/server/session";
 
+// Signed-in content must never be pre-rendered at build time (found in production verification, 007).
+export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Inquiries | Mias company workspace", robots: { index: false, follow: false } };
 const when = new Intl.DateTimeFormat("en-GB", { timeZone: "Africa/Lusaka", dateStyle: "medium", timeStyle: "short" });
 const statusLabels: Record<string, string> = { sent: "Delivered", failed: "Failed, retrying", pending: "Waiting" };

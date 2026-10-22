@@ -6,6 +6,14 @@ Responsive website and digital lead platform for Mias Energy Solutions, Lusaka, 
 
 **Start here:** [CHANGELOG.md](CHANGELOG.md) (what changed and why), [docs/plans/feature-backlog.md](docs/plans/feature-backlog.md) (features still to build and the plan) and [AGENTS.md](AGENTS.md) (working rules for any AI assistant or new maintainer).
 
+Increment 007 adds accounts.
+
+- **Customers** sign up with email confirmation and see their own inquiries on **My account**.
+- **Owners and Staff** use the company workspace at **`/staff`** to list, search and open every inquiry.
+- **Owners** invite, change and deactivate team members at **`/staff/team`**.
+
+Sign-in uses Better Auth, called only from server actions, and every protected page checks the role on the server. Account emails (confirmation, reset, invitation) land in the development inbox.
+
 Increment 006 makes the Contact form work locally. Inquiries are saved with a reference number in a local PostgreSQL database (PGlite, created automatically in `.data/`), and notification emails are captured in a **development inbox at `/dev/inbox`** instead of being sent. The visitor is always told honestly whether the inquiry was received, saved without notification, or not saved. Nothing online is used or paid for yet.
 
 Increment 005 adds the Zambia province coverage map on Projects (sample data for now), redesigned Contact and 404 pages, real-case-study support, and sitemap/robots/share-preview/structured-data groundwork. **Project stories and map figures are edited in one file, `src/content/projects.ts`**, whose header explains how to replace the sample values.
@@ -33,7 +41,9 @@ See the [competitor review](docs/research/loxlak-review-2026-10-19.md), [photogr
 
 ## Run the website
 
-Run commands from the folder containing `package.json`, not a parent folder. This computer has two working copies of the same repository (see [AGENTS.md](AGENTS.md#two-working-copies)):
+**Easiest, on this computer:** double-click `Start website.cmd` in the project folder (either copy). It finds Node, starts the development server and prints the address. When it says "Ready", open `http://127.0.0.1:3000`. To stop, close the window or press Ctrl+C. Only one copy of the website can run at a time. If one is already running (from the other folder, a terminal or an AI assistant's preview), the start file says so: use that one, or stop it first. If the packages are missing, it says which install command to run.
+
+The rest of this section does the same by hand. Run commands from the folder containing `package.json`, not a parent folder. This computer has two working copies of the same repository (see [AGENTS.md](AGENTS.md#two-working-copies)):
 
 ```powershell
 Set-Location "C:\Users\nazur\Desktop\AI Projects"
@@ -59,7 +69,7 @@ pnpm dev
 
 Open the Local URL printed by Next.js (normally `http://127.0.0.1:3000`). Stop the server with Ctrl+C.
 
-The local database is created automatically the first time a page needs it. While the dev server runs, `http://127.0.0.1:3000/dev/inbox` shows saved inquiries and the notification emails Mias would receive, and has switches to simulate failures. `pnpm inquiry:delete <reference>` deletes an inquiry; stop the server first, since only one process can use the database at a time. For `pnpm start` (production mode), create `.env.local` with `MIAS_FORM_SECRET=<any long random text>`, otherwise the form stays switched off; see `.env.example`.
+The local database is created automatically the first time a page needs it. While the dev server runs, `http://127.0.0.1:3000/dev/inbox` shows saved inquiries and the notification emails Mias would receive, and has switches to simulate failures. `pnpm inquiry:delete <reference>` deletes an inquiry; stop the server first, since only one process can use the database at a time. **First Owner account:** stop the server, run `pnpm users:create-owner --email you@example.com --name "Your Name"`, start the server and open the printed link to choose a password. While the server runs you can use the development-only form on `/dev/inbox` instead. For `pnpm start` (production mode), create `.env.local` with `MIAS_FORM_SECRET=` and `BETTER_AUTH_SECRET=` (any long random text each), otherwise the form and sign-in stay switched off; see `.env.example`.
 
 ```powershell
 pnpm typecheck
@@ -87,7 +97,7 @@ $env:MIAS_TEST_URL = 'http://127.0.0.1:3000'
 .\.venv\Scripts\python.exe -m pytest -q
 ```
 
-Browser tests use an isolated headless Edge profile, not your personal browsing session. `MIAS_BROWSER_CHANNEL=chrome` selects installed Chrome instead. `MIAS_NODE` can specify the Node executable used by unit tests. Test contact destinations use fictional fixtures and are not published as business information.
+Before the first browser test, the suite requests every page once so the development server builds them all. On a freshly started server this takes about a minute. Without it, a page built mid-test made already-open pages reload and lose what a test had typed. Browser tests use an isolated headless Edge profile, not your personal browsing session. `MIAS_BROWSER_CHANNEL=chrome` selects installed Chrome instead. `MIAS_NODE` can specify the Node executable used by unit tests. If it isn't set and Node isn't on PATH, the tests use the copy bundled on this computer automatically. Test contact destinations use fictional fixtures and are not published as business information.
 
 ## Where to make changes
 
@@ -108,6 +118,8 @@ Browser tests use an isolated headless Edge profile, not your personal browsing 
 | `src/lib/coverage.ts`, `src/components/coverage-map.tsx` | Coverage counting/validation (unit-tested through Node) and the interactive province map. |
 | `src/content/zambia-map.ts`, `scripts/build-province-map.py` | Generated province outlines and the script that builds them from geoBoundaries data. |
 | `src/server/` | Server-only code: database (`db/`), inquiry saving/delivery (`inquiries.ts`), form tokens and hashing (`form-token.ts`), email transport (`mail/`). Never import it from client components. |
+| `src/server/auth.ts`, `session.ts`, `team.ts`, `attempts.ts`, `src/lib/accounts.ts` | Accounts: Better Auth configuration (no public endpoints), `requireViewer` role gate, invitations/roles/audit, sign-in lockout, and the pure account rules (unit-tested). |
+| `src/app/{sign-in,sign-up,verify-email,forgot-password,reset-password,invite,account,staff}/`, `src/app/forbidden.tsx` | Account and company-workspace pages; `forbidden.tsx` is the 403 page. |
 | `src/lib/inquiry-submission.ts`, `src/app/contact/actions.ts`, `src/components/inquiry-composer.tsx` | Inquiry rules (unit-tested through Node), the server action, and the form. |
 | `drizzle/`, `drizzle.config.ts`, `scripts/db.mjs` | Versioned database migrations (`pnpm db:generate` after schema changes) and database maintenance. |
 | `src/app/dev/inbox/`, `src/app/privacy/` | Development-only inbox; draft privacy notice. |

@@ -116,6 +116,14 @@ This increment excludes:
 
 The development inbox stays as the developer's view of outgoing email. Staff use `/staff`.
 
+## Amendment — 2026-10-22 (implementation clarifications)
+
+Recorded during implementation. None of these changes what a person can do or see.
+
+1. **Development-only Owner invitation helper.** The local database allows one process at a time, so `pnpm users:create-owner` runs only while the website is stopped. For automated tests and local trials, `/dev/inbox` also offers "Create an Owner invitation". It is development-only and returns 404 in production builds, like the inbox itself (INV-04).
+2. **AUTH-02 "works once".** Confirmation links are signed by the login library rather than stored. A second click only re-confirms an already confirmed email. It never signs anyone in, because automatic sign-in after confirmation is off. Reset and invitation tokens are stored as one-way hashes and are truly single-use.
+3. **SEC-01 session lengths.** The sign-in cookie lasts up to 30 days for everyone. Staff and Owner sessions older than 12 hours since sign-in are ended on the server at their next request, so the 12-hour limit holds even though the cookie lives longer.
+
 ## Approval record
 
 | Date | Record |

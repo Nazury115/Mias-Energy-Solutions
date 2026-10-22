@@ -8,42 +8,64 @@ Newest first. Each entry records what changed, where, and why, so work can conti
 - How to keep them in sync: [AGENTS.md › Two working copies](AGENTS.md#two-working-copies).
 - `Proof of service/` (the 30 original WhatsApp photos) exists in both folders but is deliberately not in git.
 
-## [007] Customer and company accounts — IN PROGRESS (saved 2026-10-22)
+## [007] Customer and company accounts — 2026-10-22
 
-**Not finished: do not treat as working yet.** Spec: [specs/007-accounts-and-logins.md](specs/007-accounts-and-logins.md) (approved). Plan: [docs/plans/007-accounts-and-logins.md](docs/plans/007-accounts-and-logins.md). Red phase: [docs/testing/007-red-phase.md](docs/testing/007-red-phase.md).
+Spec: [specs/007-accounts-and-logins.md](specs/007-accounts-and-logins.md), including the 2026-10-22 amendment. Plan: [docs/plans/007-accounts-and-logins.md](docs/plans/007-accounts-and-logins.md). Results: [docs/testing/007-results.md](docs/testing/007-results.md). Made with Claude.
 
-### Written so far
+### What it does
 
-- **Login library:** Better Auth 1.7.12, pinned, with the lockfile in sync.
-- **Database:** migration `drizzle/0001_accounts.sql` adds the `user`, `session`, `account` and `verification` tables, plus `invitations`, `auth_attempts`, `audit_log`, `inquiries.user_id` and `notifications.kind`.
+- **Customers** sign up, confirm their email, sign in and out, and reset a forgotten password.
+  - **My account** shows their details (editable name and phone) and the inquiries they sent while signed in.
+  - The Contact form pre-fills their details and links the inquiry to their account.
+- **Owners and Staff** use the company workspace at `/staff`: every inquiry, searchable by reference, name, phone (any format) or email, each with a detail page.
+- **Owners** manage the team at `/staff/team`:
+  - Invite people by email, using single-use links that expire after 7 days.
+  - Cancel invitations, change roles, and deactivate or reactivate accounts.
+  - See a record of who changed what. The last active Owner can't be removed.
+- **The first Owner** is created with `pnpm users:create-owner --email … --name "…"` while the server is stopped, or with the development-only form on `/dev/inbox`.
+- **Security:**
+  - Every protected page and server action checks the role on the server, and refuses with 403 or a redirect to sign in.
+  - Messages never reveal whether an email is registered.
+  - Five wrong passwords in 15 minutes pause sign-in.
+  - Passwords are stored as one-way hashes; reset and invitation tokens are hashed and single-use.
+  - Staff and Owner sessions end after 12 hours; customer sessions last 30 days.
+
+### Added
+
+- **Login library:** Better Auth 1.7.12 (pinned, MIT licence). Its HTTP endpoints are never mounted; all flows go through server actions in `src/app/account/actions.ts`.
+- **Database:** migration `drizzle/0001_accounts.sql` adds `user`, `session`, `account`, `verification`, `invitations`, `auth_attempts` and `audit_log`, plus `inquiries.user_id` and `notifications.kind`.
 - **Server code:**
-  - `src/server/auth.ts`: Better Auth configuration. No public endpoints are mounted.
-  - `session.ts`: viewer and role gate.
-  - `attempts.ts`: lockout.
-  - `team.ts`: invitations, roles and the audit record.
-  - `mail/outbox.ts`: email delivery shared by inquiries and accounts.
-- **Rules:** `src/lib/accounts.ts`.
+  - `src/server/auth.ts`, `session.ts` (`getViewer`, `requireViewer`), `attempts.ts` and `team.ts`.
+  - `mail/outbox.ts`: one email outbox for inquiries and account emails.
+  - `src/lib/accounts.ts`: the pure rules (unit-tested).
 - **Pages:**
   - `/sign-up`, `/sign-in`, `/verify-email`, `/forgot-password`, `/reset-password` and `/invite`.
   - `/account`, `/staff`, `/staff/inquiries/[reference]` and `/staff/team`.
-  - `forbidden.tsx` (403) and `/api/session`.
-- **Elsewhere:**
-  - The header shows account links.
-  - The Contact form pre-fills a signed-in customer's details and links the inquiry to the account.
-  - The development inbox lists account emails and has a development-only Owner invitation helper.
-  - `pnpm users:create-owner` sets up the first Owner.
+  - `src/app/forbidden.tsx` (403) and `/api/session`.
+- **Header:** Sign in, or My account / Staff plus Sign out.
+- **Development inbox:** lists account emails with their links, and has the Owner invitation helper.
+- **Privacy notice (draft):** what accounts store, the sign-in cookie, and how to close an account.
+- **`Start website.cmd`:** double-click to run the website locally without a terminal. It finds Node, checks the packages are installed, and refuses to start if port 3000 is already in use.
 
-### State when saved
+### Changed
 
-- `tsc --noEmit` is clean, and all 118 unit tests pass, including the 31 account-rule tests.
-- **The 10 browser tests in `tests/test_accounts.py` have not been run against the implementation yet.**
+- `next.config.ts` enables `experimental.authInterrupts` for real 403 responses.
+- Email delivery moved from `inquiries.ts` into the shared outbox.
+- `.env.example` adds `BETTER_AUTH_SECRET`; README and AGENTS are updated.
+- The website refuses to open the local database while another running copy holds it, and the error says which process to close. Before, a second copy started from the other folder could fail in confusing ways.
 
-### Still to do
+### Found by verification and fixed
 
-1. Restart the dev server so migration 0001 is applied, run `tests/test_accounts.py` and fix whatever it finds.
-2. Add an accounts section to the privacy notice (SEC-04).
-3. Run the full suite and a production build, and test `pnpm users:create-owner` with the server stopped.
-4. Record the three spec clarifications from the plan in spec 007, write `docs/testing/007-results.md`, and update README and AGENTS.
+- **Production build pre-rendered the signed-in pages.** With nobody signed in at build time, they always redirected to sign in. Protected pages are now always rendered per request.
+- **Intermittent first sign-up test failure.** This affected the tests only, never visitors. On a freshly started dev server, the first build of a page made every open page reload, which wiped the form the test had just filled in. The browser tests now request every page once before opening a browser.
+
+### Paid services at launch
+
+None new: accounts use the planned database and email service.
+
+### Tests
+
+41 new tests (31 unit, 10 browser). The full suite passes: 201 tests. Unit tests now find the Node bundled on this computer by themselves when Node isn't on PATH.
 
 ## [006] Local backend and working inquiry form — 2026-10-21
 

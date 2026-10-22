@@ -7,6 +7,8 @@ import { inquiriesForUser } from "@/server/inquiries";
 import { requireViewer } from "@/server/session";
 import { signOut } from "./actions";
 
+// Signed-in content must never be pre-rendered at build time (found in production verification, 007).
+export const dynamic = "force-dynamic";
 export const metadata: Metadata = pageMetadata("My account | Mias Energy Solutions", "Your Mias Energy Solutions account details and the inquiries you’ve sent.", "/account");
 const date = new Intl.DateTimeFormat("en-GB", { timeZone: "Africa/Lusaka", dateStyle: "medium" });
 

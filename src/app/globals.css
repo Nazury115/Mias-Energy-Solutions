@@ -393,6 +393,8 @@ form .form-actions .button { margin-top: 0; }
 .account-shell > p:not(.eyebrow) { margin-top: 14px; color: var(--muted); }
 .account-card { margin-top: 28px; padding: clamp(24px, 3vw, 36px); border: 1px solid var(--line); border-radius: 24px; background: white; }
 .account-form { display: grid; gap: 4px; }
+.account-card h2 { margin-bottom: 4px; font-size: clamp(22px, 2vw, 26px); letter-spacing: -.03em; }
+.account-form .form-alert, .account-card > .form-alert:first-child { margin-top: 0; }
 .account-form .button, form.account-form .button { justify-self: start; margin-top: 22px; }
 .account-field label { margin-top: 16px; }
 .account-links { margin-top: 18px; font-size: 13px; color: var(--muted); }

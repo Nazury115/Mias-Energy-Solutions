@@ -14,10 +14,20 @@ export const lockFile = () => path.join(path.dirname(databaseDir()), "pglite.loc
 
 const store = globalThis as typeof globalThis & { miasDatabase?: Promise<Database> };
 
+function processAlive(pid: number): boolean {
+  try { process.kill(pid, 0); return true; } catch (error) { return (error as NodeJS.ErrnoException).code === "EPERM"; }
+}
+
 async function open(): Promise<Database> {
   const dir = databaseDir();
   mkdirSync(dir, { recursive: true });
-  // PGlite allows one process at a time; the lock lets scripts/db.mjs refuse to run while the website holds it.
+  // PGlite allows one process at a time: refuse to open a database another running copy of the website holds,
+  // and record our own process so scripts/db.mjs (and other copies) can refuse in turn.
+  let holder = 0;
+  try { holder = Number(readFileSync(lockFile(), "utf8")); } catch { /* no lock yet */ }
+  if (holder && holder !== process.pid && processAlive(holder)) {
+    throw new Error(`Another copy of the Mias website (process ${holder}) is already using the database in ${path.dirname(lockFile())}. Close it first. If no other copy is running, delete pglite.lock there.`);
+  }
   writeFileSync(lockFile(), String(process.pid));
   process.once("exit", () => {
     try { if (readFileSync(lockFile(), "utf8") === String(process.pid)) rmSync(lockFile()); } catch { /* already gone */ }

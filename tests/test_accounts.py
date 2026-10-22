@@ -182,7 +182,7 @@ def test_sign_out_and_role_boundaries(browser, base_url):
             assert response.status == 403, path
             page.get_by_role("heading", name="You don’t have access to this page").wait_for()
         page.goto(base_url + "/account", wait_until="networkidle")
-        page.get_by_role("button", name="Sign out").click()
+        page.locator("main").get_by_role("button", name="Sign out").click()  # the header has one too
         page.wait_for_url(base_url + "/")
         page.goto(base_url + "/account", wait_until="networkidle")
         assert "/sign-in" in page.url

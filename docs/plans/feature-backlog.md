@@ -22,8 +22,8 @@ Every increment below follows the project's SDD loop: **spec → implementation/
 | Public site | Final logo | Concept awaiting review | — |
 | Public site | SEO: metadata, sitemap, robots, Open Graph, LocalBusiness data | Done for preview; domain and launch switch pending | PUB-10, 005 SEO |
 | Intake | Inquiry form that really delivers (email and/or stored request) | **Done locally** (saved + development inbox); real email at launch | PUB-08, 006 |
-| Accounts | **Customer login** | Not started, see §3 | PORT-01, 02, 09 |
-| Accounts | **Company/staff login** with roles | Not started, see §3 | PORT-01, 02 |
+| Accounts | **Customer login** | **Done locally** (007) | PORT-01, 02, 09 |
+| Accounts | **Company/staff login** with roles | **Done locally** (007): Owner/Staff, invitations, team page | PORT-01, 02 |
 | Portal | Requests → jobs → status history | Not started | PORT-03–05, 08 |
 | Portal | Customer/staff messages; internal notes kept private | Not started | PORT-06 |
 | Portal | Private photo/document uploads | Not started | PORT-07 |
@@ -128,7 +128,7 @@ Order chosen so that each step delivers something usable and unblocks the next. 
 
 ### Current step
 
-Increment 005 built 2026-10-21 with sample data ([results](../testing/005-results.md)). To finish it, replace the sample values in `src/content/projects.ts` with real figures, and add the portrait/bio, hours and real photos as they arrive. Increment 006 (local backend and working inquiry form) built 2026-10-21 ([results](../testing/006-results.md)). Next increment: **007, customer and company logins**. Product decisions approved 2026-10-21: self sign-up, Owner and Staff roles with Henry and Israel as Owners, company accounts later, email and password. Spec approved 2026-10-21: [specs/007-accounts-and-logins.md](../../specs/007-accounts-and-logins.md). **Build in progress** (saved 2026-10-22). See the CHANGELOG [007] entry for what's done and what's left. Meanwhile, Henry and Israel can fill in the project list (§2 table). It can be a spreadsheet, a WhatsApp message or a markdown table; one row per project is enough to begin.
+Increment 005 built 2026-10-21 with sample data ([results](../testing/005-results.md)). To finish it, replace the sample values in `src/content/projects.ts` with real figures, and add the portrait/bio, hours and real photos as they arrive. Increment 006 (local backend and working inquiry form) built 2026-10-21 ([results](../testing/006-results.md)). Next increment: **007, customer and company logins**. Product decisions approved 2026-10-21: self sign-up, Owner and Staff roles with Henry and Israel as Owners, company accounts later, email and password. Spec approved 2026-10-21: [specs/007-accounts-and-logins.md](../../specs/007-accounts-and-logins.md). Built 2026-10-22 ([results](../testing/007-results.md)). Next increment: **008, requests, jobs and progress** (needs Israel's real job stages). Meanwhile, Henry and Israel can fill in the project list (§2 table). It can be a spreadsheet, a WhatsApp message or a markdown table; one row per project is enough to begin.
 
 ## 5. Running costs and local-first build
 

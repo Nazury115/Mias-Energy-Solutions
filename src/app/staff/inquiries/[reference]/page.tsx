@@ -9,6 +9,8 @@ import { user } from "@/server/db/schema";
 import { findInquiry } from "@/server/inquiries";
 import { requireViewer } from "@/server/session";
 
+// Signed-in content must never be pre-rendered at build time (found in production verification, 007).
+export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Inquiry | Mias company workspace", robots: { index: false, follow: false } };
 const when = new Intl.DateTimeFormat("en-GB", { timeZone: "Africa/Lusaka", dateStyle: "full", timeStyle: "short" });
 

@@ -50,11 +50,13 @@ Spec-driven: **spec → implementation/test plan → tests first → build → r
 ## Backend conventions
 
 - Server-only code lives in `src/server/` and is used only from server components, server actions and route handlers.
-- The local database is PGlite in `.data/pglite`; only one process can open it at a time. The website writes `.data/pglite.lock`, and `scripts/db.mjs` refuses to run while that process is alive. Never point a second server at the same folder; use `MIAS_DB_DIR` for a separate one.
+- The local database is PGlite in `.data/pglite`; only one process can open it at a time. The website writes `.data/pglite.lock`. While that process is alive, `scripts/db.mjs` refuses to run and a second copy of the website refuses to open the database. Never point a second server at the same folder; use `MIAS_DB_DIR` for a separate one. Henry may already have the site running from `Start website.cmd`, so check port 3000 before starting a preview server.
+- Browser tests start by requesting every route in `WARM_UP_PATHS` (`tests/conftest.py`). Add new pages there; otherwise a page's first build mid-test reloads open pages and wipes forms.
 - Schema changes go through Drizzle migrations in `drizzle/`; never edit generated migration files.
 - Paths resolve from `process.cwd()`, so start the server from the project folder.
 - Visitors only see success after data is saved. Failures stay visible, never silent (spec 006).
-- Development switches (`mias-simulate` cookie, `/dev/inbox`) must stay inert when `NODE_ENV=production`.
+- Development switches (`mias-simulate` cookie, `/dev/inbox` and its Owner helper) must stay inert when `NODE_ENV=production`.
+- Accounts: never mount Better Auth's HTTP handler. Every sign-in flow goes through server actions in `src/app/account/actions.ts`, so lockout, wording and role rules apply. Every protected page **and** server action calls `requireViewer([...roles], path)` from `src/server/session.ts`; hiding a link is never the protection. Messages must not reveal whether an email is registered.
 - Secrets come from environment variables (`.env.local`, never committed); see `.env.example`.
 
 ## Design conventions
