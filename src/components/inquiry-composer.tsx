@@ -16,10 +16,11 @@ const replySentence: Record<ReplyMethod, (contact: string) => string> = {
 
 // "Send inquiry to Mias" saves the inquiry on the server (works without JavaScript too);
 // "Prepare WhatsApp message" stays available as the secondary route (spec 006, D-2).
-export function InquiryComposer({ initialService, initialArea = "", formToken, idempotencyKey }: { initialService: string; initialArea?: string; formToken: string; idempotencyKey: string }) {
+export function InquiryComposer({ initialService, initialArea = "", initialContact, formToken, idempotencyKey }: { initialService: string; initialArea?: string; initialContact?: { name: string; email: string; phone: string }; formToken: string; idempotencyKey: string }) {
   const [state, formAction, pending] = useActionState(sendInquiry, idle);
   const [input, setInput] = useState<InquirySubmissionInput>(() => ({
-    name: "", phone: "", email: "", preferredReply: "whatsapp", service: initialService, area: initialArea, message: "",
+    name: initialContact?.name ?? "", phone: initialContact?.phone ?? "", email: initialContact?.email ?? "",
+    preferredReply: initialContact && !initialContact.phone ? "email" : "whatsapp", service: initialService, area: initialArea, message: "",
     ...("values" in state ? state.values : {}),
   }));
   const [mode, setMode] = useState<"send" | "whatsapp">("send");

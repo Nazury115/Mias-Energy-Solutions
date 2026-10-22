@@ -1,7 +1,9 @@
 "use server";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { deleteInquiry } from "@/server/inquiries";
+import { createInvitation } from "@/server/team";
 
 const development = () => process.env.NODE_ENV === "development";
 
@@ -20,4 +22,13 @@ export async function removeInquiry(formData: FormData) {
   const reference = formData.get("reference");
   if (typeof reference === "string") await deleteInquiry(reference);
   revalidatePath("/dev/inbox");
+}
+
+/** Development-only stand-in for `pnpm users:create-owner`, which can't run while the website holds the database. */
+export async function createOwnerInvitation(formData: FormData) {
+  if (!development()) return;
+  const name = String(formData.get("name") ?? "").trim().slice(0, 80), email = String(formData.get("email") ?? "").trim().toLowerCase().slice(0, 254);
+  if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) redirect("/dev/inbox?owner-invite=invalid");
+  const url = await createInvitation({ name, email, role: "owner", invitedBy: null });
+  redirect(`/dev/inbox?owner-invite=${encodeURIComponent(url)}`);
 }

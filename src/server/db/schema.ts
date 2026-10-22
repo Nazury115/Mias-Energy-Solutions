@@ -1,4 +1,86 @@
-import { index, integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { boolean, index, integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+
+// Better Auth tables (spec 007). Column names follow Better Auth's model; role/phone/status are our additions.
+export const user = pgTable("user", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  emailVerified: boolean("email_verified").notNull().default(false),
+  image: text("image"),
+  role: text("role").notNull().default("customer"),
+  phone: text("phone"),
+  status: text("status").notNull().default("active"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const session = pgTable("session", {
+  id: text("id").primaryKey(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  token: text("token").notNull().unique(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+}, table => [index("session_user_idx").on(table.userId)]);
+
+export const account = pgTable("account", {
+  id: text("id").primaryKey(),
+  accountId: text("account_id").notNull(),
+  providerId: text("provider_id").notNull(),
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  accessToken: text("access_token"),
+  refreshToken: text("refresh_token"),
+  idToken: text("id_token"),
+  accessTokenExpiresAt: timestamp("access_token_expires_at", { withTimezone: true }),
+  refreshTokenExpiresAt: timestamp("refresh_token_expires_at", { withTimezone: true }),
+  scope: text("scope"),
+  password: text("password"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, table => [index("account_user_idx").on(table.userId)]);
+
+export const verification = pgTable("verification", {
+  id: text("id").primaryKey(),
+  identifier: text("identifier").notNull(),
+  value: text("value").notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, table => [index("verification_identifier_idx").on(table.identifier)]);
+
+// Staff/Owner invitations; only a SHA-256 hash of the emailed token is stored (INV-01, SEC-02).
+export const invitations = pgTable("invitations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: text("email").notNull(),
+  name: text("name").notNull(),
+  role: text("role").notNull(),
+  tokenHash: text("token_hash").notNull().unique(),
+  invitedBy: text("invited_by").references(() => user.id, { onDelete: "set null" }),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  acceptedAt: timestamp("accepted_at", { withTimezone: true }),
+  cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Failed sign-ins and reset/confirmation requests, for lockout and limits (AUTH-03). Keys are an account or a hashed network.
+export const authAttempts = pgTable("auth_attempts", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  kind: text("kind").notNull(),
+  key: text("key").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, table => [index("auth_attempts_lookup_idx").on(table.kind, table.key, table.createdAt)]);
+
+// Who changed which account or invitation, and when (INV-03).
+export const auditLog = pgTable("audit_log", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  actorId: text("actor_id").references(() => user.id, { onDelete: "set null" }),
+  action: text("action").notNull(),
+  targetUserId: text("target_user_id").references(() => user.id, { onDelete: "set null" }),
+  detail: text("detail").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
 
 // Inquiries from the contact form. Increment 008 will link these to customer accounts and jobs.
 export const inquiries = pgTable("inquiries", {
@@ -14,6 +96,7 @@ export const inquiries = pgTable("inquiries", {
   message: text("message").notNull(),
   sourcePath: text("source_path"),
   networkHash: text("network_hash").notNull(),
+  userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, table => [
   index("inquiries_network_created_idx").on(table.networkHash, table.createdAt),
@@ -21,10 +104,11 @@ export const inquiries = pgTable("inquiries", {
   index("inquiries_email_idx").on(table.email),
 ]);
 
-// One notification email per inquiry. Status: pending → sent, or failed (retried until attempts run out).
+// Outgoing email: one notification per inquiry, plus account emails (kind). Status: pending → sent, or failed (retried).
 export const notifications = pgTable("notifications", {
   id: uuid("id").primaryKey().defaultRandom(),
-  inquiryId: uuid("inquiry_id").notNull().references(() => inquiries.id, { onDelete: "cascade" }),
+  inquiryId: uuid("inquiry_id").references(() => inquiries.id, { onDelete: "cascade" }),
+  kind: text("kind").notNull().default("inquiry"),
   recipient: text("recipient").notNull(),
   replyTo: text("reply_to"),
   subject: text("subject").notNull(),

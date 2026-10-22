@@ -8,6 +8,43 @@ Newest first. Each entry records what changed, where, and why, so work can conti
 - How to keep them in sync: [AGENTS.md › Two working copies](AGENTS.md#two-working-copies).
 - `Proof of service/` (the 30 original WhatsApp photos) exists in both folders but is deliberately not in git.
 
+## [007] Customer and company accounts — IN PROGRESS (saved 2026-10-22)
+
+**Not finished: do not treat as working yet.** Spec: [specs/007-accounts-and-logins.md](specs/007-accounts-and-logins.md) (approved). Plan: [docs/plans/007-accounts-and-logins.md](docs/plans/007-accounts-and-logins.md). Red phase: [docs/testing/007-red-phase.md](docs/testing/007-red-phase.md).
+
+### Written so far
+
+- **Login library:** Better Auth 1.7.12, pinned, with the lockfile in sync.
+- **Database:** migration `drizzle/0001_accounts.sql` adds the `user`, `session`, `account` and `verification` tables, plus `invitations`, `auth_attempts`, `audit_log`, `inquiries.user_id` and `notifications.kind`.
+- **Server code:**
+  - `src/server/auth.ts`: Better Auth configuration. No public endpoints are mounted.
+  - `session.ts`: viewer and role gate.
+  - `attempts.ts`: lockout.
+  - `team.ts`: invitations, roles and the audit record.
+  - `mail/outbox.ts`: email delivery shared by inquiries and accounts.
+- **Rules:** `src/lib/accounts.ts`.
+- **Pages:**
+  - `/sign-up`, `/sign-in`, `/verify-email`, `/forgot-password`, `/reset-password` and `/invite`.
+  - `/account`, `/staff`, `/staff/inquiries/[reference]` and `/staff/team`.
+  - `forbidden.tsx` (403) and `/api/session`.
+- **Elsewhere:**
+  - The header shows account links.
+  - The Contact form pre-fills a signed-in customer's details and links the inquiry to the account.
+  - The development inbox lists account emails and has a development-only Owner invitation helper.
+  - `pnpm users:create-owner` sets up the first Owner.
+
+### State when saved
+
+- `tsc --noEmit` is clean, and all 118 unit tests pass, including the 31 account-rule tests.
+- **The 10 browser tests in `tests/test_accounts.py` have not been run against the implementation yet.**
+
+### Still to do
+
+1. Restart the dev server so migration 0001 is applied, run `tests/test_accounts.py` and fix whatever it finds.
+2. Add an accounts section to the privacy notice (SEC-04).
+3. Run the full suite and a production build, and test `pnpm users:create-owner` with the server stopped.
+4. Record the three spec clarifications from the plan in spec 007, write `docs/testing/007-results.md`, and update README and AGENTS.
+
 ## [006] Local backend and working inquiry form — 2026-10-21
 
 Spec: [specs/006-local-backend-and-inquiries.md](specs/006-local-backend-and-inquiries.md). Plan: [docs/plans/006-local-backend-and-inquiries.md](docs/plans/006-local-backend-and-inquiries.md). Results: [docs/testing/006-results.md](docs/testing/006-results.md). Made with Claude.

@@ -3,6 +3,7 @@ import { cookies, headers } from "next/headers";
 import type { InquirySubmissionErrors, InquirySubmissionInput, ReplyMethod } from "@/lib/inquiry-submission";
 import { formReady } from "@/server/form-token";
 import { submitInquiry, type Simulation } from "@/server/inquiries";
+import { getViewer } from "@/server/session";
 
 export type InquiryFormState =
   | { status: "idle" }
@@ -28,7 +29,7 @@ export async function sendInquiry(_previous: InquiryFormState, formData: FormDat
 
   const outcome = await submitInquiry(
     { fields: values, honeypot: field("mias_check"), formToken: field("formToken"), idempotencyKey: field("idempotencyKey"), sourcePath: "/contact" },
-    { networkAddress, simulate },
+    { networkAddress, simulate, userId: (await getViewer())?.id ?? null },
   );
   return { ...outcome, values };
 }

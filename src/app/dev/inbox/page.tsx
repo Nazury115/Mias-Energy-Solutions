@@ -3,8 +3,9 @@ import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { inquiryServices } from "@/lib/inquiry";
 import { displayPhone, replyMethods, type ReplyMethod } from "@/lib/inquiry-submission";
-import { listInbox, retryPendingNotifications, type Simulation } from "@/server/inquiries";
-import { removeInquiry, setSimulation } from "./actions";
+import { siteUrl } from "@/lib/site-metadata";
+import { listAccountEmails, listInbox, retryPendingNotifications, type Simulation } from "@/server/inquiries";
+import { createOwnerInvitation, removeInquiry, setSimulation } from "./actions";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Development inbox | Mias", robots: { index: false, follow: false } };
@@ -13,12 +14,17 @@ const statusLabels: Record<string, string> = { sent: "Delivered to development i
 const switches: [Simulation, string][] = [[null, "Normal"], ["notify-failure", "Simulate notification failure"], ["db-failure", "Simulate database failure"]];
 
 // Development-only view of saved inquiries and the notification emails Mias would receive (spec 006, DEV-01).
-export default async function DevelopmentInbox() {
+const kindLabels: Record<string, string> = { "verify-email": "Email confirmation", "reset-password": "Password reset", invitation: "Invitation", "signup-notice": "Sign-up notice" };
+
+export default async function DevelopmentInbox({ searchParams }: { searchParams: Promise<{ "owner-invite"?: string | string[] }> }) {
   if (process.env.NODE_ENV !== "development") notFound();
   const current = (await cookies()).get("mias-simulate")?.value ?? null;
   const simulate: Simulation = current === "db-failure" || current === "notify-failure" ? current : null;
   await retryPendingNotifications(simulate).catch(() => undefined);
   const items = await listInbox();
+  const accountEmails = await listAccountEmails();
+  const invite = (await searchParams)["owner-invite"];
+  const ownerInvite = typeof invite === "string" && invite.startsWith(`${siteUrl}/invite?token=`) ? invite : null;
 
   return <main id="main-content" className="site-container dev-inbox" tabIndex={-1}>
     <p className="eyebrow">DEVELOPMENT ONLY · NOT ON THE LIVE SITE</p>
@@ -28,6 +34,17 @@ export default async function DevelopmentInbox() {
       <p><strong>Failure switch for this browser:</strong> {switches.find(([value]) => value === simulate)?.[1]}</p>
       <div>{switches.map(([value, label]) => <form key={label} action={setSimulation}><input type="hidden" name="simulate" value={value ?? ""} /><button type="submit" className="button button-small button-light" aria-pressed={value === simulate}>{label}</button></form>)}</div>
     </section>
+    <section className="dev-switches" aria-labelledby="owner-heading">
+      <p id="owner-heading"><strong>Create an Owner invitation (development only)</strong>: the same as <code>pnpm users:create-owner</code>, usable while the website runs.</p>
+      <form action={createOwnerInvitation} className="form-grid">
+        <div><label htmlFor="owner-name">Owner name</label><input id="owner-name" name="name" required /></div>
+        <div><label htmlFor="owner-email">Owner email</label><input id="owner-email" name="email" type="email" required /></div>
+        <div><button type="submit" className="button button-small">Create Owner invitation</button></div>
+      </form>
+      {ownerInvite && <p>Single-use link: <a data-owner-invite href={ownerInvite}>{ownerInvite}</a></p>}
+      {invite === "invalid" && <p className="field-error">Enter a name and a valid email address.</p>}
+    </section>
+    <h2>Inquiries</h2>
     {items.length === 0 && <p className="notice">No inquiries yet. Send one from the <a href="/contact">Contact page</a>.</p>}
     <ol className="dev-inbox-list">{items.map(({ inquiry, notification }) => <li key={inquiry.id}>
       <article data-inquiry={inquiry.reference} data-notification-status={notification?.status ?? "none"}>
@@ -46,5 +63,16 @@ export default async function DevelopmentInbox() {
         <form action={removeInquiry}><input type="hidden" name="reference" value={inquiry.reference} /><button type="submit" className="text-button">Delete this inquiry</button></form>
       </article>
     </li>)}</ol>
+    <h2 className="spaced">Account emails</h2>
+    {accountEmails.length === 0 && <p className="notice">No account emails yet.</p>}
+    <ol className="dev-inbox-list">{accountEmails.map(email => {
+      const link = email.body.match(/https?:\/\/\S+/)?.[0];
+      return <li key={email.id}><article data-email-kind={email.kind} data-email-to={email.recipient}>
+        <header><strong>{kindLabels[email.kind] ?? email.kind}: {email.subject}</strong><span className={`dev-status dev-status-${email.status}`}>{statusLabels[email.status] ?? email.status}</span></header>
+        <p className="dev-message">To: {email.recipient}</p>
+        {link && <p className="dev-message">Link: <a data-email-link href={link}>{link}</a></p>}
+        <details><summary>Full email</summary><pre>{email.body}</pre></details>
+      </article></li>;
+    })}</ol>
   </main>;
 }
