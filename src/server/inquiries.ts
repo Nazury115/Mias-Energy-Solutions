@@ -1,12 +1,14 @@
 import { randomInt } from "node:crypto";
-import { and, count, desc, eq, gt, isNotNull, or, sql, type SQL } from "drizzle-orm";
+import { and, count, desc, eq, gt, isNull, or, sql, type SQL } from "drizzle-orm";
 import { business } from "@/content/site";
 import { inquiryServices } from "@/lib/inquiry";
 import { displayPhone, formatReference, normalizePhone, replyMethods, validateInquirySubmission, type InquirySubmission, type InquirySubmissionErrors, type InquirySubmissionInput, type ReplyMethod } from "@/lib/inquiry-submission";
 import { getDb, type Database } from "@/server/db/client";
-import { inquiries, notifications } from "@/server/db/schema";
+import { inquiries, jobs, notifications } from "@/server/db/schema";
 import { formTokenAge, hashNetworkAddress } from "@/server/form-token";
 import { deliver, retryPendingNotifications, type Simulation } from "@/server/mail/outbox";
+import { deliverRows } from "@/server/mail/outbox";
+import { notificationDestinations, receiptText } from "@/lib/jobs";
 
 export { retryPendingNotifications, type Simulation };
 
@@ -40,7 +42,7 @@ export async function submitInquiry(
   const automated = form.honeypot.trim() !== "" || age === null || age < limits().minFillMs || !/^[0-9a-f-]{36}$/.test(form.idempotencyKey);
   if (automated) return { status: "received", reference: newReference(), name: inquiry.name, preferredReply: inquiry.preferredReply, contact: contactFor(inquiry) };
 
-  let saved: { reference: string; notificationId: string };
+  let saved: { reference: string; notificationId: string; customerNotificationIds: string[] };
   try {
     if (context.simulate === "db-failure") throw new Error("Simulated database failure (development switch).");
     const db = await getDb();
@@ -56,18 +58,19 @@ export async function submitInquiry(
       throw error;
     }
   } catch (error) {
-    console.error(`Inquiry not saved: ${(error as Error).message}`); // never log the visitor's details
+    console.error("Inquiry not saved; check database availability."); // Query errors may include visitor details: never print them.
     return { status: "not-saved" };
   }
 
   const delivered = await deliver(saved.notificationId, context.simulate);
+  await deliverRows(saved.customerNotificationIds, context.simulate);
   await retryPendingNotifications(context.simulate, saved.notificationId).catch(() => undefined);
   return { status: delivered ? "received" : "saved-unnotified", reference: saved.reference, name: inquiry.name, preferredReply: inquiry.preferredReply, contact: contactFor(inquiry) };
 }
 
 async function findByKey(db: Database, key: string): Promise<SubmissionOutcome | null> {
   const [row] = await db.select({ inquiry: inquiries, status: notifications.status }).from(inquiries)
-    .leftJoin(notifications, eq(notifications.inquiryId, inquiries.id)).where(eq(inquiries.idempotencyKey, key)).limit(1);
+    .leftJoin(notifications, and(eq(notifications.inquiryId, inquiries.id), eq(notifications.kind, "inquiry"))).where(eq(inquiries.idempotencyKey, key)).limit(1);
   if (!row) return null;
   const { inquiry } = row, preferredReply = inquiry.preferredReply as ReplyMethod;
   return { status: row.status === "sent" ? "received" : "saved-unnotified", reference: inquiry.reference, name: inquiry.name, preferredReply, contact: contactFor({ ...inquiry, preferredReply }) };
@@ -92,7 +95,10 @@ async function save(db: Database, inquiry: InquirySubmission, idempotencyKey: st
       return await db.transaction(async tx => {
         const [row] = await tx.insert(inquiries).values({ ...inquiry, reference, idempotencyKey, sourcePath, networkHash, userId }).returning({ id: inquiries.id, createdAt: inquiries.createdAt });
         const [note] = await tx.insert(notifications).values({ inquiryId: row.id, recipient: recipient(), replyTo: inquiry.email, ...notificationText(inquiry, reference, row.createdAt, sourcePath) }).returning({ id: notifications.id });
-        return { reference, notificationId: note.id };
+        const receipts = notificationDestinations(inquiry).map(destination => ({ ...destination, inquiryId: row.id,
+          kind: "request-receipt", eventKey: `receipt:${row.id}:${destination.channel}`, ...receiptText(reference) }));
+        const customerNotes = receipts.length ? await tx.insert(notifications).values(receipts).returning({ id: notifications.id }) : [];
+        return { reference, notificationId: note.id, customerNotificationIds: customerNotes.map(item => item.id) };
       });
     } catch (error) {
       // A clash on the random reference is retried; a clash on the idempotency key is handled by the caller.
@@ -117,15 +123,19 @@ function notificationText(inquiry: InquirySubmission, reference: string, created
 
 export async function listInbox(limit = 50) {
   const db = await getDb();
-  return db.select({ inquiry: inquiries, notification: notifications }).from(inquiries)
-    .leftJoin(notifications, eq(notifications.inquiryId, inquiries.id)).orderBy(desc(inquiries.createdAt)).limit(limit);
+  return db.select({ inquiry: inquiries, notification: notifications, jobReference: jobs.reference }).from(inquiries)
+    .leftJoin(notifications, and(eq(notifications.inquiryId, inquiries.id), eq(notifications.kind, "inquiry")))
+    .leftJoin(jobs, eq(jobs.inquiryId, inquiries.id)).orderBy(desc(inquiries.createdAt)).limit(limit);
 }
 
 /** Account emails (no inquiry attached), newest first, for the development inbox. */
 export async function listAccountEmails(limit = 40) {
   const db = await getDb();
-  return db.select().from(notifications).where(isNotNull(notifications.kind)).orderBy(desc(notifications.createdAt)).limit(200)
-    .then(rows => rows.filter(row => row.inquiryId === null).slice(0, limit));
+  return db.select().from(notifications).where(isNull(notifications.inquiryId)).orderBy(desc(notifications.createdAt)).limit(limit);
+}
+
+export async function listCustomerNotifications(limit = 150) {
+  return (await getDb()).select().from(notifications).where(or(eq(notifications.kind, "request-receipt"), eq(notifications.kind, "request-accepted"))).orderBy(desc(notifications.createdAt)).limit(limit);
 }
 
 /** Inquiries a signed-in customer sent while signed in (CUST-01). */
@@ -143,19 +153,21 @@ export async function searchInquiries(query: string, limit = 100) {
     sql`strpos(lower(coalesce(${column}, '')), ${value}) > 0`;
   const filter = term ? or(contains(inquiries.reference, term), contains(inquiries.name, term), contains(inquiries.email, term), contains(inquiries.phone, compact)) : undefined;
   return db.select({ inquiry: inquiries, status: notifications.status }).from(inquiries)
-    .leftJoin(notifications, eq(notifications.inquiryId, inquiries.id)).where(filter).orderBy(desc(inquiries.createdAt)).limit(limit);
+    .leftJoin(notifications, and(eq(notifications.inquiryId, inquiries.id), eq(notifications.kind, "inquiry"))).where(filter).orderBy(desc(inquiries.createdAt)).limit(limit);
 }
 
 export async function findInquiry(reference: string) {
   const db = await getDb();
   const [row] = await db.select({ inquiry: inquiries, status: notifications.status, attempts: notifications.attempts }).from(inquiries)
-    .leftJoin(notifications, eq(notifications.inquiryId, inquiries.id)).where(eq(inquiries.reference, reference.trim().toUpperCase())).limit(1);
+    .leftJoin(notifications, and(eq(notifications.inquiryId, inquiries.id), eq(notifications.kind, "inquiry"))).where(eq(inquiries.reference, reference.trim().toUpperCase())).limit(1);
   return row ?? null;
 }
 
 /** Deletes an inquiry and its notifications (PRIV-03). Returns whether anything was deleted. */
 export async function deleteInquiry(reference: string): Promise<boolean> {
   const db = await getDb();
+  const [linked] = await db.select({ id: jobs.id }).from(jobs).innerJoin(inquiries, eq(inquiries.id, jobs.inquiryId)).where(eq(inquiries.reference, reference.trim().toUpperCase()));
+  if (linked) return false;
   const removed = await db.delete(inquiries).where(eq(inquiries.reference, reference.trim().toUpperCase())).returning({ id: inquiries.id });
   return removed.length > 0;
 }

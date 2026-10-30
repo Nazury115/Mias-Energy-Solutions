@@ -52,12 +52,19 @@ Spec-driven: **spec → implementation/test plan → tests first → build → r
 - Server-only code lives in `src/server/` and is used only from server components, server actions and route handlers.
 - The local database is PGlite in `.data/pglite`; only one process can open it at a time. The website writes `.data/pglite.lock`. While that process is alive, `scripts/db.mjs` refuses to run and a second copy of the website refuses to open the database. Never point a second server at the same folder; use `MIAS_DB_DIR` for a separate one. Henry may already have the site running from `Start website.cmd`, so check port 3000 before starting a preview server.
 - Browser tests start by requesting every route in `WARM_UP_PATHS` (`tests/conftest.py`). Add new pages there; otherwise a page's first build mid-test reloads open pages and wipes forms.
+- Contact tests with JavaScript wait for the mounted "Prepare WhatsApp message" button before filling controlled inputs. Network idle alone does not prove React has hydrated the form; keep the no-JavaScript journey separate.
+- Preserve values visitors type before hydration; the inquiry composer adopts existing DOM form values on mount. Keep the delayed-script regression in `tests/test_inquiries.py` so waiting for hydration in other helpers cannot hide a real input-loss bug.
 - Schema changes go through Drizzle migrations in `drizzle/`; never edit generated migration files.
 - Paths resolve from `process.cwd()`, so start the server from the project folder.
 - Visitors only see success after data is saved. Failures stay visible, never silent (spec 006).
 - Development switches (`mias-simulate` cookie, `/dev/inbox` and its Owner helper) must stay inert when `NODE_ENV=production`.
 - Accounts: never mount Better Auth's HTTP handler. Every sign-in flow goes through server actions in `src/app/account/actions.ts`, so lockout, wording and role rules apply. Every protected page **and** server action calls `requireViewer([...roles], path)` from `src/server/session.ts`; hiding a link is never the protection. Messages must not reveal whether an email is registered.
 - Secrets come from environment variables (`.env.local`, never committed); see `.env.example`.
+- Jobs (008): staff mutations go through `src/app/staff/jobs/actions.ts` and recheck Owner/Staff access. Customer reads/messages filter by the explicit job association; never link a job based only on a matching email. Invitation acceptance either verifies a new customer through the secret link or requires an active account with matching verified email.
+- `job_events.audience` separates customer-visible events from private staff notes. Customer queries must filter in SQL before selecting event bodies. Never pass staff event collections into a customer client component.
+- Request acceptance and job edits use transactions/version checks. Preserve one job per inquiry, unique notification event keys and private change reasons. A saved inquiry attached to a job is retained; the development delete helper does not delete the linked job.
+- Email/SMS use separate notification rows. `sent` currently means captured locally, not delivered externally. Claimed `sending` rows with uncertain outcomes must not be blindly retried; failed rows have at most four attempts. Production ignores all `mias-simulate` values.
+- An isolated verification server can set `MIAS_BUILD_DIR=.next-verification` plus its own `MIAS_DB_DIR` and `MIAS_SITE_URL`; keep both its database and build output separate from the normal preview. Do not edit `src/` while browser tests run.
 
 ## Design conventions
 
@@ -66,3 +73,13 @@ Spec-driven: **spec → implementation/test plan → tests first → build → r
 - Fade-ins use `data-reveal` or `data-reveal-group`. Do not use them on lists that re-render after load, such as filtered galleries, because newly rendered items would stay hidden.
 - Pages must not scroll horizontally at any width from 320px to 1440px; the browser tests check this.
 - Photos: use stock only where a large sharp image is essential. Show the 1080px work photos at tile sizes, never stretched.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

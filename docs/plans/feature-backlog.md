@@ -24,9 +24,11 @@ Every increment below follows the project's SDD loop: **spec → implementation/
 | Intake | Inquiry form that really delivers (email and/or stored request) | **Done locally** (saved + development inbox); real email at launch | PUB-08, 006 |
 | Accounts | **Customer login** | **Done locally** (007) | PORT-01, 02, 09 |
 | Accounts | **Company/staff login** with roles | **Done locally** (007): Owner/Staff, invitations, team page | PORT-01, 02 |
-| Portal | Requests → jobs → status history | Not started | PORT-03–05, 08 |
-| Portal | Customer/staff messages; internal notes kept private | Not started | PORT-06 |
-| Portal | Private photo/document uploads | Not started | PORT-07 |
+| Portal | Requests → jobs → status history | Core implemented and verified locally (008) | PORT-03–05, 08 |
+| Portal | Customer invitation after staff acceptance; verified linking of existing accounts | Core implemented and verified locally (008) | 008 ACCESS |
+| Notifications | Customer receipt and acceptance by email and SMS | Local capture implemented and verified; real providers at launch | 008 NOTIFY |
+| Portal | Customer/staff messages; internal notes kept private | Core implemented and verified locally (008) | PORT-06 |
+| Portal | Private photo/document uploads; shared company-customer access | Not started; Henry explicitly chose a follow-up 008 slice | PORT-07, organization rules |
 | Content | Staff publishing of projects, testimonials (and map data) | Not started | CMS-01 |
 | Documents | Quotations and invoices | Not started | DOC-01–06 |
 | Planner | Household solar planner | Not started | SOL-01–07 |
@@ -120,7 +122,7 @@ Order chosen so that each step delivers something usable and unblocks the next. 
 | **005** | **Public-site completion + coverage map** | Province map (§2); Contact page and 404 in the new design; real case studies replacing fictional stories where records exist; Israel's portrait/bio; hours wording; sitemap, Open Graph, LocalBusiness data | Project list with provinces; at least 1–3 full project records; portrait/bio; working days; permission for people/premises in photos | Map shows only confirmed data; no fictional content in launch mode; all pages pass phone/laptop checks |
 | **006** | **Local backend foundation + reliable inquiries** (first backend) | Local PostgreSQL-compatible database and migrations; a development inbox that captures every outgoing email; inquiry form with server validation, spam protection, a stored request with a reference number, delivery to the inbox, and honest success/failure messages | Who responds to inquiries, and the fields Israel needs | Inquiries are stored and "delivered" locally; failures are visible, never reported as success; switching to real email/database is a configuration change |
 | **007** | **Accounts: customer + company login** | Sign-in, logout, recovery, email verification, invited staff accounts, roles, server-side permission checks, session expiry | Enrollment rules, staff roles, organisation access rules | Two test customers and two staff roles cannot see or change each other's data, including by direct requests |
-| **008** | **Requests, jobs and progress** | Logged-in requests with reference numbers; staff triage → job; status history; customer-visible updates vs internal notes; optional private uploads | Real job stages, upload limits, retention | Request → job → progress → completion works end to end; internal notes never leak |
+| **008** | **Requests, jobs and progress** | Approved core: guest/signed-in requests; staff acceptance → job → verified customer invitation; history, messages/private notes; email/SMS receipt and acceptance captures. Uploads/shared access follow separately | [Approved core 008](../../specs/008-requests-jobs-and-progress.md); operating-process confirmation, upload/shared-account rules and retention still needed before their rollout | Request → acceptance → job → customer access → progress works end to end; honest notifications and private notes |
 | **009** | **Staff publishing (CMS-01)** | Staff create/edit projects (with province, so the map updates), photos and genuine testimonials; draft → preview → publish/unpublish with approval record | Who approves publishing; testimonial permissions process | Staff update public content without code; drafts stay private |
 | **010** | **Quotations and invoices** | Drafts, approval, issue, numbering, revisions, PDF download limited to the right customer | Sanitised real quote/invoice samples, tax/rounding/validity rules | Owner-approved worked totals reproduce exactly; only the intended customer can download |
 | **011** | **Solar planner** | Load summary first (appliances, hours, energy); equipment/cost suggestions only with approved rules | Technical reviewer, product catalogue, price list, 3 worked examples | Approved examples reproduce; unsupported loads route to assessment. Can move earlier, since it needs no login |
@@ -128,7 +130,7 @@ Order chosen so that each step delivers something usable and unblocks the next. 
 
 ### Current step
 
-Increment 005 built 2026-10-21 with sample data ([results](../testing/005-results.md)). To finish it, replace the sample values in `src/content/projects.ts` with real figures, and add the portrait/bio, hours and real photos as they arrive. Increment 006 (local backend and working inquiry form) built 2026-10-21 ([results](../testing/006-results.md)). Next increment: **007, customer and company logins**. Product decisions approved 2026-10-21: self sign-up, Owner and Staff roles with Henry and Israel as Owners, company accounts later, email and password. Spec approved 2026-10-21: [specs/007-accounts-and-logins.md](../../specs/007-accounts-and-logins.md). Built 2026-10-22 ([results](../testing/007-results.md)). Next increment: **008, requests, jobs and progress** (needs Israel's real job stages). Meanwhile, Henry and Israel can fill in the project list (§2 table). It can be a spreadsheet, a WhatsApp message or a markdown table; one row per project is enough to begin.
+Increment 005 still needs confirmed project figures, portrait/bio, hours and real photos. Increment 006 added saved inquiries and 007 added accounts. **008 core is implemented and verified locally:** 254 tests, TypeScript, production build and production customer journey passed; see [results](../testing/008-results.md). Henry approved the local stages, core-first scope and email/SMS receipt and acceptance messages on 2026-10-26. [Spec 008](../../specs/008-requests-jobs-and-progress.md) and its [plan](008-requests-jobs-and-progress.md) record the implementation boundary. Private uploads/shared access remain a follow-up slice; launch still needs Israel's operational confirmation, retention and real providers/budget. Staff publishing (009), documents (010) and the solar planner (011) remain unbuilt.
 
 ## 5. Running costs and local-first build
 
@@ -149,7 +151,7 @@ Estimated total once live: about $20–50 a month plus the domain. Starting near
 
 Optional extras, not planned, each needing Henry's decision:
 
-- SMS or automated WhatsApp alerts (charged per message).
+- Henry selected email and SMS for request receipts and acceptance in approved core 008; progress/messages remain in the portal and secure invitations use email. Live providers and sending budget remain launch decisions. Automated WhatsApp alerts remain optional and unapproved.
 - Online or mobile-money payments (transaction fees).
 - A business mailbox such as info@… (usually a few dollars per user per month).
 

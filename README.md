@@ -6,13 +6,26 @@ Responsive website and digital lead platform for Mias Energy Solutions, Lusaka, 
 
 **Start here:** [CHANGELOG.md](CHANGELOG.md) (what changed and why), [docs/plans/feature-backlog.md](docs/plans/feature-backlog.md) (features still to build and the plan) and [AGENTS.md](AGENTS.md) (working rules for any AI assistant or new maintainer).
 
-Increment 007 adds accounts.
+Increment 008 adds the core customer job portal on top of the accounts from 007.
+
+- A guest or signed-in request is saved with a reference and creates separate local email/SMS receipts for the supplied contacts.
+- Staff use **Review / accept** beside an inquiry at `/staff`, then create a job with agreed work, responsible staff and a next step. The inquiry detail page also has an **Accept request** shortcut near the top.
+- `/staff/jobs` lists jobs. Each job has stages/history, customer updates/messages, private staff notes, notification delivery status and customer access controls.
+- Staff verify the customer contact and send a seven-day invitation. New customers set a password; existing customers sign in with the invited email before accepting. A matching inquiry email alone never grants access.
+- Customers see their authorized jobs under `/account` and open `/account/jobs/<reference>` for progress and messages. Staff notes never appear there.
+- **Uploads and shared company access are the agreed follow-up slice.** Real email/SMS services remain for launch; all current messages are captured locally at `/dev/inbox`.
+
+Specs and plan: [008 specification](specs/008-requests-jobs-and-progress.md), [implementation/test plan](docs/plans/008-requests-jobs-and-progress.md). See the [verification record](docs/testing/008-results.md) for measured checks and the [review walkthrough](docs/journal/008-requests-jobs-and-progress.md) to try the complete journey.
+
+Increment 007 provides the account foundation:
 
 - **Customers** sign up with email confirmation and see their own inquiries on **My account**.
 - **Owners and Staff** use the company workspace at **`/staff`** to list, search and open every inquiry.
 - **Owners** invite, change and deactivate team members at **`/staff/team`**.
 
 Sign-in uses Better Auth, called only from server actions, and every protected page checks the role on the server. Account emails (confirmation, reset, invitation) land in the development inbox.
+
+**Approved 008 workflow:** Assessment → Awaiting quotation decision → Scheduled → In progress → Completed, with On hold and Cancelled where needed. These are the approved local-build stages; Israel confirms the actual operating process before real use. Acceptance sends local email/SMS captures; progress and messages stay in the portal. Portal invitations use email.
 
 Increment 006 makes the Contact form work locally. Inquiries are saved with a reference number in a local PostgreSQL database (PGlite, created automatically in `.data/`), and notification emails are captured in a **development inbox at `/dev/inbox`** instead of being sent. The visitor is always told honestly whether the inquiry was received, saved without notification, or not saved. Nothing online is used or paid for yet.
 
@@ -26,7 +39,7 @@ The three stories are visibly fictional, with no customer attribution or fabrica
 
 ## Approved direction and remaining work
 
-The [business platform specification](specs/002-business-platform-expansion.md) records the approved direction. The implemented public increment is bounded by [its specification](specs/003-public-website.md) and [implementation/test plan](docs/plans/003-public-website.md). Customer/company workspaces, staff project/testimonial publishing, job tracking, quotations/invoices and a solar planner remain future increments with their own architecture and SDD gates.
+The [business platform specification](specs/002-business-platform-expansion.md) records the approved direction. The public website, saved inquiries, accounts and core individual-customer job portal are implemented locally. Private uploads, shared company-customer access, staff project/testimonial publishing, quotations/invoices and the solar planner remain future slices with their own SDD gates.
 
 See the [competitor review](docs/research/loxlak-review-2026-10-19.md), [photograph inventory](docs/content/proof-of-service-inventory.md) and [information worksheet](docs/content/business-intake.md). The final production MVP is not complete merely because the local public preview works.
 
@@ -119,6 +132,9 @@ Before the first browser test, the suite requests every page once so the develop
 | `src/content/zambia-map.ts`, `scripts/build-province-map.py` | Generated province outlines and the script that builds them from geoBoundaries data. |
 | `src/server/` | Server-only code: database (`db/`), inquiry saving/delivery (`inquiries.ts`), form tokens and hashing (`form-token.ts`), email transport (`mail/`). Never import it from client components. |
 | `src/server/auth.ts`, `session.ts`, `team.ts`, `attempts.ts`, `src/lib/accounts.ts` | Accounts: Better Auth configuration (no public endpoints), `requireViewer` role gate, invitations/roles/audit, sign-in lockout, and the pure account rules (unit-tested). |
+| `src/lib/jobs.ts`, `src/server/jobs.ts` | Job stage/validation rules and server transactions: acceptance, customer association, invitations, progress, messages and private-note filtering. |
+| `src/app/staff/jobs/`, `src/app/account/jobs/`, `src/app/job-invite/`, `src/components/job-forms.tsx`, `job-history.tsx` | Staff workflow, private customer job pages, invitation acceptance, draft/version handling and dated history. |
+| `src/server/mail/outbox.ts`, `transport.ts` | Independent email/SMS notification rows, conditional delivery claims, local capture and bounded retries. |
 | `src/app/{sign-in,sign-up,verify-email,forgot-password,reset-password,invite,account,staff}/`, `src/app/forbidden.tsx` | Account and company-workspace pages; `forbidden.tsx` is the 403 page. |
 | `src/lib/inquiry-submission.ts`, `src/app/contact/actions.ts`, `src/components/inquiry-composer.tsx` | Inquiry rules (unit-tested through Node), the server action, and the form. |
 | `drizzle/`, `drizzle.config.ts`, `scripts/db.mjs` | Versioned database migrations (`pnpm db:generate` after schema changes) and database maintenance. |

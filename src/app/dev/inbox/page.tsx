@@ -4,25 +4,26 @@ import { notFound } from "next/navigation";
 import { inquiryServices } from "@/lib/inquiry";
 import { displayPhone, replyMethods, type ReplyMethod } from "@/lib/inquiry-submission";
 import { siteUrl } from "@/lib/site-metadata";
-import { listAccountEmails, listInbox, retryPendingNotifications, type Simulation } from "@/server/inquiries";
+import { listAccountEmails, listCustomerNotifications, listInbox, retryPendingNotifications, type Simulation } from "@/server/inquiries";
 import { createOwnerInvitation, removeInquiry, setSimulation } from "./actions";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Development inbox | Mias", robots: { index: false, follow: false } };
 
-const statusLabels: Record<string, string> = { sent: "Delivered to development inbox", failed: "Delivery failed (will retry)", pending: "Waiting to be delivered" };
-const switches: [Simulation, string][] = [[null, "Normal"], ["notify-failure", "Simulate notification failure"], ["db-failure", "Simulate database failure"]];
+const statusLabels: Record<string, string> = { sent: "Delivered to development inbox", failed: "Delivery failed (bounded retries)", pending: "Waiting to be delivered", sending: "Sending / outcome unknown; review before resending", cancelled: "Cancelled" };
+const switches: [Simulation, string][] = [[null, "Normal"], ["notify-failure", "Simulate notification failure"], ["db-failure", "Simulate database failure"], ["email-failure", "Simulate email failure"], ["sms-failure", "Simulate SMS failure"]];
 
 // Development-only view of saved inquiries and the notification emails Mias would receive (spec 006, DEV-01).
-const kindLabels: Record<string, string> = { "verify-email": "Email confirmation", "reset-password": "Password reset", invitation: "Invitation", "signup-notice": "Sign-up notice" };
+const kindLabels: Record<string, string> = { "verify-email": "Email confirmation", "reset-password": "Password reset", invitation: "Invitation", "signup-notice": "Sign-up notice", "job-invitation": "Customer portal invitation" };
 
 export default async function DevelopmentInbox({ searchParams }: { searchParams: Promise<{ "owner-invite"?: string | string[] }> }) {
   if (process.env.NODE_ENV !== "development") notFound();
   const current = (await cookies()).get("mias-simulate")?.value ?? null;
-  const simulate: Simulation = current === "db-failure" || current === "notify-failure" ? current : null;
+  const simulate: Simulation = switches.some(([value]) => value === current) ? current as Simulation : null;
   await retryPendingNotifications(simulate).catch(() => undefined);
   const items = await listInbox();
   const accountEmails = await listAccountEmails();
+  const customerNotices = await listCustomerNotifications();
   const invite = (await searchParams)["owner-invite"];
   const ownerInvite = typeof invite === "string" && invite.startsWith(`${siteUrl}/invite?token=`) ? invite : null;
 
@@ -46,7 +47,7 @@ export default async function DevelopmentInbox({ searchParams }: { searchParams:
     </section>
     <h2>Inquiries</h2>
     {items.length === 0 && <p className="notice">No inquiries yet. Send one from the <a href="/contact">Contact page</a>.</p>}
-    <ol className="dev-inbox-list">{items.map(({ inquiry, notification }) => <li key={inquiry.id}>
+    <ol className="dev-inbox-list">{items.map(({ inquiry, notification, jobReference }) => <li key={inquiry.id}>
       <article data-inquiry={inquiry.reference} data-notification-status={notification?.status ?? "none"}>
         <header><strong>{inquiry.reference}</strong><span className={`dev-status dev-status-${notification?.status ?? "none"}`}>{statusLabels[notification?.status ?? ""] ?? "No notification"}{notification ? ` · ${notification.attempts} attempt${notification.attempts === 1 ? "" : "s"}` : ""}</span></header>
         <dl>
@@ -60,9 +61,15 @@ export default async function DevelopmentInbox({ searchParams }: { searchParams:
         </dl>
         <p className="dev-message">{inquiry.message}</p>
         {notification && <details><summary>Notification email</summary><pre>{`To: ${notification.recipient}\nReply-To: ${notification.replyTo ?? "(none)"}\nSubject: ${notification.subject}\n\n${notification.body}`}</pre>{notification.lastError && <p className="field-error">Last error: {notification.lastError}</p>}</details>}
-        <form action={removeInquiry}><input type="hidden" name="reference" value={inquiry.reference} /><button type="submit" className="text-button">Delete this inquiry</button></form>
+        {jobReference ? <p>This inquiry belongs to <a href={`/staff/jobs/${jobReference}`}>{jobReference}</a> and is retained with its job.</p> : <form action={removeInquiry}><input type="hidden" name="reference" value={inquiry.reference} /><button type="submit" className="text-button">Delete this inquiry</button></form>}
       </article>
     </li>)}</ol>
+    <h2 className="spaced">Customer email and SMS notifications</h2>
+    <p>Local captures only. Opening this inbox retries eligible failed messages up to four attempts. An unknown outcome is not retried automatically.</p>
+    <ol className="dev-inbox-list">{customerNotices.map(note => <li key={note.id}><article data-notification-kind={note.kind} data-channel={note.channel} data-delivery-status={note.status} data-attempts={note.attempts}>
+      <header><strong>{note.kind === "request-receipt" ? "Request receipt" : "Request acceptance"} · {note.channel.toUpperCase()}</strong><span>{statusLabels[note.status] ?? note.status} · {note.attempts} attempts{note.attempts >= 4 && note.status === "failed" ? " · retries exhausted" : ""}</span></header>
+      <p className="dev-message">To: {note.recipient}</p><p className="dev-message">{note.body}</p>
+    </article></li>)}</ol>
     <h2 className="spaced">Account emails</h2>
     {accountEmails.length === 0 && <p className="notice">No account emails yet.</p>}
     <ol className="dev-inbox-list">{accountEmails.map(email => {

@@ -3,6 +3,7 @@ import { inquiryServices } from "@/lib/inquiry";
 import { WorkspaceHeader } from "@/components/workspace-header";
 import { searchInquiries } from "@/server/inquiries";
 import { requireViewer } from "@/server/session";
+import { requestStages } from "@/lib/jobs";
 
 // Signed-in content must never be pre-rendered at build time (found in production verification, 007).
 export const dynamic = "force-dynamic";
@@ -22,13 +23,17 @@ export default async function StaffInquiries({ searchParams }: { searchParams: P
       <div><label htmlFor="staff-search">Search inquiries</label><input id="staff-search" name="q" defaultValue={query} placeholder="Reference, name, phone or email" /></div>
       <button className="button button-small" type="submit">Search</button>
     </form>
+    <p className="field-hint">Open an inquiry to review its details. Use Review / accept to enter the agreed work, assign staff and create a job.</p>
     <p className="muted">{rows.length === 1 ? "1 inquiry" : `${rows.length} inquiries`}{query ? ` matching “${query}”` : ", newest first"}</p>
     {rows.length > 0 && <div className="table-scroll"><table className="data-table">
-      <thead><tr><th>Reference</th><th>Name</th><th>Service</th><th>Area</th><th>Received</th><th>Notification</th></tr></thead>
+      <thead><tr><th>Reference</th><th>Actions</th><th>Name</th><th>Service</th><th>Area</th><th>Received</th><th>Review</th><th>Notification</th></tr></thead>
       <tbody>{rows.map(({ inquiry, status }) => <tr key={inquiry.id}>
-        <td><a href={`/staff/inquiries/${inquiry.reference}`}>{inquiry.reference}</a></td><td>{inquiry.name}</td>
-        <td>{inquiryServices[inquiry.service as keyof typeof inquiryServices]}</td><td>{inquiry.area ?? "—"}</td>
-        <td>{when.format(inquiry.createdAt)}</td><td>{statusLabels[status ?? ""] ?? "—"}</td>
+        <td><a id={`inquiry-${inquiry.id}`} href={`/staff/inquiries/${inquiry.reference}`}>{inquiry.reference}</a></td>
+        <td><a className="button button-small button-light" style={{ whiteSpace: "nowrap" }} aria-describedby={`inquiry-${inquiry.id}`} href={`/staff/inquiries/${inquiry.reference}${inquiry.reviewStatus === "accepted" ? "" : inquiry.reviewStatus === "closed" ? "#review-request" : "#accept-request"}`}>
+          {inquiry.reviewStatus === "accepted" ? "View inquiry" : inquiry.reviewStatus === "closed" ? "Review inquiry" : "Review / accept"}
+        </a></td>
+        <td>{inquiry.name}</td><td>{inquiryServices[inquiry.service as keyof typeof inquiryServices]}</td><td>{inquiry.area ?? "—"}</td>
+        <td>{when.format(inquiry.createdAt)}</td><td>{requestStages[inquiry.reviewStatus as keyof typeof requestStages]}</td><td>{statusLabels[status ?? ""] ?? "—"}</td>
       </tr>)}</tbody>
     </table></div>}
   </main>;

@@ -8,7 +8,36 @@ Newest first. Each entry records what changed, where, and why, so work can conti
 - How to keep them in sync: [AGENTS.md › Two working copies](AGENTS.md#two-working-copies).
 - `Proof of service/` (the 30 original WhatsApp photos) exists in both folders but is deliberately not in git.
 
+## [008 core] Requests, jobs and customer portal — 2026-10-26
+
+Training guides on 2026-10-29: added a reproducible screen recorder and narrated customer, Staff, Owner/local-testing and complete video exports with captions, chapters and a transcript. The recording uses a separate fictional database and local-only email/SMS captures. Large generated videos and private recording checkpoints stay out of Git. See the [video guide notes](docs/journal/008-video-guide.md).
+
+Handoff resumed on 2026-10-29: the D: copy had no newer commits. Restarted the Desktop preview on port 3000 and confirmed Contact, customer invitation and protected staff-job routing. The saved full-suite report still records 254 tests with zero failures, errors or skips. No application behavior changed in this follow-up.
+
+Review feedback on 2026-10-29: added a visible **Review / accept** action beside each eligible inquiry, top-of-page review/acceptance shortcuts, and clearer walkthrough instructions. Acceptance now explicitly opens the new job at its main content, including plain form submissions. TypeScript, desktop/phone navigation checks, four targeted workflow checks, production build and the production customer journey/eight route checks passed. Those checks also exposed and fixed test waits that could mistake another form's success message for the action being tested. The original full-suite result below predates this navigation follow-up; follow-up evidence is in the verification record.
+
+Spec: [008](specs/008-requests-jobs-and-progress.md). Plan: [implementation and tests](docs/plans/008-requests-jobs-and-progress.md). Red phase: [expected failures](docs/testing/008-red-phase.md). [Verification](docs/testing/008-results.md): **254 tests passed**, standalone TypeScript and production build passed, and the production staff/customer journey plus eight route/status checks passed. Local core is ready for Henry's review; launch and follow-up slices remain separate.
+
+- Staff review requests, accept them into one linked job, assign responsible staff, update the agreed scope/next step and move through the approved stages. Version checks reject stale edits; dated history retains changes and private reasons.
+- Customers gain job access through a reviewed, expiring invitation. New-account setup and job association commit together; existing users authenticate with the invited verified email. Resends cancel earlier links; staff can cancel invitations or revoke access.
+- Customer job views show progress and conversation. Internal staff notes are filtered out in SQL. Customer/staff action permissions are checked on the server, including direct requests.
+- Inquiry receipt and acceptance create independent email/SMS events for supplied contacts. Local captures, per-channel failure switches, unique event keys, claimed delivery and bounded retries provide honest delivery states without sending external messages.
+- Added generated migration `0002_jobs_and_notifications`, new job/invitation pages, responsive workspace styles and privacy wording. Multiple notification rows cannot duplicate inquiries in the existing list. Linked inquiries are retained with their jobs.
+- Local verification can use a separate Next.js build directory. No new application libraries or paid services were added.
+- Patched the existing Next.js dependency from 16.4.0 to 16.4.1 after its build security check reported the [14 October advisories](https://nextjs.org/blog/nextjs-security-update-october-14-2026). The lockfile change stays within Next.js and its versioned dependencies/peer references.
+- Staff edits retain non-secret drafts after rejected saves, and dirty forms keep their original record version across another form's refresh. Contact browser helpers wait for hydration before filling; the no-JavaScript journey remains separate.
+- Fixed the public inquiry form erasing details typed before JavaScript finished loading. A delayed-script regression reproduced the loss before the fix; initialization now adopts the visitor's existing form values before its first controlled re-render.
+- Henry chose core first: private uploads and shared company access remain a follow-up slice; provider setup/budget and real delivery remain launch work.
+
+## Planning: requests, jobs and customer notifications — 2026-10-26
+
+- Added [draft spec 008](specs/008-requests-jobs-and-progress.md) for the flow Henry accepted: staff review/acceptance, job creation, customer invitation or verified linking, progress and messages.
+- Recorded Henry's decision to use **both email and SMS** for customer receipt confirmations, distinct from business acceptance and portal invitations. Both are used when both valid destinations are supplied; otherwise the available channel is used. Each channel has independent delivery/retry tracking. Live provider and spending cap remain pending for launch.
+- Updated the backlog and README. This is planning only: detailed spec approval, actual job stages and remaining scope decisions precede tests and implementation. No real messages are sent or services purchased.
+
 ## [007] Customer and company accounts — 2026-10-22
+
+Reverified with Codex on 2026-10-22: all 201 tests passed in a fresh, separate test database; production build and 15 production-route checks passed. Updated `scripts/capture-preview.py` to skip responsive images hidden at the current viewport and use reduced motion so full-page captures include scroll-reveal content. No application behavior changed. See [reverification results](docs/testing/007-reverification-2026-10-22.md).
 
 Spec: [specs/007-accounts-and-logins.md](specs/007-accounts-and-logins.md), including the 2026-10-22 amendment. Plan: [docs/plans/007-accounts-and-logins.md](docs/plans/007-accounts-and-logins.md). Results: [docs/testing/007-results.md](docs/testing/007-results.md). Made with Claude.
 

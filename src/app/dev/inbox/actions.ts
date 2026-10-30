@@ -12,7 +12,7 @@ export async function setSimulation(formData: FormData) {
   if (!development()) return;
   const value = formData.get("simulate");
   const jar = await cookies();
-  if (value === "db-failure" || value === "notify-failure") jar.set("mias-simulate", value, { path: "/", sameSite: "lax", httpOnly: true });
+  if (["db-failure", "notify-failure", "email-failure", "sms-failure"].includes(String(value))) jar.set("mias-simulate", String(value), { path: "/", sameSite: "lax", httpOnly: true });
   else jar.delete("mias-simulate");
   revalidatePath("/dev/inbox");
 }

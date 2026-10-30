@@ -25,7 +25,7 @@ export async function sendInquiry(_previous: InquiryFormState, formData: FormDat
   const requestHeaders = await headers();
   const networkAddress = requestHeaders.get("x-forwarded-for")?.split(",")[0]?.trim() || requestHeaders.get("x-real-ip") || "local";
   const switchValue = process.env.NODE_ENV === "development" ? (await cookies()).get("mias-simulate")?.value : undefined;
-  const simulate: Simulation = switchValue === "db-failure" || switchValue === "notify-failure" ? switchValue : null;
+  const simulate: Simulation = ["db-failure", "notify-failure", "email-failure", "sms-failure"].includes(switchValue ?? "") ? switchValue as Simulation : null;
 
   const outcome = await submitInquiry(
     { fields: values, honeypot: field("mias_check"), formToken: field("formToken"), idempotencyKey: field("idempotencyKey"), sourcePath: "/contact" },

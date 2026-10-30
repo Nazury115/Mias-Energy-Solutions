@@ -28,7 +28,19 @@ export function InquiryComposer({ initialService, initialArea = "", initialConta
   const [prepared, setPrepared] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const form = useRef<HTMLFormElement>(null);
-  useEffect(() => setReady(true), []);
+  useEffect(() => {
+    // The server form is usable before JavaScript arrives. Adopt any early typing
+    // before the first controlled re-render, rather than restoring empty defaults.
+    if (form.current) {
+      const entered = new FormData(form.current), early: Partial<InquirySubmissionInput> = {};
+      for (const field of ["name", "phone", "email", "preferredReply", "service", "area", "message"] as Field[]) {
+        const value = entered.get(field);
+        if (typeof value === "string") early[field] = value;
+      }
+      setInput(current => ({ ...current, ...early }));
+    }
+    setReady(true);
+  }, []);
   useEffect(() => {
     if (state.status === "invalid") form.current?.querySelector<HTMLElement>("[aria-invalid=true]")?.focus();
   }, [state]);
@@ -118,7 +130,7 @@ export function InquiryComposer({ initialService, initialArea = "", initialConta
         {ready && <button type="button" className="text-button" onClick={prepareWhatsApp}>Prepare WhatsApp message</button>}
       </div>
       <span className="visually-hidden" aria-live="polite">{pending ? "Sending your inquiry" : ""}</span>
-      <p className="privacy-note">We use these details only to reply to your inquiry. <a href="/privacy">Privacy notice</a></p>
+      <p className="privacy-note">We use your supplied email and phone number for receipt confirmations by email and SMS, and to discuss your inquiry. Your preferred reply method is for Israel's follow-up. <a href="/privacy">Privacy notice</a></p>
     </form>
     {prepared && whatsapp && <section className="message-preview" aria-label="Prepared WhatsApp message">
       <p role="status"><strong>Nothing has been sent yet.</strong></p><p>Review your message, then send it from WhatsApp.</p>

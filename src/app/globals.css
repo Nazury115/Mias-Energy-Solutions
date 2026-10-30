@@ -437,6 +437,25 @@ form.search-bar .button { margin-top: 0; }
 .header-account button { padding: 0; border: 0; background: none; color: var(--ink); font-size: 13px; }
 .header-account button:hover, .header-account a:hover { color: var(--blue); }
 .mobile-panel .header-account { justify-content: space-between; min-height: 48px; border-bottom: 1px solid var(--line); font-size: 14px; }
+.job-overview { margin-block: 24px; padding: clamp(20px, 3vw, 32px); border-radius: 20px; background: #edf3fa; overflow-wrap: anywhere; }
+.job-overview h2 { font-size: clamp(23px, 2.5vw, 32px); margin-block: 8px 14px; }
+.job-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 24px; }
+.job-columns > *, .job-form, .job-form > * { min-width: 0; }
+.job-columns .account-card { padding: clamp(18px, 2.4vw, 30px); }
+.job-form { margin-top: 16px; }
+.job-form + .job-form { border-top: 1px solid var(--line); padding-top: 20px; }
+.job-form label { margin-top: 14px; }
+.job-form .job-checkbox { display: flex; align-items: start; gap: 10px; font-size: 13px; }
+.job-checkbox input { flex: 0 0 auto; width: 18px; height: 18px; margin-top: 2px; }
+.job-timeline, .job-notifications, .account-jobs { list-style: none; padding: 0; margin-top: 20px; display: grid; gap: 14px; }
+.job-timeline li { padding: 16px; border-left: 3px solid var(--blue); background: #f6f8fa; border-radius: 0 12px 12px 0; overflow-wrap: anywhere; }
+.job-timeline li.is-private, .private-card { background: #fff9e6; }
+.job-event-body { margin-top: 8px; white-space: pre-wrap; font-size: 14px; }
+.job-notifications li, .job-pending-invite { padding-block: 12px; border-bottom: 1px solid var(--line); font-size: 13px; overflow-wrap: anywhere; }
+.account-jobs li { padding-block: 14px; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.account-jobs a, .account-jobs strong, .account-jobs span { display: block; margin-bottom: 6px; }
+.account-jobs a { color: var(--blue); font-weight: 700; text-decoration: underline; }
+@media (max-width: 900px) { .job-columns { grid-template-columns: minmax(0, 1fr); gap: 0; } }
 @media (hover: none) {
   .work-tile button::after, .work-caption { opacity: 1; translate: none; }
 }

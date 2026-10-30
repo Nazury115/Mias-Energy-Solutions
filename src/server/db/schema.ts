@@ -97,6 +97,9 @@ export const inquiries = pgTable("inquiries", {
   sourcePath: text("source_path"),
   networkHash: text("network_hash").notNull(),
   userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
+  reviewStatus: text("review_status").notNull().default("received"),
+  reviewReason: text("review_reason"),
+  version: integer("version").notNull().default(1),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, table => [
   index("inquiries_network_created_idx").on(table.networkHash, table.createdAt),
@@ -104,11 +107,15 @@ export const inquiries = pgTable("inquiries", {
   index("inquiries_email_idx").on(table.email),
 ]);
 
-// Outgoing email: one notification per inquiry, plus account emails (kind). Status: pending → sent, or failed (retried).
+// One outbox row per event/channel, including company, account and customer notifications.
+// Pending/failed rows are claimed as sending; sent currently means captured locally.
 export const notifications = pgTable("notifications", {
   id: uuid("id").primaryKey().defaultRandom(),
   inquiryId: uuid("inquiry_id").references(() => inquiries.id, { onDelete: "cascade" }),
   kind: text("kind").notNull().default("inquiry"),
+  channel: text("channel").notNull().default("email"),
+  eventKey: text("event_key").unique(),
+  jobId: uuid("job_id").references(() => jobs.id, { onDelete: "cascade" }),
   recipient: text("recipient").notNull(),
   replyTo: text("reply_to"),
   subject: text("subject").notNull(),
@@ -119,3 +126,43 @@ export const notifications = pgTable("notifications", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   sentAt: timestamp("sent_at", { withTimezone: true }),
 }, table => [index("notifications_status_idx").on(table.status, table.attempts)]);
+
+// A conversion creates exactly one job. Retain the inquiry while the job exists.
+export const jobs = pgTable("jobs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  reference: text("reference").notNull().unique(),
+  inquiryId: uuid("inquiry_id").notNull().unique().references(() => inquiries.id, { onDelete: "restrict" }),
+  scope: text("scope").notNull(),
+  nextStep: text("next_step").notNull(),
+  stage: text("stage").notNull().default("assessment"),
+  assigneeId: text("assignee_id").notNull().references(() => user.id, { onDelete: "restrict" }),
+  customerId: text("customer_id").references(() => user.id, { onDelete: "set null" }),
+  version: integer("version").notNull().default(1),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, table => [index("jobs_customer_idx").on(table.customerId)]);
+
+// Queries for customer pages select only customer-visible rows, never private note payloads.
+export const jobEvents = pgTable("job_events", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  jobId: uuid("job_id").notNull().references(() => jobs.id, { onDelete: "cascade" }),
+  actorId: text("actor_id").references(() => user.id, { onDelete: "set null" }),
+  actorName: text("actor_name").notNull(),
+  audience: text("audience").notNull(),
+  kind: text("kind").notNull(),
+  body: text("body").notNull(),
+  eventKey: text("event_key").unique(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, table => [index("job_events_job_idx").on(table.jobId, table.createdAt)]);
+
+export const customerInvitations = pgTable("customer_invitations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  jobId: uuid("job_id").notNull().references(() => jobs.id, { onDelete: "cascade" }),
+  email: text("email").notNull(), name: text("name").notNull(),
+  tokenHash: text("token_hash").notNull().unique(),
+  invitedBy: text("invited_by").notNull().references(() => user.id, { onDelete: "restrict" }),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  acceptedAt: timestamp("accepted_at", { withTimezone: true }),
+  cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});

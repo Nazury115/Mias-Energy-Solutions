@@ -31,8 +31,12 @@ def unique_email():
     return f"visitor-{uuid.uuid4().hex[:10]}@example.com"
 
 
-def open_form(page, base_url):
+def open_form(page, base_url, javascript=True):
     page.goto(base_url + "/contact", wait_until="networkidle")
+    if javascript:
+        # This enhancement appears after React's mount effect. Network idle alone
+        # can occur before hydration on a busy development server.
+        page.get_by_role("button", name="Prepare WhatsApp message", exact=True).wait_for()
 
 
 def fill_form(page, email, name="Test Visitor", details="Please check our booster pump."):
@@ -222,10 +226,43 @@ def test_repeated_submission_creates_one_inquiry(browser, base_url):
 
 
 @pytest.mark.browser
+def test_details_entered_before_hydration_are_retained(browser, base_url):
+    page, email = new_page(browser, base_url), unique_email()
+    page.emulate_media(reduced_motion="reduce")
+    delayed_scripts = []
+    release_scripts = False
+    scripts = re.compile(r"/_next/static/.*\.js(?:\?|$)")
+    def hold_script(route):
+        if release_scripts:
+            route.continue_()
+        else:
+            delayed_scripts.append(route)
+    page.route(scripts, hold_script)
+    try:
+        # Render the usable server form while holding its JavaScript, as on a slow connection.
+        page.goto(base_url + "/contact", wait_until="commit")
+        fill_form(page, email, name="Early Visitor", details="Details typed before JavaScript loaded.")
+        assert delayed_scripts
+        release_scripts = True
+        for route in list(delayed_scripts):
+            route.continue_()
+        page.get_by_role("button", name="Prepare WhatsApp message", exact=True).wait_for()
+        assert page.get_by_label("Your name").input_value() == "Early Visitor"
+        assert page.get_by_label("Email address").input_value() == email
+        assert page.get_by_role("radio", name="Email", exact=True).is_checked()
+        assert page.get_by_label("Project details").input_value() == "Details typed before JavaScript loaded."
+        send(page)
+        page.get_by_role("status").get_by_text("Thank you").wait_for()
+        assert inbox_entry(page, base_url, email).count() == 1
+    finally:
+        page.context.close()
+
+
+@pytest.mark.browser
 def test_form_works_without_javascript(browser, base_url):
     page, email = new_page(browser, base_url, javascript=False), unique_email()
     try:
-        open_form(page, base_url)
+        open_form(page, base_url, javascript=False)
         fill_form(page, email)
         send(page)
         page.get_by_text("Thank you").first.wait_for()

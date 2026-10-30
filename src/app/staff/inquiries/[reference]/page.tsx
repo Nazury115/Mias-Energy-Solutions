@@ -8,6 +8,9 @@ import { getDb } from "@/server/db/client";
 import { user } from "@/server/db/schema";
 import { findInquiry } from "@/server/inquiries";
 import { requireViewer } from "@/server/session";
+import { activeStaff, jobForInquiry } from "@/server/jobs";
+import { JobWorkflowForm, ReviewForm } from "@/components/job-forms";
+import { requestStages } from "@/lib/jobs";
 
 // Signed-in content must never be pre-rendered at build time (found in production verification, 007).
 export const dynamic = "force-dynamic";
@@ -21,6 +24,7 @@ export default async function InquiryDetail({ params }: { params: Promise<{ refe
   const found = await findInquiry(reference);
   if (!found) notFound();
   const { inquiry, status, attempts } = found;
+  const existingJob = await jobForInquiry(inquiry.id);
   const [account] = inquiry.userId ? await (await getDb()).select({ email: user.email }).from(user).where(eq(user.id, inquiry.userId)) : [];
   const rows: [string, string][] = [
     ["Received", `${when.format(inquiry.createdAt)} (Zambia time)`], ["Name", inquiry.name],
@@ -31,7 +35,12 @@ export default async function InquiryDetail({ params }: { params: Promise<{ refe
   ];
   return <main id="main-content" className="site-container workspace" tabIndex={-1}>
     <WorkspaceHeader viewer={viewer} title={inquiry.reference} current="inquiries" />
-    <p className="account-links"><a href="/staff">← All inquiries</a></p>
+    <p className="account-links"><a href="/staff">← All inquiries</a>{!existingJob && <> · <a href="#review-request">Review request</a>{inquiry.reviewStatus !== "closed" && <> · <a href="#accept-request">Accept request</a></>}</>}</p>
     <dl className="detail-list">{rows.map(([term, value]) => <div key={term} style={{ display: "contents" }}><dt>{term}</dt><dd>{value}</dd></div>)}</dl>
+    <p className="notice">Review: {requestStages[inquiry.reviewStatus as keyof typeof requestStages]}{inquiry.reviewReason ? ` · ${inquiry.reviewReason}` : ""}</p>
+    {existingJob ? <p><a className="button" href={`/staff/jobs/${existingJob.reference}`}>Open job</a></p> : <div className="job-columns">
+      <section className="account-card" id="review-request"><h2>Review request</h2><ReviewForm reference={inquiry.reference} version={inquiry.version} status={inquiry.reviewStatus} /></section>
+      {inquiry.reviewStatus !== "closed" && <section className="account-card" id="accept-request"><h2>Accept request</h2><JobWorkflowForm accept people={await activeStaff()} job={{ reference: inquiry.reference, version: inquiry.version, scope: "", nextStep: "", assigneeId: viewer.id, stage: "assessment" }} /></section>}
+    </div>}
   </main>;
 }
