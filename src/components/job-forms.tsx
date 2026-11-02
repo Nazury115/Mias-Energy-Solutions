@@ -4,8 +4,33 @@ import { jobStages, requestStages } from "@/lib/jobs";
 import { acceptRequest, cancelCustomerInvite, inviteCustomer, retryJobNotifications, reviewRequest, revokeAccess, saveJob, staffMessage, type JobFormState } from "@/app/staff/jobs/actions";
 import { customerMessage } from "@/app/account/jobs/actions";
 import { acceptJobInvitation } from "@/app/job-invite/actions";
+import { staffUpload, staffRemoveFile } from "@/app/staff/jobs/actions";
+import { customerUpload } from "@/app/account/jobs/actions";
 
 const idle: JobFormState = { status: "idle" };
+
+export function UploadForm({ reference, submission, customer }: { reference: string; submission: string; customer: boolean }) {
+  const { state, submit, pending, form } = useJobForm(customer ? customerUpload : staffUpload);
+  const [problem, setProblem] = useState("");
+  return <form ref={form} action={submit} className="account-form job-form" onSubmit={event => {
+    const file = (event.currentTarget.elements.namedItem("file") as HTMLInputElement).files?.[0];
+    if (file && file.size > 5 * 1024 * 1024) { event.preventDefault(); setProblem("Choose a file of 5 MiB or less."); }
+  }}>
+    <Hidden reference={reference} /><input type="hidden" name="submission" value={submission} />
+    <label htmlFor="job-file">Choose a job file</label><p id="job-file-help">JPEG, PNG or PDF. Up to 5 MiB per file and 20 files per job.</p>
+    <input id="job-file" name="file" type="file" required accept=".png,.jpg,.jpeg,.pdf" aria-describedby="job-file-help" onChange={() => setProblem("")} />
+    {problem ? <p role="alert">{problem}</p> : <Feedback state={state} />}<Button pending={pending}>Upload file</Button>
+  </form>;
+}
+
+export function RemoveFileForm({ reference, id, name }: { reference: string; id: string; name: string }) {
+  const { state, submit, pending, form } = useJobForm(staffRemoveFile);
+  return <form ref={form} action={submit} className="account-form job-form">
+    <Hidden reference={reference} /><input type="hidden" name="fileId" value={id} />
+    <label htmlFor={"remove-" + id}>Reason for removing {name}</label><input id={"remove-" + id} name="reason" required maxLength={500} />
+    <Feedback state={state} /><Button pending={pending}>Remove file</Button>
+  </form>;
+}
 const draft = (state: JobFormState, name: string, fallback = "") => state.status === "error" ? state.values?.[name] ?? fallback : fallback;
 function useJobForm(action: (previous: JobFormState, form: FormData) => Promise<JobFormState>) {
   const [state, submit, pending] = useActionState(action, idle), form = useRef<HTMLFormElement>(null);
@@ -64,24 +89,25 @@ export function JobMessageForm({ reference, kind, eventKey, customer = false }: 
   const label = customer ? "Message to Mias" : kind === "note" ? "Internal note" : kind === "update" ? "Customer update" : "Message to customer";
   return <form ref={form} action={submit} className="account-form job-form"><Hidden reference={reference} /><input type="hidden" name="kind" value={kind} /><input type="hidden" name="eventKey" value={eventKey} /><Feedback state={state} />
     <label htmlFor={`job-${kind}`}>{label}</label><textarea id={`job-${kind}`} name="body" defaultValue={draft(state, "body")} maxLength={2000} rows={3} required aria-describedby={`job-${kind}-hint`} />
-    <p id={`job-${kind}-hint`} className="field-hint">{kind === "note" ? "Only Mias staff can see this note." : "Visible in this job's customer portal. No email or SMS is sent for this update."}</p>
+    <p id={`job-${kind}-hint`} className="field-hint">{kind === "note" ? "Only Mias staff can see this note." : "Shared with Mias staff and all contacts who have access to this job. No email or SMS is sent for this update."}</p>
     <Button pending={pending}>{customer || kind === "message" ? "Send message" : kind === "note" ? "Save private note" : "Publish update"}</Button>
   </form>;
 }
-export function CustomerInviteForm({ reference, version, name, email }: { reference: string; version: number; name: string; email: string }) {
+export function CustomerInviteForm({ reference, version, name, email, company }: { reference: string; version: number; name: string; email: string; company: string }) {
   const { state, submit, pending, form } = useJobForm(inviteCustomer);
   return <form ref={form} action={submit} className="account-form job-form" data-customer-invite><Hidden reference={reference} version={version} state={state} /><Feedback state={state} />
+    <label htmlFor="job-company">Company for this job (optional)</label><input id="job-company" name="company" maxLength={120} defaultValue={draft(state, "company", company)} />
     <label htmlFor="customer-name">Customer name</label><input id="customer-name" name="name" defaultValue={draft(state, "name", name)} maxLength={80} required />
     <label htmlFor="customer-email">Customer email</label><input id="customer-email" name="email" type="email" defaultValue={draft(state, "email", email)} maxLength={254} required />
     <label className="job-checkbox"><input type="checkbox" name="checked" value="yes" required />I have checked this customer's identity and contact details</label>
-    <p className="field-hint">Creates a seven-day invitation. Sending another cancels earlier pending links. Existing customers must sign in to accept.</p>
+    <p className="field-hint">Creates a seven-day invitation. Resending to the same email replaces its previous link. Each invited contact can see the job’s customer-visible history and shared files. Existing customers must sign in to accept.</p>
     <Button pending={pending}>Invite customer</Button>
   </form>;
 }
-export function RevokeAccessForm({ reference, version }: { reference: string; version: number }) {
+export function RevokeAccessForm({ reference, version, contactId }: { reference: string; version: number; contactId: string }) {
   const { state, submit, pending, form } = useJobForm(revokeAccess);
   return <form ref={form} action={submit} className="account-form job-form"><Hidden reference={reference} version={version} state={state} /><Feedback state={state} />
-    <label htmlFor="revoke-reason">Reason for revoking access</label><textarea id="revoke-reason" name="reason" defaultValue={draft(state, "reason")} maxLength={500} rows={2} required /><Button pending={pending}>Revoke customer access</Button>
+    <input type="hidden" name="contactId" value={contactId} /><label htmlFor={"revoke-" + contactId}>Reason for revoking access</label><textarea id={"revoke-" + contactId} name="reason" defaultValue={draft(state, "reason")} maxLength={500} rows={2} required /><Button pending={pending}>Revoke customer access</Button>
   </form>;
 }
 export function CancelCustomerInviteForm({ reference, version, id }: { reference: string; version: number; id: string }) {

@@ -13,7 +13,7 @@ Increment 008 adds the core customer job portal on top of the accounts from 007.
 - `/staff/jobs` lists jobs. Each job has stages/history, customer updates/messages, private staff notes, notification delivery status and customer access controls.
 - Staff verify the customer contact and send a seven-day invitation. New customers set a password; existing customers sign in with the invited email before accepting. A matching inquiry email alone never grants access.
 - Customers see their authorized jobs under `/account` and open `/account/jobs/<reference>` for progress and messages. Staff notes never appear there.
-- **Uploads and shared company access are the agreed follow-up slice.** Real email/SMS services remain for launch; all current messages are captured locally at `/dev/inbox`.
+- **Job files and company contacts.** On an active job, open **Job files**, choose a JPEG, PNG or PDF (up to 5 MiB), and select **Upload file**. A job holds up to 20 files. Downloads require current job access. Staff can remove a file with a private reason. On the staff job page, use **Customer access** to enter the company and invite each contact separately. Each person gets their own login and sees that job’s full customer-visible history and files. Revoke the selected person to end their access. Real email/SMS services remain for launch; all current messages are captured locally at `/dev/inbox`.
 
 Specs and plan: [008 specification](specs/008-requests-jobs-and-progress.md), [implementation/test plan](docs/plans/008-requests-jobs-and-progress.md). See the [verification record](docs/testing/008-results.md) for measured checks and the [review walkthrough](docs/journal/008-requests-jobs-and-progress.md) to try the complete journey.
 
@@ -39,7 +39,7 @@ The three stories are visibly fictional, with no customer attribution or fabrica
 
 ## Approved direction and remaining work
 
-The [business platform specification](specs/002-business-platform-expansion.md) records the approved direction. The public website, saved inquiries, accounts and core individual-customer job portal are implemented locally. Private uploads, shared company-customer access, staff project/testimonial publishing, quotations/invoices and the solar planner remain future slices with their own SDD gates.
+The [business platform specification](specs/002-business-platform-expansion.md) records the approved direction. The public website, saved inquiries, accounts and core individual-customer job portal are implemented locally. Staff project/testimonial publishing, quotations/invoices and the solar planner remain future slices with their own SDD gates.
 
 See the [competitor review](docs/research/loxlak-review-2026-10-19.md), [photograph inventory](docs/content/proof-of-service-inventory.md) and [information worksheet](docs/content/business-intake.md). The final production MVP is not complete merely because the local public preview works.
 

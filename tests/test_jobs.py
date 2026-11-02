@@ -54,6 +54,8 @@ def accept_job(staff, base_url, reference):
     form.get_by_label("Reason").fill("Customer confirmed the assessment")
     form.get_by_role("button", name="Accept and create job").click()
     staff.wait_for_url("**/staff/jobs/*")
+    staff.get_by_role("heading", level=1, name=re.compile(r"^JOB-")).wait_for()
+    staff.wait_for_load_state("networkidle")
     return urlsplit(staff.url)._replace(query="", fragment="").geturl()
 
 
@@ -294,6 +296,7 @@ def test_invalid_stage_change_preserves_the_staff_edit(browser, base_url):
         form.get_by_label("Next step").fill("Keep this unsaved next step for correction")
         form.get_by_label("Reason").fill("Keep this unsaved reason")
         form.get_by_label("Stage", exact=True).select_option("completed")
+        assert form.get_by_label("Next step").input_value() == "Keep this unsaved next step for correction"
         form.get_by_role("button", name="Update job").click()
         form.get_by_role("alert").wait_for()
         assert form.get_by_label("Next step").input_value() == "Keep this unsaved next step for correction"

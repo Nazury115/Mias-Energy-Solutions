@@ -3,6 +3,8 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect, unstable_rethrow } from "next/navigation";
 import { parseVersion } from "@/lib/jobs";
+import { fileFailed, fileSaved, uploadForm } from "@/server/job-file-form";
+import { removeJobFile } from "@/server/job-files";
 import { requireViewer } from "@/server/session";
 import { acceptInquiry, addJobMessage, cancelCustomerInvitation, inviteJobCustomer, JobProblem, jobNotifications, reviewInquiry, revokeCustomer, updateJob } from "@/server/jobs";
 import { deliverRows, type Simulation } from "@/server/mail/outbox";
@@ -24,7 +26,7 @@ const failed = (error: unknown, form: FormData): JobFormState => {
   unstable_rethrow(error);
   // React resets uncontrolled fields after a completed action. Return the draft on errors;
   // passwords, invitation tokens and event keys are deliberately excluded.
-  const values = Object.fromEntries(["scope", "nextStep", "assigneeId", "reason", "stage", "name", "email", "body", "reviewStatus"].map(name => [name, read(form, name)]));
+  const values = Object.fromEntries(["scope", "nextStep", "assigneeId", "reason", "stage", "company", "name", "email", "body", "reviewStatus"].map(name => [name, read(form, name)]));
   return { status: "error", message: error instanceof JobProblem ? error.message : "We could not save that change. Please reload and try again.", values, baseVersion: parseVersion(read(form, "expectedVersion")) ?? undefined };
 };
 
@@ -58,13 +60,13 @@ export async function inviteCustomer(_previous: JobFormState, form: FormData): P
   const viewer = await requireViewer(["staff", "owner"], "/staff/jobs");
   try {
     const reference = read(form, "reference");
-    await inviteJobCustomer(viewer, reference, { name: read(form, "name"), email: read(form, "email"), checked: read(form, "checked") === "yes", expectedVersion: version(form) }, await simulation());
+    await inviteJobCustomer(viewer, reference, { company: read(form, "company"), name: read(form, "name"), email: read(form, "email"), checked: read(form, "checked") === "yes", expectedVersion: version(form) }, await simulation());
     return done(reference, "Customer invitation saved. Its delivery status is listed below.", version(form) + 1);
   } catch (error) { return failed(error, form); }
 }
 export async function revokeAccess(_previous: JobFormState, form: FormData): Promise<JobFormState> {
   const viewer = await requireViewer(["staff", "owner"], "/staff/jobs");
-  try { const reference = read(form, "reference"); await revokeCustomer(viewer, reference, read(form, "reason"), version(form)); done(reference, "Customer access revoked."); redirect(`/staff/jobs/${encodeURIComponent(reference)}?notice=access-revoked`); }
+  try { const reference = read(form, "reference"); await revokeCustomer(viewer, reference, read(form, "contactId"), read(form, "reason"), version(form)); done(reference, "Customer access revoked."); redirect(`/staff/jobs/${encodeURIComponent(reference)}?notice=access-revoked`); }
   catch (error) { return failed(error, form); }
 }
 export async function cancelCustomerInvite(_previous: JobFormState, form: FormData): Promise<JobFormState> {
@@ -79,4 +81,18 @@ export async function retryJobNotifications(_previous: JobFormState, form: FormD
     await deliverRows(rows.filter(row => ["pending", "failed"].includes(row.status) && row.attempts < 4).map(row => row.id), await simulation());
     return done(reference, "Eligible notifications retried. Check each delivery status below.");
   } catch (error) { return failed(error, form); }
+}
+
+export async function staffUpload(_previous: JobFormState, form: FormData) {
+  return uploadForm(await requireViewer(["owner", "staff"], "/staff/jobs"), form);
+}
+
+export async function staffRemoveFile(_previous: JobFormState, form: FormData) {
+  const viewer = await requireViewer(["owner", "staff"], "/staff/jobs");
+  const reference = read(form, "reference");
+  try {
+    await removeJobFile(viewer, reference, read(form, "fileId"), read(form, "reason"));
+    fileSaved(reference, "File removed.");
+    redirect("/staff/jobs/" + encodeURIComponent(reference) + "?notice=file-removed");
+  } catch (error) { return fileFailed(error); }
 }

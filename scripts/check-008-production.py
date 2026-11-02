@@ -5,18 +5,21 @@ from pathlib import Path
 import re
 import secrets
 import socket
+import struct
 import subprocess
 import sys
 import time
 from urllib.error import HTTPError, URLError
 from urllib.request import HTTPRedirectHandler, build_opener, urlopen
 import uuid
+import zlib
 
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tests"))
 from test_jobs import accept_job  # reuse the tested staff form journey
+from test_job_files import PNG
 
 NODE = os.environ.get("MIAS_NODE", str(Path.home() / ".cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe"))
 BASE = "http://127.0.0.1:3210"
@@ -144,6 +147,18 @@ try:
         customer.locator("main").get_by_role("status").wait_for()
         owner.goto(job_url, wait_until="networkidle")
         assert "Production portal reply" in owner.locator("main").inner_text()
+        # Build a real PNG exactly at the file limit, including a valid ancillary chunk.
+        payload = b"Comment\0".ljust(5 * 1024 * 1024 - len(PNG) - 12, b"A")
+        chunk = b"tEXt" + payload
+        image = PNG[:-12] + struct.pack(">I", len(payload)) + chunk + struct.pack(">I", zlib.crc32(chunk)) + PNG[-12:]
+        customer.get_by_label("Choose a job file").set_input_files({"name": "site-check.png", "mimeType": "image/png", "buffer": image})
+        customer.get_by_role("button", name="Upload file").click()
+        customer.get_by_role("link", name="site-check.png").wait_for()
+        owner.reload(wait_until="networkidle")
+        href = owner.get_by_role("link", name="site-check.png").get_attribute("href")
+        assert owner.request.get(BASE + href).body() == image
+        assert guest.request.get(BASE + href, max_redirects=0).status in (303, 307)
+        print("Production 5 MiB customer upload, staff download and signed-out denial passed.", flush=True)
         assert not errors, errors
         customer.screenshot(path=str(ROOT / "test-results/008-production-customer.png"))
         browser.close()

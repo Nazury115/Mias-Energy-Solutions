@@ -28,7 +28,7 @@ Every increment below follows the project's SDD loop: **spec → implementation/
 | Portal | Customer invitation after staff acceptance; verified linking of existing accounts | Core implemented and verified locally (008) | 008 ACCESS |
 | Notifications | Customer receipt and acceptance by email and SMS | Local capture implemented and verified; real providers at launch | 008 NOTIFY |
 | Portal | Customer/staff messages; internal notes kept private | Core implemented and verified locally (008) | PORT-06 |
-| Portal | Private photo/document uploads; shared company-customer access | Not started; Henry explicitly chose a follow-up 008 slice | PORT-07, organization rules |
+| Portal | Private photo/document uploads; shared company-customer access | Local implementation in [008 follow-up](../../specs/008-follow-up-job-files-and-company-access.md) | PORT-07, organization rules |
 | Content | Staff publishing of projects, testimonials (and map data) | Not started | CMS-01 |
 | Documents | Quotations and invoices | Not started | DOC-01–06 |
 | Planner | Household solar planner | Not started | SOL-01–07 |
@@ -130,7 +130,7 @@ Order chosen so that each step delivers something usable and unblocks the next. 
 
 ### Current step
 
-Increment 005 still needs confirmed project figures, portrait/bio, hours and real photos. Increment 006 added saved inquiries and 007 added accounts. **008 core is implemented and verified locally:** 254 tests, TypeScript, production build and production customer journey passed; see [results](../testing/008-results.md). Henry approved the local stages, core-first scope and email/SMS receipt and acceptance messages on 2026-10-26. [Spec 008](../../specs/008-requests-jobs-and-progress.md) and its [plan](008-requests-jobs-and-progress.md) record the implementation boundary. Private uploads/shared access remain a follow-up slice; launch still needs Israel's operational confirmation, retention and real providers/budget. Staff publishing (009), documents (010) and the solar planner (011) remain unbuilt.
+Increment 005 still needs confirmed project figures, portrait/bio, hours and real photos. Increment 006 added saved inquiries and 007 added accounts. **008 core is implemented and verified locally:** 254 tests, TypeScript, production build and production customer journey passed; see [results](../testing/008-results.md). Henry approved the local stages, core-first scope and email/SMS receipt and acceptance messages on 2026-10-26. [Spec 008](../../specs/008-requests-jobs-and-progress.md) and its [plan](008-requests-jobs-and-progress.md) record the implementation boundary. Job files and per-job company contacts are implemented in the [approved follow-up](../../specs/008-follow-up-job-files-and-company-access.md); launch still needs Israel's operational confirmation, retention and real providers/budget. Staff publishing (009), documents (010) and the solar planner (011) remain unbuilt.
 
 ## 5. Running costs and local-first build
 

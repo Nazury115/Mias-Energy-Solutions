@@ -1,4 +1,4 @@
-import { boolean, index, integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { boolean, customType, index, integer, pgTable, primaryKey, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 // Better Auth tables (spec 007). Column names follow Better Auth's model; role/phone/status are our additions.
 export const user = pgTable("user", {
@@ -137,10 +137,30 @@ export const jobs = pgTable("jobs", {
   stage: text("stage").notNull().default("assessment"),
   assigneeId: text("assignee_id").notNull().references(() => user.id, { onDelete: "restrict" }),
   customerId: text("customer_id").references(() => user.id, { onDelete: "set null" }),
+  company: text("company"),
   version: integer("version").notNull().default(1),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, table => [index("jobs_customer_idx").on(table.customerId)]);
+
+// Existing individual grants stay in jobs.customer_id. New grants are per contact and job.
+export const jobContacts = pgTable("job_contacts", {
+  jobId: uuid("job_id").notNull().references(() => jobs.id, { onDelete: "cascade" }),
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+}, table => [primaryKey({ columns: [table.jobId, table.userId] }), index("job_contacts_user_idx").on(table.userId)]);
+
+const bytea = customType<{ data: Buffer }>({ dataType: () => "bytea" });
+export const jobFiles = pgTable("job_files", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  jobId: uuid("job_id").notNull().references(() => jobs.id, { onDelete: "cascade" }),
+  submission: text("submission").notNull().unique(),
+  name: text("name").notNull(),
+  mime: text("mime").notNull(),
+  size: integer("size").notNull(),
+  uploader: text("uploader").notNull(),
+  bytes: bytea("bytes").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, table => [index("job_files_job_idx").on(table.jobId)]);
 
 // Queries for customer pages select only customer-visible rows, never private note payloads.
 export const jobEvents = pgTable("job_events", {

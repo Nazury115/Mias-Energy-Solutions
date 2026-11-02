@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { Metadata } from "next";
+import { JobFiles } from "@/components/job-files";
 import { JobHistory } from "@/components/job-history";
 import { JobMessageForm } from "@/components/job-forms";
 import { jobStages } from "@/lib/jobs";
@@ -17,5 +18,6 @@ export default async function CustomerJob({ params }: { params: Promise<{ refere
     <div className="job-overview"><h2>{job.scope}</h2><p><strong>Next step:</strong> {job.nextStep}</p><p className="field-hint">Last updated {new Intl.DateTimeFormat("en-GB", { timeZone: "Africa/Lusaka", dateStyle: "medium", timeStyle: "short" }).format(job.updatedAt)} (Zambia time)</p></div>
     <div className="job-columns"><section className="account-card"><h2>Progress and messages</h2><JobHistory events={events} /></section>
       <section className="account-card"><h2>Contact the Mias team</h2><JobMessageForm reference={job.reference} kind="message" eventKey={randomUUID()} customer /></section></div>
+    <JobFiles reference={job.reference} stage={job.stage} viewer={{ ...viewer, role: "customer" }} />
   </main>;
 }

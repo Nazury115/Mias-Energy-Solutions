@@ -584,3 +584,6 @@ form.search-bar .button { margin-top: 0; }
   .parallax-image img { transform: none; }
   .base-marker .base-pulse { display: none; }
 }
+
+.job-file-list { overflow-wrap: anywhere; }
+.job-file-list input { min-width: 0; max-width: 100%; }

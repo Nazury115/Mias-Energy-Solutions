@@ -6,7 +6,7 @@ import { acceptanceText, jobStages, jobTransitionProblem, notificationDestinatio
 import { siteUrl } from "@/lib/site-metadata";
 import { getAuth } from "@/server/auth";
 import { getDb } from "@/server/db/client";
-import { account, auditLog, customerInvitations, inquiries, jobEvents, jobs, notifications, user } from "@/server/db/schema";
+import { account, auditLog, customerInvitations, inquiries, jobContacts, jobEvents, jobs, notifications, user } from "@/server/db/schema";
 import { deliverRows, type Simulation } from "@/server/mail/outbox";
 import type { Viewer } from "@/server/session";
 
@@ -16,6 +16,16 @@ const hashToken = (token: string) => createHash("sha256").update(token).digest("
 const cleanReference = (reference: string) => reference.trim().toUpperCase();
 const keyPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 export class JobProblem extends Error {}
+
+// The individual grant predates job_contacts. Keep it effective until explicitly revoked.
+function customerGrant(userId: string) {
+  return or(eq(jobs.customerId, userId), sql`exists (select 1 from ${jobContacts} where ${jobContacts.jobId} = ${jobs.id} and ${jobContacts.userId} = ${userId})`);
+}
+
+export function jobAccess(viewer: Viewer) {
+  if (viewer.role !== "customer") { staff(viewer); return undefined; }
+  return customerGrant(viewer.id);
+}
 
 export async function activeStaff() {
   return (await getDb()).select({ id: user.id, name: user.name }).from(user).where(and(inArray(user.role, ["staff", "owner"]), eq(user.status, "active"))).orderBy(user.name);
@@ -70,7 +80,7 @@ export async function acceptInquiry(viewer: Viewer, reference: string, input: Jo
 export async function listJobs(viewer: Viewer, query = "", stage = "") {
   const db = await getDb();
   const filters = [];
-  if (viewer.role === "customer") filters.push(eq(jobs.customerId, viewer.id)); else staff(viewer);
+  filters.push(jobAccess(viewer));
   if (Object.hasOwn(jobStages, stage)) filters.push(eq(jobs.stage, stage));
   if (query.trim()) filters.push(or(sql`strpos(lower(${jobs.reference}), ${query.trim().toLowerCase()}) > 0`, sql`strpos(lower(${jobs.scope}), ${query.trim().toLowerCase()}) > 0`)!);
   return db.select({ reference: jobs.reference, scope: jobs.scope, stage: jobs.stage, nextStep: jobs.nextStep, updatedAt: jobs.updatedAt }).from(jobs).where(and(...filters)).orderBy(desc(jobs.updatedAt));
@@ -80,7 +90,7 @@ export async function listJobs(viewer: Viewer, query = "", stage = "") {
 export async function readJob(viewer: Viewer, reference: string) {
   const db = await getDb();
   const isStaff = viewer.role === "staff" || viewer.role === "owner";
-  const [job] = await db.select().from(jobs).where(and(eq(jobs.reference, cleanReference(reference)), ...(isStaff ? [] : [eq(jobs.customerId, viewer.id)])));
+  const [job] = await db.select().from(jobs).where(and(eq(jobs.reference, cleanReference(reference)), jobAccess(viewer)));
   if (!job) notFound();
   const events = await db.select({ id: jobEvents.id, kind: jobEvents.kind, actorName: jobEvents.actorName, body: jobEvents.body, audience: jobEvents.audience, createdAt: jobEvents.createdAt }).from(jobEvents)
     .where(and(eq(jobEvents.jobId, job.id), ...(isStaff ? [] : [eq(jobEvents.audience, "customer")]))).orderBy(jobEvents.createdAt, jobEvents.id);
@@ -91,10 +101,13 @@ export async function staffJobDetails(viewer: Viewer, reference: string) {
   staff(viewer);
   const result = await readJob(viewer, reference), db = await getDb();
   const [inquiry] = await db.select().from(inquiries).where(eq(inquiries.id, result.job.inquiryId));
-  const [customer] = result.job.customerId ? await db.select({ name: user.name, email: user.email }).from(user).where(eq(user.id, result.job.customerId)) : [];
+  const contacts = await db.select({ id: user.id, name: user.name, email: user.email }).from(user).where(or(
+    result.job.customerId ? eq(user.id, result.job.customerId) : undefined,
+    sql`exists (select 1 from ${jobContacts} where ${jobContacts.jobId} = ${result.job.id} and ${jobContacts.userId} = ${user.id})`
+  )).orderBy(user.name, user.email);
   const pending = await db.select({ id: customerInvitations.id, email: customerInvitations.email, expiresAt: customerInvitations.expiresAt, acceptedAt: customerInvitations.acceptedAt, cancelledAt: customerInvitations.cancelledAt }).from(customerInvitations)
     .where(and(eq(customerInvitations.jobId, result.job.id), isNull(customerInvitations.acceptedAt), isNull(customerInvitations.cancelledAt))).orderBy(desc(customerInvitations.createdAt));
-  return { ...result, inquiry, customer: customer ?? null, pending: pending.filter(invite => invitationState(invite) === "valid"), people: await activeStaff() };
+  return { ...result, inquiry, contacts, pending: pending.filter(invite => invitationState(invite) === "valid"), people: await activeStaff() };
 }
 
 export async function updateJob(viewer: Viewer, reference: string, input: JobDetailsInput & { stage: string }) {
@@ -128,7 +141,7 @@ export async function addJobMessage(viewer: Viewer, reference: string, body: str
   const db = await getDb();
   await db.transaction(async tx => {
     // Lock the job while authorizing and writing, so revocation cannot race a customer post.
-    const [job] = await tx.select().from(jobs).where(and(eq(jobs.reference, cleanReference(reference)), ...(viewer.role === "customer" ? [eq(jobs.customerId, viewer.id)] : []))).for("update");
+    const [job] = await tx.select().from(jobs).where(and(eq(jobs.reference, cleanReference(reference)), jobAccess(viewer))).for("update");
     if (!job) notFound();
     const [existing] = await tx.select({ id: jobEvents.id }).from(jobEvents).where(eq(jobEvents.eventKey, `message:${job.id}:${viewer.id}:${eventKey}`));
     if (existing) return;
@@ -138,25 +151,31 @@ export async function addJobMessage(viewer: Viewer, reference: string, body: str
   });
 }
 
-export async function inviteJobCustomer(viewer: Viewer, reference: string, input: { name: string; email: string; checked: boolean; expectedVersion: number }, simulate: Simulation = null) {
+export async function inviteJobCustomer(viewer: Viewer, reference: string, input: { name: string; email: string; company: string; checked: boolean; expectedVersion: number }, simulate: Simulation = null) {
   staff(viewer);
   const name = input.name.trim(), email = input.email.trim().toLowerCase();
+  const company = input.company.trim();
+  if (company.length > 120) throw new JobProblem("Use 120 characters or fewer for the company name.");
   if (!name || name.length > 80 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || email.length > 254 || !input.checked) throw new JobProblem("Enter a name and email, and confirm that you checked the customer's identity and contact details.");
   const db = await getDb(), token = randomBytes(32).toString("base64url");
   const noteId = await db.transaction(async tx => {
     const [job] = await tx.select().from(jobs).where(eq(jobs.reference, cleanReference(reference))).for("update");
     if (!job) notFound();
     if (job.version !== input.expectedVersion) throw new JobProblem(conflict);
-    if (job.customerId) throw new JobProblem("Revoke existing customer access before inviting another customer.");
+    const [person] = await tx.select({ id: user.id }).from(user).where(eq(user.email, email));
+    if (person) {
+      const [existing] = await tx.select({ id: jobs.id }).from(jobs).where(and(eq(jobs.id, job.id), customerGrant(person.id)));
+      if (existing) throw new JobProblem("This person already has access to this job.");
+    }
     const [{ value: count }] = await tx.select({ value: sql<number>`count(*)::int` }).from(customerInvitations).where(and(eq(customerInvitations.jobId, job.id), gt(customerInvitations.createdAt, new Date(Date.now() - 3_600_000))));
     if (count >= 3) throw new JobProblem("Three invitations have been created recently. Wait an hour before sending another.");
-    await tx.update(customerInvitations).set({ cancelledAt: new Date() }).where(and(eq(customerInvitations.jobId, job.id), isNull(customerInvitations.acceptedAt), isNull(customerInvitations.cancelledAt)));
-    await tx.update(notifications).set({ status: "cancelled" }).where(and(eq(notifications.jobId, job.id), eq(notifications.kind, "job-invitation"), inArray(notifications.status, ["pending", "failed"])));
+    await tx.update(customerInvitations).set({ cancelledAt: new Date() }).where(and(eq(customerInvitations.jobId, job.id), eq(customerInvitations.email, email), isNull(customerInvitations.acceptedAt), isNull(customerInvitations.cancelledAt)));
+    await tx.update(notifications).set({ status: "cancelled" }).where(and(eq(notifications.jobId, job.id), eq(notifications.recipient, email), eq(notifications.kind, "job-invitation"), inArray(notifications.status, ["pending", "failed"])));
     const [invite] = await tx.insert(customerInvitations).values({ jobId: job.id, name, email, tokenHash: hashToken(token), invitedBy: viewer.id, expiresAt: new Date(Date.now() + 7 * 86_400_000) }).returning({ id: customerInvitations.id });
     const url = `${siteUrl}/job-invite?token=${encodeURIComponent(token)}`;
     const [note] = await tx.insert(notifications).values({ jobId: job.id, kind: "job-invitation", recipient: email, channel: "email", eventKey: `job-invite:${invite.id}`,
-      subject: "Your Mias customer portal invitation", body: `Hello ${name},\n\nMias Energy Solutions invites you to set up access to your job.\n${url}\n\nThis link expires in 7 days and works once. If you already have an account, sign in using the invited email to accept access.` }).returning({ id: notifications.id });
-    await tx.update(jobs).set({ version: sql`${jobs.version} + 1` }).where(eq(jobs.id, job.id));
+      subject: "Your Mias customer portal invitation", body: `Hello ${name},\n\nAccept access to ${job.reference} to see its existing and future customer-visible progress, messages and files.\n${url}\n\nThis link expires in 7 days and works once. If you already have an account, sign in using the invited email to accept access.` }).returning({ id: notifications.id });
+    await tx.update(jobs).set({ company: company || job.company, version: sql`${jobs.version} + 1` }).where(eq(jobs.id, job.id));
     await tx.insert(jobEvents).values({ jobId: job.id, actorId: viewer.id, actorName: viewer.name, audience: "staff", kind: "access-invited", body: `Customer identity and contact reviewed; invitation sent to ${email}.` });
     return note.id;
   });
@@ -166,8 +185,8 @@ export async function inviteJobCustomer(viewer: Viewer, reference: string, input
 /** No job description is exposed before the invitation is accepted. */
 export async function findCustomerInvitation(token: string) {
   if (!/^[A-Za-z0-9_-]{43}$/.test(token)) return null;
-  const [invite] = await (await getDb()).select({ id: customerInvitations.id, jobId: customerInvitations.jobId, name: customerInvitations.name, email: customerInvitations.email,
-    expiresAt: customerInvitations.expiresAt, acceptedAt: customerInvitations.acceptedAt, cancelledAt: customerInvitations.cancelledAt }).from(customerInvitations).where(eq(customerInvitations.tokenHash, hashToken(token)));
+  const [invite] = await (await getDb()).select({ reference: jobs.reference, id: customerInvitations.id, jobId: customerInvitations.jobId, name: customerInvitations.name, email: customerInvitations.email,
+    expiresAt: customerInvitations.expiresAt, acceptedAt: customerInvitations.acceptedAt, cancelledAt: customerInvitations.cancelledAt }).from(customerInvitations).innerJoin(jobs, eq(jobs.id, customerInvitations.jobId)).where(eq(customerInvitations.tokenHash, hashToken(token)));
   return invite ? { ...invite, state: invitationState(invite) } : null;
 }
 
@@ -184,7 +203,7 @@ export async function acceptCustomerInvitation(token: string, viewer: Viewer | n
   const db = await getDb();
   return db.transaction(async tx => {
     const [job] = await tx.select().from(jobs).where(eq(jobs.id, invite.jobId)).for("update");
-    if (!job || job.customerId) throw new JobProblem("This invitation no longer grants access. Contact Mias.");
+    if (!job) throw new JobProblem("This invitation no longer grants access. Contact Mias.");
     let customerId: string;
     if (viewer) {
       const [person] = await tx.select().from(user).where(and(eq(user.id, viewer.id), eq(user.email, invite.email), eq(user.emailVerified, true), eq(user.status, "active")));
@@ -200,21 +219,23 @@ export async function acceptCustomerInvitation(token: string, viewer: Viewer | n
     }
     const claimed = await tx.update(customerInvitations).set({ acceptedAt: new Date() }).where(and(eq(customerInvitations.id, invite.id), isNull(customerInvitations.acceptedAt), isNull(customerInvitations.cancelledAt), gt(customerInvitations.expiresAt, new Date()))).returning({ id: customerInvitations.id });
     if (!claimed.length) throw new JobProblem("This invitation has already been used or is no longer valid.");
-    await tx.update(jobs).set({ customerId, version: sql`${jobs.version} + 1` }).where(eq(jobs.id, job.id));
+    await tx.insert(jobContacts).values({ jobId: job.id, userId: customerId });
+    await tx.update(jobs).set({ version: sql`${jobs.version} + 1` }).where(eq(jobs.id, job.id));
     await tx.insert(jobEvents).values({ jobId: job.id, actorId: customerId, actorName: invite.name, audience: "staff", kind: "access-accepted", body: `${invite.email} accepted verified access.` });
     return { email: invite.email, reference: job.reference, created: !viewer };
   });
 }
 
-export async function revokeCustomer(viewer: Viewer, reference: string, reason: string, expectedVersion: number) {
+export async function revokeCustomer(viewer: Viewer, reference: string, contactId: string, reason: string, expectedVersion: number) {
   staff(viewer);
   if (!reason.trim() || reason.trim().length > 500) throw new JobProblem("Enter the reason for revoking access (500 characters or fewer).");
   const db = await getDb();
   await db.transaction(async tx => {
-    const [job] = await tx.update(jobs).set({ customerId: null, version: sql`${jobs.version} + 1` }).where(and(eq(jobs.reference, cleanReference(reference)), eq(jobs.version, expectedVersion))).returning({ id: jobs.id });
+    const [job] = await tx.update(jobs).set({ customerId: sql`case when ${jobs.customerId} = ${contactId} then null else ${jobs.customerId} end`, version: sql`${jobs.version} + 1` })
+      .where(and(eq(jobs.reference, cleanReference(reference)), eq(jobs.version, expectedVersion), customerGrant(contactId))).returning({ id: jobs.id });
     if (!job) throw new JobProblem(conflict);
-    await tx.update(customerInvitations).set({ cancelledAt: new Date() }).where(and(eq(customerInvitations.jobId, job.id), isNull(customerInvitations.acceptedAt), isNull(customerInvitations.cancelledAt)));
-    await tx.insert(jobEvents).values({ jobId: job.id, actorId: viewer.id, actorName: viewer.name, audience: "staff", kind: "access-revoked", body: reason.trim() });
+    await tx.delete(jobContacts).where(and(eq(jobContacts.jobId, job.id), eq(jobContacts.userId, contactId)));
+    await tx.insert(jobEvents).values({ jobId: job.id, actorId: viewer.id, actorName: viewer.name, audience: "staff", kind: "access-revoked", body: `Contact ${contactId}: ${reason.trim()}` });
   });
 }
 
@@ -233,7 +254,9 @@ export async function cancelCustomerInvitation(viewer: Viewer, reference: string
   await db.transaction(async tx => {
     const [job] = await tx.update(jobs).set({ version: sql`${jobs.version} + 1` }).where(and(eq(jobs.reference, cleanReference(reference)), eq(jobs.version, version))).returning({ id: jobs.id });
     if (!job) throw new JobProblem(conflict);
-    await tx.update(customerInvitations).set({ cancelledAt: new Date() }).where(and(eq(customerInvitations.id, id), eq(customerInvitations.jobId, job.id), isNull(customerInvitations.acceptedAt)));
+    const [cancelled] = await tx.update(customerInvitations).set({ cancelledAt: new Date() }).where(and(eq(customerInvitations.id, id),
+      eq(customerInvitations.jobId, job.id), isNull(customerInvitations.acceptedAt), isNull(customerInvitations.cancelledAt))).returning({ id: customerInvitations.id });
+    if (!cancelled) throw new JobProblem("This invitation is no longer pending on this job.");
     await tx.update(notifications).set({ status: "cancelled" }).where(and(eq(notifications.eventKey, `job-invite:${id}`), inArray(notifications.status, ["pending", "failed"])));
     await tx.insert(jobEvents).values({ jobId: job.id, actorId: viewer.id, actorName: viewer.name, audience: "staff", kind: "invitation-cancelled", body: "Pending customer invitation cancelled." });
   });

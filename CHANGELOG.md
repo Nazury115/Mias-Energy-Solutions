@@ -8,6 +8,12 @@ Newest first. Each entry records what changed, where, and why, so work can conti
 - How to keep them in sync: [AGENTS.md › Two working copies](AGENTS.md#two-working-copies).
 - `Proof of service/` (the 30 original WhatsApp photos) exists in both folders but is deliberately not in git.
 
+## [008 follow-up] Private job files and shared company access — 2026-11-02
+
+- Linked customers and active Mias staff can share JPEG, PNG and PDF files on active jobs. Each job has 20 slots and each file can be up to 5 MiB. A protected download checks current access. Staff can remove a file with a private reason.
+- Staff can record a company on the job, invite separate verified contacts and revoke one person's access. Existing individual grants and pending invitation tokens survive the migration.
+- File contents and metadata commit together in the private database. Sharp and pdf-lib validate uploads on the server. The [approved scope](specs/008-follow-up-job-files-and-company-access.md) and [implementation plan](docs/plans/008-job-files-and-company-access.md) cover both slices.
+
 ## [008 core] Requests, jobs and customer portal — 2026-10-26
 
 Training guides on 2026-10-29: added a reproducible screen recorder and narrated customer, Staff, Owner/local-testing and complete video exports with captions, chapters and a transcript. The recording uses a separate fictional database and local-only email/SMS captures. Large generated videos and private recording checkpoints stay out of Git. See the [video guide notes](docs/journal/008-video-guide.md).
