@@ -8,6 +8,11 @@ Newest first. Each entry records what changed, where, and why, so work can conti
 - How to keep them in sync: [AGENTS.md › Two working copies](AGENTS.md#two-working-copies).
 - `Proof of service/` (the 30 original WhatsApp photos) exists in both folders but is deliberately not in git.
 
+## [008 follow-up] Staff and customer job conversations
+
+- Added the [approved conversation view](specs/008-job-conversations.md) to both job portals. It shows earlier messages and shared updates, a reply box, and live replies alongside separate progress and private staff history.
+- Added first-view receipts per message and reader. Focused, visible messages can record a receipt. Access checks cover both reads and writes. Existing jobs keep their messages and begin with empty receipt history.
+
 ## [008 follow-up] Private job files and shared company access — 2026-11-02
 
 - Linked customers and active Mias staff can share JPEG, PNG and PDF files on active jobs. Each job has 20 slots and each file can be up to 5 MiB. A protected download checks current access. Staff can remove a file with a private reason.

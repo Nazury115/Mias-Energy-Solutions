@@ -566,7 +566,7 @@ class Tutorial:
         elif key=="customer_progress":
             self.activate("customer",self.v["customer_job"])
             assert "TRAINING PRIVATE NOTE" not in p.content()
-            self.mark(p.get_by_role("heading",name="Progress and messages",exact=True))
+            self.mark(p.get_by_role("heading",name="Job conversation",exact=True))
             self.message("Message to Mias","TRAINING: thank you; I will be available.","Send message")
         elif key=="staff_guest_job":
             self.activate("staff","/staff")
@@ -579,7 +579,7 @@ class Tutorial:
             p.wait_for_url("**/account/jobs/*")
             self.role="invited"
             self.states["invited"]=self.context.storage_state()
-            self.mark(p.get_by_role("heading",name="Progress and messages",exact=True))
+            self.mark(p.get_by_role("heading",name="Job conversation",exact=True))
         elif key=="customer_isolation":
             self.goto(self.v["job"].replace("/staff/jobs/","/account/jobs/"))
             assert "404" in p.locator("main").inner_text()

@@ -27,7 +27,7 @@ Every increment below follows the project's SDD loop: **spec → implementation/
 | Portal | Requests → jobs → status history | Core implemented and verified locally (008) | PORT-03–05, 08 |
 | Portal | Customer invitation after staff acceptance; verified linking of existing accounts | Core implemented and verified locally (008) | 008 ACCESS |
 | Notifications | Customer receipt and acceptance by email and SMS | Local capture implemented and verified; real providers at launch | 008 NOTIFY |
-| Portal | Customer/staff messages; internal notes kept private | Core implemented and verified locally (008) | PORT-06 |
+| Portal | Customer/staff messages; internal notes kept private | 008 includes a [shared job conversation and per-reader receipts](../../specs/008-job-conversations.md) | PORT-06 |
 | Portal | Private photo/document uploads; shared company-customer access | Local implementation in [008 follow-up](../../specs/008-follow-up-job-files-and-company-access.md) | PORT-07, organization rules |
 | Content | Staff publishing of projects, testimonials (and map data) | Not started | CMS-01 |
 | Documents | Quotations and invoices | Not started | DOC-01–06 |

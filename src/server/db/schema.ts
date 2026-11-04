@@ -175,6 +175,14 @@ export const jobEvents = pgTable("job_events", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, table => [index("job_events_job_idx").on(table.jobId, table.createdAt)]);
 
+// Absence of a row means no view has been recorded, including for older messages.
+export const messageReads = pgTable("job_message_reads", {
+  eventId: uuid("event_id").notNull().references(() => jobEvents.id, { onDelete: "cascade" }),
+  readerId: text("reader_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  readerName: text("reader_name").notNull(),
+  readAt: timestamp("read_at", { withTimezone: true }).notNull().defaultNow(),
+}, table => [primaryKey({ columns: [table.eventId, table.readerId] })]);
+
 export const customerInvitations = pgTable("customer_invitations", {
   id: uuid("id").primaryKey().defaultRandom(),
   jobId: uuid("job_id").notNull().references(() => jobs.id, { onDelete: "cascade" }),

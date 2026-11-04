@@ -1,5 +1,5 @@
 import { createHash, randomBytes, randomUUID } from "node:crypto";
-import { and, desc, eq, gt, inArray, isNull, or, sql } from "drizzle-orm";
+import { and, desc, eq, gt, inArray, isNull, notInArray, or, sql } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { invitationState, passwordProblem } from "@/lib/accounts";
 import { acceptanceText, jobStages, jobTransitionProblem, notificationDestinations, requestStages, type JobDetailsInput, validateJobDetails } from "@/lib/jobs";
@@ -93,7 +93,7 @@ export async function readJob(viewer: Viewer, reference: string) {
   const [job] = await db.select().from(jobs).where(and(eq(jobs.reference, cleanReference(reference)), jobAccess(viewer)));
   if (!job) notFound();
   const events = await db.select({ id: jobEvents.id, kind: jobEvents.kind, actorName: jobEvents.actorName, body: jobEvents.body, audience: jobEvents.audience, createdAt: jobEvents.createdAt }).from(jobEvents)
-    .where(and(eq(jobEvents.jobId, job.id), ...(isStaff ? [] : [eq(jobEvents.audience, "customer")]))).orderBy(jobEvents.createdAt, jobEvents.id);
+    .where(and(eq(jobEvents.jobId, job.id), notInArray(jobEvents.kind, ["message", "update"]), ...(isStaff ? [] : [eq(jobEvents.audience, "customer")]))).orderBy(jobEvents.createdAt, jobEvents.id);
   return { job, events };
 }
 

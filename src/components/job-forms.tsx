@@ -84,13 +84,50 @@ export function ReviewForm({ reference, version, status }: { reference: string; 
     <label htmlFor="review-reason">Review reason</label><textarea id="review-reason" name="reason" defaultValue={draft(state, "reason")} maxLength={500} required rows={2} /><Button pending={pending}>Save review</Button>
   </form>;
 }
-export function JobMessageForm({ reference, kind, eventKey, customer = false }: { reference: string; kind: "update" | "note" | "message"; eventKey: string; customer?: boolean }) {
-  const { state, submit, pending, form } = useJobForm(customer ? customerMessage : staffMessage);
-  const label = customer ? "Message to Mias" : kind === "note" ? "Internal note" : kind === "update" ? "Customer update" : "Message to customer";
+export function ChatReplyForm({ reference, eventKey, customer = false }: { reference: string; eventKey: string; customer?: boolean }) {
+  const action = customer ? customerMessage : staffMessage;
+  const { state, submit, form, pending } = useJobForm(action);
+  const [feedback, setFeedback] = useState<JobFormState | null>(null);
+  const [sending, setSending] = useState(false);
+  const inFlight = useRef(false);
+  const attempt = useRef<{ body: string; key: string } | null>(null);
+  return <form ref={form} action={submit} className="account-form job-form" onSubmit={async event => {
+    // Keep the native server action for plain HTML. Enhanced sends also recover
+    // when a reply is saved but its acknowledgement is lost in transit.
+    event.preventDefault();
+    if (inFlight.current) return;
+    const element = event.currentTarget;
+    const data = new FormData(element);
+    const body = String(data.get("body"));
+    if (attempt.current?.body !== body) attempt.current = { body, key: crypto.randomUUID() };
+    data.set("eventKey", attempt.current.key);
+    inFlight.current = true;
+    setSending(true);
+    try {
+      const result = await action(idle, data);
+      setFeedback(result);
+      if (result.status === "done") {
+        attempt.current = null;
+        (element.elements.namedItem("body") as HTMLTextAreaElement).value = "";
+      }
+    } catch {
+      setFeedback({ status: "error", message: "Could not confirm the send. Retry to check or send this message." });
+    } finally { inFlight.current = false; setSending(false); }
+  }}>
+    <Hidden reference={reference} /><input type="hidden" name="kind" value="message" /><input type="hidden" name="eventKey" value={eventKey} />
+    <label htmlFor="job-message">{customer ? "Message to Mias" : "Message to customer"}</label>
+    <textarea id="job-message" name="body" placeholder="Write a message…" defaultValue={draft(state, "body")} maxLength={2000} rows={2} required readOnly={sending} />
+    <Feedback state={feedback ?? state} /><Button pending={sending || pending}>{feedback?.status === "error" ? "Retry message" : "Send message"}</Button>
+  </form>;
+}
+
+export function JobMessageForm({ reference, kind, eventKey }: { reference: string; kind: "update" | "note"; eventKey: string }) {
+  const { state, submit, pending, form } = useJobForm(staffMessage);
+  const label = kind === "note" ? "Internal note" : "Customer update";
   return <form ref={form} action={submit} className="account-form job-form"><Hidden reference={reference} /><input type="hidden" name="kind" value={kind} /><input type="hidden" name="eventKey" value={eventKey} /><Feedback state={state} />
     <label htmlFor={`job-${kind}`}>{label}</label><textarea id={`job-${kind}`} name="body" defaultValue={draft(state, "body")} maxLength={2000} rows={3} required aria-describedby={`job-${kind}-hint`} />
     <p id={`job-${kind}-hint`} className="field-hint">{kind === "note" ? "Only Mias staff can see this note." : "Shared with Mias staff and all contacts who have access to this job. No email or SMS is sent for this update."}</p>
-    <Button pending={pending}>{customer || kind === "message" ? "Send message" : kind === "note" ? "Save private note" : "Publish update"}</Button>
+    <Button pending={pending}>{kind === "note" ? "Save private note" : "Publish update"}</Button>
   </form>;
 }
 export function CustomerInviteForm({ reference, version, name, email, company }: { reference: string; version: number; name: string; email: string; company: string }) {

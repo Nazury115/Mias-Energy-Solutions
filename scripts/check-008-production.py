@@ -124,6 +124,9 @@ try:
         form.get_by_role("status").wait_for()
         print("Production Owner setup, guest saving, acceptance, local email/SMS and invitation passed.", flush=True)
         # Stop the sole database owner before reading the captured invitation offline.
+        # Close the live conversation first so the planned outage does not generate
+        # a connection-refused error from a background refresh.
+        owner.goto("about:blank")
         stop(server)
         server = None
         try:
@@ -147,6 +150,13 @@ try:
         customer.locator("main").get_by_role("status").wait_for()
         owner.goto(job_url, wait_until="networkidle")
         assert "Production portal reply" in owner.locator("main").inner_text()
+        owner.bring_to_front()
+        owner.locator(".chat-bubble", has_text="Production portal reply").scroll_into_view_if_needed()
+        api = BASE + "/api/jobs/" + job_url.rsplit("/", 1)[1] + "/conversation?portal=customer"
+        customer.wait_for_function("""async url => (await (await fetch(url)).json())
+            .some(row => row.body === 'Production portal reply' && row.reads.length === 1)""",
+            arg=api, polling=500, timeout=20000)
+        print("Production conversation and authenticated first-view receipt passed.", flush=True)
         # Build a real PNG exactly at the file limit, including a valid ancillary chunk.
         payload = b"Comment\0".ljust(5 * 1024 * 1024 - len(PNG) - 12, b"A")
         chunk = b"tEXt" + payload

@@ -586,4 +586,21 @@ form.search-bar .button { margin-top: 0; }
 }
 
 .job-file-list { overflow-wrap: anywhere; }
+.job-chat header h2 { margin-bottom: .25rem; }
+.chat-thread { max-height: min(52vh, 29rem); min-height: 8rem; overflow-y: auto; overflow-anchor: none; overscroll-behavior: contain; scrollbar-gutter: stable; padding: .75rem .2rem; margin: .75rem 0; list-style: none; }
+.chat-row { margin: .7rem 0; }
+.chat-line { display: flex; align-items: flex-start; gap: .45rem; }
+.chat-row.own .chat-line { flex-direction: row-reverse; }
+.chat-avatar { display: grid; place-items: center; flex: 0 0 2rem; height: 2rem; border-radius: 50%; background: var(--navy); color: white; font-size: .7rem; font-weight: 700; }
+.own .chat-avatar { background: #dbeaff; color: var(--navy); }
+.chat-bubble { min-width: 0; max-width: 82%; background: #f0f3f6; border-radius: .25rem 1rem 1rem; padding: .65rem .85rem; overflow-wrap: anywhere; }
+.own .chat-bubble { background: #e2efff; border-radius: 1rem .25rem 1rem 1rem; }
+.chat-bubble p { white-space: pre-wrap; margin: .2rem 0; color: var(--ink); }
+.chat-by { display: flex; align-items: baseline; gap: .45rem; flex-wrap: wrap; font-size: .85rem; }
+.chat-by time, .chat-date, .chat-empty { color: var(--muted); }
+.chat-date, .chat-empty { text-align: center; font-size: .8rem; margin: .5rem 0; }
+.chat-receipt, .chat-receipt span { display: block; font-size: .75rem; color: #174e85; }
+.chat-update { font-size: .75rem; color: var(--blue); }
+.chat-jump { border: 1px solid var(--line); border-radius: 1rem; padding: .35rem 1rem; background: white; color: var(--blue); cursor: pointer; }
+.private-card summary { cursor: pointer; font-weight: 700; }
 .job-file-list input { min-width: 0; max-width: 100%; }
