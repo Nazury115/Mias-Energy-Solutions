@@ -8,6 +8,13 @@ Newest first. Each entry records what changed, where, and why, so work can conti
 - How to keep them in sync: [AGENTS.md › Two working copies](AGENTS.md#two-working-copies).
 - `Proof of service/` (the 30 original WhatsApp photos) exists in both folders but is deliberately not in git.
 
+## [009] Staff publishing — 2026-11-04
+
+- Added project and testimonial drafts, protected previews, Staff editing and Owner publication/unpublication with dated approval reasons. A separately stored public snapshot keeps draft edits private.
+- Added a private photo inventory with source and permission evidence. JPEG/PNG uploads are decoded, resized and stripped of metadata. Public photo requests require a current published reference.
+- Public projects, detail pages, testimonials, coverage and sitemap read approved snapshots through `src/content/projects.ts`. Repository stories remain supported. Fictional entries keep their classification and are hidden in launch mode.
+- TypeScript, production build, 170 unit checks and targeted publishing/public-page checks passed across verification and the unpublish rerun. See the [results](docs/testing/009-results.md), [specification](specs/009-staff-publishing.md) and [implementation plan](docs/plans/009-staff-publishing.md).
+
 ## [008 follow-up] Staff and customer job conversations
 
 - Added the [approved conversation view](specs/008-job-conversations.md) to both job portals. It shows earlier messages and shared updates, a reply box, and live replies alongside separate progress and private staff history.

@@ -42,6 +42,7 @@ Spec-driven: **spec → implementation/test plan → tests first → build → r
 - `public/images/stock/` is illustrative Unsplash photography. Never caption or describe it as Mias work, staff, customers or Zambian locations.
 - `public/images/work/` holds real proof photos. Captions describe only what is visible until project facts are confirmed. Record every image in `docs/content/image-sources.md`.
 - Project stories and coverage-map figures live only in `src/content/projects.ts`. Sample items keep `sample: true` / `fictional: true` and stay labelled. Real ones need `confirmedBy`/`confirmedOn` or `approval`. Sample and real data are never shown together, and `MIAS_PUBLIC_LAUNCH=true` hides all sample content.
+- Increment 009 keeps `src/content/projects.ts` as the public assembly point for repository records and approved database snapshots. Staff-managed photos are recorded in the private publication inventory documented in `docs/content/image-sources.md`. Drafts and permission evidence never enter public props. Publication actions require Owner access and the displayed version.
 - Map outlines are generated: edit `scripts/build-province-map.py` and regenerate `src/content/zambia-map.ts`; never hand-edit the module.
 - `Proof of service/` holds the raw originals. It stays out of git and is never modified.
 - Hours, portrait and bio stay `null` in `src/content/site.ts` until supplied. Never fill them with guesses.

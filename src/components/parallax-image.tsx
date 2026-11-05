@@ -10,7 +10,7 @@ export function ParallaxImage({ src, alt, sizes, className = "", priority = fals
   const figure = useRef<HTMLElement>(null);
   useScrollProgress(figure, "pass");
   return <figure ref={figure} className={`parallax-image ${className}`}>
-    <Image src={src} alt={alt} fill sizes={sizes} priority={priority} />
+    <Image src={src} alt={alt} unoptimized={src.startsWith("/media/")} fill sizes={sizes} priority={priority} />
     {children}
   </figure>;
 }

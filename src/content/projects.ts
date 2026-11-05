@@ -1,11 +1,12 @@
 import type { CoverageStory, Province, ProjectFamily, ProvinceTotal } from "@/lib/coverage";
 import { validateProjectContent } from "@/lib/coverage";
 import { workPhotos } from "@/content/site";
+import { filterPublicationCollections } from "@/lib/publishing";
 
 // ─────────────────────────────────────────────────────────────────────────────────────────────────
 // PROJECT CONTENT: the one place to edit project stories and the Zambia coverage map.
 //
-// Everything below is currently SAMPLE data (sample: true / fictional: true). It appears in the
+// The repository inventory below is SAMPLE data (sample: true / fictional: true). It appears in the
 // local preview with "Sample data" and "Fictional example" labels and is hidden in launch mode
 // (MIAS_PUBLIC_LAUNCH=true).
 //
@@ -13,7 +14,8 @@ import { workPhotos } from "@/content/site";
 //   areas, and fill confirmedBy + confirmedOn (who confirmed the figures, and when, e.g. "2026-11").
 // A real project story: set fictional: false, rewrite title/summary/problem/approach/outcome with
 //   what really happened, and add approval: { by, on }. Add customer only with permission, photos
-//   only from public/images/work.
+//   only from public/images/work. Staff-managed records use Publishing and are assembled by
+//   loadProjectContent below, with private drafts and independently approved public snapshots.
 // As soon as ANY real total or story exists, all sample data leaves the map (they are never mixed),
 //   so switch every province you want shown to real figures at the same time.
 // Mistakes such as an unknown province, services that don't add up or a missing approval stop the
@@ -36,6 +38,7 @@ export const provinceTotals: ProvinceTotal[] = [
 export type ProjectStory = CoverageStory & {
   province: Province; family: ProjectFamily; category: string; summary: string;
   image: string; alt: string; problem: string; approach: string; outcome: string;
+  gallery?: { src: string; alt: string }[];
 };
 // Deliberate demo records; never attribute these to the real customers in site.ts.
 export const projectStories: ProjectStory[] = [
@@ -67,3 +70,32 @@ export const projectStories: ProjectStory[] = [
 
 const problems = validateProjectContent(provinceTotals, projectStories, workPhotos.map(photo => photo.src));
 if (problems.length) throw new Error(`Fix src/content/projects.ts:\n- ${problems.join("\n- ")}`);
+
+// Public content is assembled here from the repository inventory and approved
+// snapshots. Drafts, permission evidence and staff notes never enter the result.
+export async function loadProjectContent() {
+  const { publishedEntries, publishedPhotoCaptions } = await import("@/server/publishing");
+  const entries = await publishedEntries();
+  const photos = await publishedPhotoCaptions();
+  const categories: Record<string,string> = { water:"Water",electrical:"Electrical","renewable-energy":"Renewable energy" };
+  const managed: ProjectStory[] = entries.filter(entry=>entry.kind==="project").map(entry=>{
+    const draft = entry.content!;
+    const gallery = draft.photoIds.map(id=>({src:`/media/publishing/${id}`,alt:photos.find(photo=>photo.id===id)?.alt ?? ""}));
+    const existing = workPhotos.find(photo=>photo.src===draft.existingPhoto);
+    if (existing) gallery.unshift({src:existing.src,alt:existing.caption});
+    return {slug:entry.slug,title:draft.title,summary:draft.summary,family:draft.family as ProjectFamily,
+      category:categories[draft.family],province:draft.province as Province,area:draft.area || undefined,
+      year:draft.year ? Number(draft.year) : undefined,fictional:entry.sample,
+      approval:{by:entry.approvedBy!,on:entry.approvedAt!.toISOString().slice(0,10)},
+      image:gallery[0]?.src ?? "/images/stock/water-pipe-flow.jpg",
+      alt:gallery[0]?.alt ?? "Illustrative stock photograph for a fictional example.",
+      problem:draft.problem,approach:draft.approach,outcome:draft.outcome,gallery};
+  });
+  const all = [...projectStories,...managed];
+  const reviews = entries.filter(entry=>entry.kind==="testimonial");
+  const visible = filterPublicationCollections(all,provinceTotals,reviews,process.env.MIAS_PUBLIC_LAUNCH==="true");
+  const testimonials = visible.testimonials.map(entry=>({
+    id:entry.id,quote:entry.content!.quote,attribution:entry.content!.attribution,sample:entry.sample,
+  }));
+  return {projects:visible.projects,totals:visible.totals,testimonials};
+}

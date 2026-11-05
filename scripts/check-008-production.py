@@ -171,6 +171,63 @@ try:
         print("Production 5 MiB customer upload, staff download and signed-out denial passed.", flush=True)
         assert not errors, errors
         customer.screenshot(path=str(ROOT / "test-results/008-production-customer.png"))
+        # Increment 009 publication must also work without a development inbox.
+        owner.goto(BASE + "/staff/content", wait_until="networkidle")
+        owner.get_by_label("Title", exact=True).fill("Fictional production publishing check")
+        owner.get_by_role("button", name="Create draft").click()
+        owner.wait_for_url("**/staff/content/*")
+        draft_url = owner.url
+        photo_form = owner.get_by_role("button", name="Register photo").locator("..")
+        photo_form.get_by_label("Photo", exact=True).set_input_files({"name": "test.png", "mimeType": "image/png", "buffer": PNG})
+        photo_form.get_by_label("Photo description").fill("Synthetic production image")
+        photo_form.get_by_label("Photo source").fill("Synthetic test fixture")
+        photo_form.get_by_role("button", name="Register photo").click()
+        photo_form.get_by_role("status").wait_for()
+        editor = owner.locator("[data-content-editor]")
+        for label, value in [("Summary", "Fictional production summary"), ("Challenge", "Fictional challenge"),
+                             ("Work carried out", "Fictional work"), ("Outcome", "Fictional outcome")]:
+            editor.get_by_label(label, exact=True).fill(value)
+        editor.get_by_label("Synthetic production image", exact=True).check()
+        editor.get_by_role("button", name="Save draft").click()
+        editor.get_by_role("status").wait_for()
+        preview = owner.get_by_role("link", name="Preview saved draft").get_attribute("href")
+        assert guest.request.get(BASE + preview, max_redirects=0).status == 307
+        owner.get_by_label("Approval reason").fill("Approve fictional production test")
+        owner.get_by_label("I checked the facts and publication permissions").check()
+        owner.get_by_role("button", name="Publish saved draft").click()
+        owner.get_by_text("Publication updated.", exact=True).wait_for()
+        public_path = owner.get_by_role("link", name="View published content").get_attribute("href")
+        guest.goto(BASE + public_path, wait_until="networkidle")
+        assert "Fictional production summary" in guest.locator("main").inner_text()
+        media_path = guest.locator(".publication-gallery img").get_attribute("src")
+        assert guest.request.get(BASE + media_path).headers["content-type"] == "image/jpeg"
+        editor.get_by_label("Summary", exact=True).fill("Private replacement draft")
+        editor.get_by_role("button", name="Save draft").click()
+        editor.get_by_role("status").wait_for()
+        assert "Private replacement draft" not in guest.request.get(BASE + public_path).text()
+        owner.get_by_label("Unpublish reason").fill("Verify removal")
+        owner.get_by_role("button", name="Unpublish", exact=True).click()
+        owner.get_by_text("Content unpublished.", exact=True).wait_for()
+        assert guest.request.get(BASE + public_path).status == 404
+        assert guest.request.get(BASE + media_path).status == 404
+        # Republish the sample, then check the launch-mode filter on the same data.
+        owner.get_by_label("Approval reason").fill("Republish for launch filter check")
+        owner.get_by_label("I checked the facts and publication permissions").check()
+        owner.get_by_role("button", name="Publish saved draft").click()
+        owner.get_by_text("Publication updated.", exact=True).wait_for()
+        owner.goto("about:blank")
+        customer.goto("about:blank")
+        guest.goto("about:blank")
+        stop(server)
+        server = None
+        ENV["MIAS_PUBLIC_LAUNCH"] = "true"
+        server = start()
+        assert guest.request.get(BASE + public_path).status == 404
+        assert guest.request.get(BASE + media_path).status == 404
+        assert public_path not in guest.request.get(BASE + "/sitemap.xml").text()
+        assert "Fictional example" not in guest.request.get(BASE + "/projects").text()
+        assert not errors, errors
+        print("Production publishing, private preview, snapshot isolation, unpublish and launch filtering passed.", flush=True)
         browser.close()
         print(json.dumps({"production_routes": len(expected), "owner_and_customer_journey": "passed", "private_notes_excluded": True,
                           "production_simulation_cookie_inert": True, "runtime_errors": errors}), flush=True)

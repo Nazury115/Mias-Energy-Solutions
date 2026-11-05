@@ -52,3 +52,9 @@ Used as proof of work in the "From the field" galleries. Copies of supplied What
 Not used: 09.26.20 (soft), 09.26.32 (posed, identifiable person), 09.26.37 (repeats the indoor pump station) and other near-duplicate views.
 
 Several photos show workers. Before public launch, confirm permission for people and client premises shown, as required in [the asset notes](003-assets-and-preview.md).
+
+## Staff-managed publication photos (increment 009)
+
+Each runtime upload is registered in the private `publication_images` inventory with its ID, draft association, source, description, permission evidence, uploader and date. The staff editor displays that inventory. Images are JPEG publication copies with metadata removed. The raw job-file store and `Proof of service/` remain separate.
+
+The source and permission fields contain private review evidence and stay out of the public response and Git. A public image address is `/media/publishing/<registered-image-id>`. Only a currently published snapshot can authorize that response. The corresponding private preview requires Staff or Owner access.

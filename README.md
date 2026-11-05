@@ -4,6 +4,8 @@ Responsive website and digital lead platform for Mias Energy Solutions, Lusaka, 
 
 ## Current increment
 
+Increment 009 adds **Publishing** at `/staff/content`. Staff create project stories and testimonials, register JPEG/PNG photographs, save drafts and preview them. An Owner approves a saved version or unpublishes it. Editing a published entry keeps the previous approved version public until a replacement is approved. Test content keeps its fictional label and is hidden in launch mode. See the [009 specification](specs/009-staff-publishing.md), [walkthrough](docs/journal/009-staff-publishing.md) and [verification record](docs/testing/009-results.md).
+
 **Start here:** [CHANGELOG.md](CHANGELOG.md) (what changed and why), [docs/plans/feature-backlog.md](docs/plans/feature-backlog.md) (features still to build and the plan) and [AGENTS.md](AGENTS.md) (working rules for any AI assistant or new maintainer).
 
 Increment 008 adds the core customer job portal on top of the accounts from 007.
@@ -40,7 +42,7 @@ The three stories are visibly fictional, with no customer attribution or fabrica
 
 ## Approved direction and remaining work
 
-The [business platform specification](specs/002-business-platform-expansion.md) records the approved direction. The public website, saved inquiries, accounts and core individual-customer job portal are implemented locally. Staff project/testimonial publishing, quotations/invoices and the solar planner remain future slices with their own SDD gates.
+The [business platform specification](specs/002-business-platform-expansion.md) records the approved direction. The public website, saved inquiries, accounts, job portal and staff publishing are implemented locally. Quotations/invoices and the solar planner remain future slices with their own SDD gates.
 
 See the [competitor review](docs/research/loxlak-review-2026-10-19.md), [photograph inventory](docs/content/proof-of-service-inventory.md) and [information worksheet](docs/content/business-intake.md). The final production MVP is not complete merely because the local public preview works.
 

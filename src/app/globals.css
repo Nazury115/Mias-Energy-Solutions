@@ -603,4 +603,14 @@ form.search-bar .button { margin-top: 0; }
 .chat-update { font-size: .75rem; color: var(--blue); }
 .chat-jump { border: 1px solid var(--line); border-radius: 1rem; padding: .35rem 1rem; background: white; color: var(--blue); cursor: pointer; }
 .private-card summary { cursor: pointer; font-weight: 700; }
+.publication-preview p, .publication-preview blockquote { white-space: pre-wrap; overflow-wrap: anywhere; }
+.publication-preview figure, .publication-gallery figure, .content-photo { margin: 1rem 0; }
+.publication-preview img, .publication-gallery img, .content-photo img { display: block; width: auto; max-width: 100%; max-height: 720px; height: auto; object-fit: contain; }
+.content-list { padding-left: 1.2rem; overflow-wrap: anywhere; }
+.content-list li { margin-block: .6rem; }
+[data-content-editor] > div { display: grid; gap: .35rem; }
+[data-content-editor] fieldset { min-width: 0; display: grid; gap: .5rem; }
+.account-form input[type=file] { max-width: 100%; min-width: 0; }
+.account-form .publishing-check { display: flex; align-items: flex-start; gap: .6rem; }
+.publishing-check input[type=checkbox] { width: auto; flex: 0 0 auto; margin: .35rem 0 0; }
 .job-file-list input { min-width: 0; max-width: 100%; }

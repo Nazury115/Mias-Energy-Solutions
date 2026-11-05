@@ -1,4 +1,5 @@
-import { boolean, customType, index, integer, pgTable, primaryKey, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { boolean, customType, index, integer, jsonb, pgTable, primaryKey, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import type { PublicationDraft } from "@/lib/publishing";
 
 // Better Auth tables (spec 007). Column names follow Better Auth's model; role/phone/status are our additions.
 export const user = pgTable("user", {
@@ -192,5 +193,30 @@ export const customerInvitations = pgTable("customer_invitations", {
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   acceptedAt: timestamp("accepted_at", { withTimezone: true }),
   cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const publications = pgTable("publications", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  slug: text("slug").notNull().unique(),
+  kind: text("kind").notNull(),
+  sample: boolean("sample").notNull(),
+  draft: jsonb("draft").$type<PublicationDraft>().notNull(),
+  published: jsonb("published").$type<PublicationDraft>(),
+  approvedBy: text("approved_by"),
+  approvedAt: timestamp("approved_at", { withTimezone: true }),
+  version: integer("version").notNull().default(1),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// The private inventory holds provenance/permission evidence, never the public image response.
+export const publicationImages = pgTable("publication_images", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  publicationId: uuid("publication_id").notNull().references(() => publications.id, { onDelete: "cascade" }),
+  alt: text("alt").notNull(),
+  source: text("source").notNull(),
+  permission: text("permission").notNull(),
+  bytes: bytea("bytes").notNull(),
+  uploadedBy: text("uploaded_by").notNull().references(() => user.id),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

@@ -11,7 +11,9 @@ ROOT = Path(__file__).resolve().parents[1]
 # One request per route, so the dev server builds every page before a browser opens one.
 WARM_UP_PATHS = ["/", "/services", "/services/warm-up", "/projects", "/projects/warm-up", "/about", "/contact", "/privacy",
                  "/sign-in", "/sign-up", "/verify-email", "/forgot-password", "/reset-password", "/invite", "/account",
-                 "/staff", "/staff/team", "/staff/inquiries/MES-00-00000", "/staff/jobs", "/staff/jobs/JOB-00-00000",
+                 "/staff", "/staff/team", "/staff/content", "/staff/content/00000000-0000-0000-0000-000000000000", "/staff/content/00000000-0000-0000-0000-000000000000/preview",
+                 "/staff/content/images/00000000-0000-0000-0000-000000000000", "/media/publishing/00000000-0000-0000-0000-000000000000",
+                 "/staff/inquiries/MES-00-00000", "/staff/jobs", "/staff/jobs/JOB-00-00000",
                  "/account/jobs/JOB-00-00000", "/job-invite", "/dev/inbox", "/jobs/JOB-00-00000/files/invalid", "/api/jobs/JOB-00-00000/conversation", "/api/session", "/robots.txt"]
 # Unit tests run Node. On this computer it is not on PATH, so fall back to the bundled copy the README describes.
 BUNDLED_NODE = Path.home() / ".cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe"

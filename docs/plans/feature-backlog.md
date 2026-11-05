@@ -29,7 +29,7 @@ Every increment below follows the project's SDD loop: **spec → implementation/
 | Notifications | Customer receipt and acceptance by email and SMS | Local capture implemented and verified; real providers at launch | 008 NOTIFY |
 | Portal | Customer/staff messages; internal notes kept private | 008 includes a [shared job conversation and per-reader receipts](../../specs/008-job-conversations.md) | PORT-06 |
 | Portal | Private photo/document uploads; shared company-customer access | Local implementation in [008 follow-up](../../specs/008-follow-up-job-files-and-company-access.md) | PORT-07, organization rules |
-| Content | Staff publishing of projects, testimonials (and map data) | Not started | CMS-01 |
+| Content | Staff publishing of projects, testimonials (and map data) | Implemented locally in [009](../../specs/009-staff-publishing.md) | CMS-01 |
 | Documents | Quotations and invoices | Not started | DOC-01–06 |
 | Planner | Household solar planner | Not started | SOL-01–07 |
 | Launch | Hosting, domain, full QA, Lighthouse, private pilot, launch approval | Not started | Phases 7–8 |
@@ -130,7 +130,7 @@ Order chosen so that each step delivers something usable and unblocks the next. 
 
 ### Current step
 
-Increment 005 still needs confirmed project figures, portrait/bio, hours and real photos. Increment 006 added saved inquiries and 007 added accounts. **008 core is implemented and verified locally:** 254 tests, TypeScript, production build and production customer journey passed; see [results](../testing/008-results.md). Henry approved the local stages, core-first scope and email/SMS receipt and acceptance messages on 2026-10-26. [Spec 008](../../specs/008-requests-jobs-and-progress.md) and its [plan](008-requests-jobs-and-progress.md) record the implementation boundary. Job files and per-job company contacts are implemented in the [approved follow-up](../../specs/008-follow-up-job-files-and-company-access.md); launch still needs Israel's operational confirmation, retention and real providers/budget. Staff publishing (009), documents (010) and the solar planner (011) remain unbuilt.
+Increment 005 still needs confirmed project figures, portrait/bio, hours and real photos. Increments 006–008 added saved inquiries, accounts and the job portal. Job files, company contacts and the conversation interface extend 008. [Staff publishing (009)](../../specs/009-staff-publishing.md) is implemented locally. The next feature increment is quotations/invoices (010), followed by the solar planner (011). Launch still needs Israel's operational confirmation, retention and real providers/budget.
 
 ## 5. Running costs and local-first build
 
