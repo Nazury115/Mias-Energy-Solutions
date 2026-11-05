@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { WorkspaceHeader } from "@/components/workspace-header";
 import { CancelCustomerInviteForm, ChatReplyForm, CustomerInviteForm, JobMessageForm, JobWorkflowForm, RetryJobNotificationsForm, RevokeAccessForm } from "@/components/job-forms";
 import { JobFiles } from "@/components/job-files";
+import { JobDocuments } from "@/components/job-documents";
 import { JobHistory } from "@/components/job-history";
 import { JobConversation } from "@/components/job-conversation";
 import { readConversation } from "@/server/job-conversation";
@@ -48,5 +49,6 @@ export default async function StaffJob({ params, searchParams }: { params: Promi
       <section className="account-card"><h2>History</h2><JobHistory events={events.filter(event => event.kind !== "note")} /></section>
     </div></div>
     <JobFiles reference={job.reference} stage={job.stage} viewer={viewer} />
+    <JobDocuments reference={job.reference} viewer={viewer} />
   </main>;
 }

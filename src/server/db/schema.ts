@@ -1,5 +1,6 @@
 import { boolean, customType, index, integer, jsonb, pgTable, primaryKey, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import type { PublicationDraft } from "@/lib/publishing";
+import type { DocumentDraft, DocumentSnapshot, DocumentTemplate } from "@/lib/commercial-documents";
 
 // Better Auth tables (spec 007). Column names follow Better Auth's model; role/phone/status are our additions.
 export const user = pgTable("user", {
@@ -220,3 +221,32 @@ export const publicationImages = pgTable("publication_images", {
   uploadedBy: text("uploaded_by").notNull().references(() => user.id),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+export const documentSettings = pgTable("document_settings", {
+  id: text("id").primaryKey(),
+  data: jsonb("data").$type<DocumentTemplate>().notNull(),
+  version: integer("version").notNull().default(1),
+  approvedBy: text("approved_by").notNull(),
+});
+export const documentCounters = pgTable("document_counters", {
+  kind: text("kind").primaryKey(),
+  nextNumber: integer("next_number").notNull().default(1),
+});
+export const commercialDocuments = pgTable("commercial_documents", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  jobId: uuid("job_id").notNull().references(() => jobs.id, { onDelete: "restrict" }),
+  kind: text("kind").notNull(),
+  status: text("status").notNull().default("draft"),
+  draft: jsonb("draft").$type<DocumentDraft>().notNull(),
+  snapshot: jsonb("snapshot").$type<DocumentSnapshot>(),
+  reviewSnapshot: jsonb("review_snapshot").$type<DocumentSnapshot>(),
+  reviewReason: text("review_reason"),
+  submittedAt: timestamp("submitted_at", { withTimezone: true }),
+  submittedBy: text("submitted_by"),
+  reference: text("reference").unique(),
+  revisionOf: uuid("revision_of"),
+  pdf: bytea("pdf"),
+  xlsx: bytea("xlsx"),
+  version: integer("version").notNull().default(1),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, table => [index("commercial_documents_job_idx").on(table.jobId)]);

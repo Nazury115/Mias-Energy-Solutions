@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { Metadata } from "next";
 import { JobFiles } from "@/components/job-files";
+import { JobDocuments } from "@/components/job-documents";
 import { JobHistory } from "@/components/job-history";
 import { JobConversation } from "@/components/job-conversation";
 import { readConversation } from "@/server/job-conversation";
@@ -24,5 +25,6 @@ export default async function CustomerJob({ params }: { params: Promise<{ refere
       <ChatReplyForm reference={job.reference} eventKey={randomUUID()} customer />
     </JobConversation><section className="account-card"><h2>Job progress</h2><JobHistory events={events} /></section></div>
     <JobFiles reference={job.reference} stage={job.stage} viewer={{ ...viewer, role: "customer" }} />
+    <JobDocuments reference={job.reference} viewer={{...viewer,role:"customer"}} />
   </main>;
 }

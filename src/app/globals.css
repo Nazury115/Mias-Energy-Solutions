@@ -613,4 +613,23 @@ form.search-bar .button { margin-top: 0; }
 .account-form input[type=file] { max-width: 100%; min-width: 0; }
 .account-form .publishing-check { display: flex; align-items: flex-start; gap: .6rem; }
 .publishing-check input[type=checkbox] { width: auto; flex: 0 0 auto; margin: .35rem 0 0; }
+.document-field { display: grid; gap: .4rem; }
+.document-lines { min-width: 760px; }
+.document-lines td:first-child { min-width: 220px; }
+.document-lines input { min-width: 70px; width: 100%; }
+.document-paper { background: white; padding: clamp(18px,4vw,48px); margin: 2rem 0; border: 1px solid var(--line); border-radius: 18px; overflow-wrap: anywhere; }
+.document-paper p { white-space: pre-wrap; }
+.document-heading { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+.document-totals { max-width: 420px; margin: 1.5rem 0 1.5rem auto; }
+.document-totals > div { display: flex; justify-content: space-between; gap: 1rem; }
+.document-paper .data-table td:first-child { white-space: pre-wrap; min-width: 150px; }
+@media(max-width:600px) { .document-heading { grid-template-columns: 1fr; gap: 1rem; } }
 .job-file-list input { min-width: 0; max-width: 100%; }
+.document-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; margin-block: 1rem; }
+.document-download { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; margin-block: 1.5rem; }
+.document-download select { border: 1px solid var(--line); border-radius: .5rem; padding: .65rem; background: white; color: var(--ink); max-width: 100%; }
+.document-register { padding: 0; list-style: none; overflow-wrap: anywhere; }
+.document-register > li { display: grid; gap: .4rem; padding-block: 1rem; border-bottom: 1px solid var(--line); }
+.document-register .document-toolbar { margin: .25rem 0; }
+.document-feedback { white-space: pre-wrap; overflow-wrap: anywhere; }
+#document-editor, #owner-review { scroll-margin-top: 6rem; }

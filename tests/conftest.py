@@ -12,6 +12,9 @@ ROOT = Path(__file__).resolve().parents[1]
 WARM_UP_PATHS = ["/", "/services", "/services/warm-up", "/projects", "/projects/warm-up", "/about", "/contact", "/privacy",
                  "/sign-in", "/sign-up", "/verify-email", "/forgot-password", "/reset-password", "/invite", "/account",
                  "/staff", "/staff/team", "/staff/content", "/staff/content/00000000-0000-0000-0000-000000000000", "/staff/content/00000000-0000-0000-0000-000000000000/preview",
+                 "/staff/documents", "/staff/documents/settings", "/staff/documents/00000000-0000-0000-0000-000000000000",
+                 "/account/documents/00000000-0000-0000-0000-000000000000", "/documents/00000000-0000-0000-0000-000000000000/pdf",
+                 "/staff/documents/00000000-0000-0000-0000-000000000000/preview", "/documents/00000000-0000-0000-0000-000000000000/download?format=xlsx",
                  "/staff/content/images/00000000-0000-0000-0000-000000000000", "/media/publishing/00000000-0000-0000-0000-000000000000",
                  "/staff/inquiries/MES-00-00000", "/staff/jobs", "/staff/jobs/JOB-00-00000",
                  "/account/jobs/JOB-00-00000", "/job-invite", "/dev/inbox", "/jobs/JOB-00-00000/files/invalid", "/api/jobs/JOB-00-00000/conversation", "/api/session", "/robots.txt"]

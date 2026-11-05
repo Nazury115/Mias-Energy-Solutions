@@ -4,6 +4,8 @@ Responsive website and digital lead platform for Mias Energy Solutions, Lusaka, 
 
 ## Current increment
 
+The first local slice of increment 010 adds **Documents** in the staff workspace. Staff prepare, edit and submit a quotation or invoice for a job. Owners preview the submitted version, then approve and issue or deny it with a return reason. Both portals offer PDF and Excel downloads; draft access is limited to Staff and Owners. The design follows Henry's corrected invoice workbook, with fixed issue dates, exact decimal totals, separate line and overall discounts, and frozen issued copies. This local slice uses TEST numbers; live tax treatment and commercial rules still require business confirmation. See the [010 specification](specs/010-quotations-and-invoices.md), [walkthrough](docs/journal/010-quotations-and-invoices.md) and [verification results](docs/testing/010-results.md).
+
 Increment 009 adds **Publishing** at `/staff/content`. Staff create project stories and testimonials, register JPEG/PNG photographs, save drafts and preview them. An Owner approves a saved version or unpublishes it. Editing a published entry keeps the previous approved version public until a replacement is approved. Test content keeps its fictional label and is hidden in launch mode. See the [009 specification](specs/009-staff-publishing.md), [walkthrough](docs/journal/009-staff-publishing.md) and [verification record](docs/testing/009-results.md).
 
 **Start here:** [CHANGELOG.md](CHANGELOG.md) (what changed and why), [docs/plans/feature-backlog.md](docs/plans/feature-backlog.md) (features still to build and the plan) and [AGENTS.md](AGENTS.md) (working rules for any AI assistant or new maintainer).
@@ -42,7 +44,7 @@ The three stories are visibly fictional, with no customer attribution or fabrica
 
 ## Approved direction and remaining work
 
-The [business platform specification](specs/002-business-platform-expansion.md) records the approved direction. The public website, saved inquiries, accounts, job portal and staff publishing are implemented locally. Quotations/invoices and the solar planner remain future slices with their own SDD gates.
+The [business platform specification](specs/002-business-platform-expansion.md) records the approved direction. The public website, saved inquiries, accounts, job portal, staff publishing and the local quotation/invoice workflow are implemented. Commercial follow-ups and the solar planner retain their own SDD gates.
 
 See the [competitor review](docs/research/loxlak-review-2026-10-19.md), [photograph inventory](docs/content/proof-of-service-inventory.md) and [information worksheet](docs/content/business-intake.md). The final production MVP is not complete merely because the local public preview works.
 

@@ -8,6 +8,16 @@ Newest first. Each entry records what changed, where, and why, so work can conti
 - How to keep them in sync: [AGENTS.md › Two working copies](AGENTS.md#two-working-copies).
 - `Proof of service/` (the 30 original WhatsApp photos) exists in both folders but is deliberately not in git.
 
+## [010 local slice] Quotations and invoices — 2026-11-05
+
+- Added explicit Staff submission/editing, an Owner review queue and preview, approve/deny controls with return feedback, and PDF/Excel downloads. Submitted snapshots freeze the reviewed template; edits withdraw the submission and stale approvals fail. New issues store both file formats atomically.
+- Verified the review/download amendment with 12 document unit checks, two complete Edge journeys across reruns, rendered Excel exports and an extended production journey with no browser runtime errors. Corrected the customer invitation referrer policy so same-origin account-setup actions work while external referrers remain suppressed.
+- Started from Henry's corrected invoice workbook. Added job-linked drafts, private previews, Owner-approved issue, customer PDF access, revisions and cancellation. Stored issue snapshots and PDF bytes preserve the original document.
+- Preserved the worksheet's fixed line-discount calculation and labelled it as a ZMW amount. The separate overall discount remains a percentage. Server calculations use integer minor units and explicit rounding.
+- Business and banking details are held in private document settings for Owner review. The source workbook and imported account details stay out of Git.
+- Local documents use TEST-Q / TEST-I references. No automatic tax rate or statutory numbering has been inferred from the workbook. See [specification](specs/010-quotations-and-invoices.md).
+- TypeScript, production build, all 180 unit checks, two document browser journeys and production quotation/invoice checks passed. One-page and multi-page PDFs were rendered for review. See [verification](docs/testing/010-results.md).
+
 ## [009] Staff publishing — 2026-11-04
 
 - Added project and testimonial drafts, protected previews, Staff editing and Owner publication/unpublication with dated approval reasons. A separately stored public snapshot keeps draft edits private.

@@ -20,6 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tests"))
 from test_jobs import accept_job  # reuse the tested staff form journey
 from test_job_files import PNG
+from test_documents import approve as approve_document, configure as configure_documents, prepare as prepare_document, issue as issue_document, workbook_cells
 
 NODE = os.environ.get("MIAS_NODE", str(Path.home() / ".cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe"))
 BASE = "http://127.0.0.1:3210"
@@ -90,10 +91,11 @@ try:
     print("Production routes and development-inbox protection passed.", flush=True)
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(channel="msedge")
-        owner = browser.new_page(viewport={"width": 1440, "height": 1000}, reduced_motion="reduce")
+        owner_context = browser.new_context(viewport={"width": 1440, "height": 1000}, reduced_motion="reduce")
+        owner = owner_context.new_page()
         errors = []
         owner.on("pageerror", lambda error: errors.append(str(error)))
-        owner.on("console", lambda message: errors.append(message.text) if message.type == "error" else None)
+        owner.on("console", lambda message: errors.append(message.text+" "+str(message.location)) if message.type == "error" else None)
         owner.goto(owner_link, wait_until="networkidle", timeout=90000)
         owner.get_by_label("Choose a password").fill("production pump inlet at sunrise")
         owner.get_by_role("button", name="Create my account").click()
@@ -138,7 +140,7 @@ try:
         server = start()
         customer = browser.new_page(viewport={"width": 390, "height": 844}, reduced_motion="reduce")
         customer.on("pageerror", lambda error: errors.append(str(error)))
-        customer.on("console", lambda message: errors.append(message.text) if message.type == "error" else None)
+        customer.on("console", lambda message: errors.append(message.text+" "+str(message.location)) if message.type == "error" else None)
         customer.goto(invite_link, wait_until="networkidle", timeout=90000)
         customer.get_by_label("Choose a password").fill("production customer water inlet")
         customer.get_by_role("button", name="Create account and open job").click()
@@ -171,6 +173,83 @@ try:
         print("Production 5 MiB customer upload, staff download and signed-out denial passed.", flush=True)
         assert not errors, errors
         customer.screenshot(path=str(ROOT / "test-results/008-production-customer.png"))
+        # Commercial documents use the same explicit job association.
+        configure_documents(owner, BASE)
+        document_refs=[]
+        customer_url=BASE+"/account/jobs/"+job_url.rsplit("/",1)[1]
+        for kind in ["invoice","quotation"]:
+            draft_url=prepare_document(owner,job_url,kind)
+            document_id=draft_url.rsplit("/",1)[1]
+            pdf_url=BASE+"/documents/"+document_id+"/pdf"
+            assert customer.request.get(pdf_url).status==404
+            if kind=="invoice":
+                owner.get_by_role("button",name="Submit for review",exact=True).click()
+                owner.get_by_text("Draft submitted for Owner review.",exact=True).wait_for()
+                owner.get_by_role("link",name="Preview draft",exact=True).click()
+                owner.get_by_role("heading",name="Draft preview",exact=True).wait_for()
+                owner.get_by_role("link",name="Review draft",exact=True).click()
+                assert document_id not in customer.request.get(customer_url).text()
+                owner.get_by_label("Return reason",exact=True).fill("PRIVATE-REVIEW-REASON: clarify scope")
+                owner.get_by_role("button",name="Deny draft",exact=True).click()
+                owner.get_by_text("Draft returned for changes.",exact=True).wait_for()
+                assert "PRIVATE-REVIEW-REASON" in owner.locator("main").inner_text()
+                assert document_id not in customer.request.get(customer_url).text()
+                assert customer.request.get(BASE+"/documents/"+document_id+"/download?format=xlsx").status==404
+                owner.get_by_label("Description line 2",exact=True).fill('=HYPERLINK("https://example.invalid","literal text")')
+                owner.get_by_role("button",name="Save document draft").click()
+                owner.get_by_text("Document draft saved.",exact=True).wait_for()
+                owner.get_by_role("button",name="Submit for review",exact=True).click()
+                owner.get_by_text("Draft submitted for Owner review.",exact=True).wait_for()
+                stale=owner.context.new_page()
+                stale.goto(draft_url,wait_until="networkidle")
+                owner.get_by_label("Notes",exact=True).fill("Reviewed fictional correction")
+                owner.get_by_role("button",name="Save document draft").click()
+                owner.get_by_text("Document draft saved.",exact=True).wait_for()
+                stale.get_by_label("Issue reason",exact=True).fill("Outdated approval")
+                stale.get_by_label("I reviewed the saved draft and its PDF preview").check()
+                stale.get_by_role("button",name="Approve and issue",exact=True).click()
+                stale.get_by_role("alert").wait_for()
+                stale.close()
+                owner.get_by_role("button",name="Submit for review",exact=True).click()
+                owner.get_by_text("Draft submitted for Owner review.",exact=True).wait_for()
+                owner.goto(BASE+"/staff/documents/settings",wait_until="networkidle")
+                owner.get_by_label("Bank instructions").fill("Future document bank settings")
+                owner.get_by_label("I checked the business and bank details for document use").check()
+                owner.get_by_role("button",name="Save document settings").click()
+                owner.get_by_text("Document settings saved.",exact=True).wait_for()
+                owner.goto(draft_url,wait_until="networkidle")
+                assert "Fictional test bank instructions" in owner.locator(".document-paper").inner_text()
+                assert "Future document bank settings" not in owner.locator("main").inner_text()
+                for width in [320,390,768,1440]:
+                    owner.set_viewport_size({"width":width,"height":900})
+                    assert owner.evaluate("document.documentElement.scrollWidth<=innerWidth")
+                approve_document(owner)
+                print("Production denial, returned-draft editing, resubmission, stale approval and frozen review settings passed.",flush=True)
+            else:
+                issue_document(owner)
+            document_refs.append(owner.get_by_role("heading",level=1).inner_text())
+            customer.goto(BASE+"/account/documents/"+document_id,wait_until="networkidle")
+            assert "28900.00" in customer.locator("main").inner_text()
+            issued=customer.request.get(pdf_url)
+            assert issued.status==200 and issued.headers["content-type"]=="application/pdf"
+            excel_url=BASE+"/documents/"+document_id+"/download?format=xlsx"
+            excel=customer.request.get(excel_url)
+            assert excel.status==200 and excel.body().startswith(b"PK")
+            cells,ns=workbook_cells(excel)
+            assert cells["F17"].find("s:v",ns).text=="25200.00"
+            if kind=="invoice":
+                assert cells["A18"].attrib["t"]=="inlineStr" and cells["A18"].find("s:f",ns) is None
+                (ROOT/"test-results/010-issued.xlsx").write_bytes(excel.body())
+            for format in ["pdf","xlsx"]:
+                customer.get_by_label("Download format").select_option(format)
+                with customer.expect_download() as download:
+                    customer.get_by_role("button",name="Download document",exact=True).click()
+                assert download.value.suggested_filename.endswith("."+format)
+            assert guest.request.get(excel_url,max_redirects=0).status==307
+            assert guest.request.get(pdf_url,max_redirects=0).status==307
+        assert document_refs[0].startswith("TEST-I-") and document_refs[1].startswith("TEST-Q-")
+        print("Production document submission, separate test sequences, Owner approval and protected PDF/Excel access passed.",flush=True)
+        assert not errors,errors
         # Increment 009 publication must also work without a development inbox.
         owner.goto(BASE + "/staff/content", wait_until="networkidle")
         owner.get_by_label("Title", exact=True).fill("Fictional production publishing check")
