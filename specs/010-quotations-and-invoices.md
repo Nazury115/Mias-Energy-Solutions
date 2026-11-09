@@ -30,3 +30,11 @@ Henry requested a visible saved-draft preview for Owners, explicit Staff editing
 - The Owner register highlights submitted documents. The detail page shows the submitted preview before approval controls. Approve and issue creates the numbered snapshot. Deny requires a reason and returns the document to Staff for editing and resubmission.
 - Draft, submitted and returned documents remain staff-only in every customer query and download.
 - PDF and Excel exports use the same saved or submitted snapshot. Issued copies use the frozen issue snapshot. New issues store both formats atomically; older issued records can produce Excel from their existing snapshot. Excel uses typed numeric cells, explicit calculation formulas and cached server totals.
+
+## Review visibility correction — 5 November 2026
+
+Henry reported that a Staff draft did not appear for Owner review. Local inspection found saved drafts and an unreviewed business template; the submission action blocked the draft before it entered the queue. Correct this dependency: Staff can submit a valid saved draft even while settings await Owner review. Mark that frozen preview's template as unreviewed. The Owner may preview it immediately, but issue remains blocked until an Owner saves reviewed settings and explicitly applies them to a refreshed preview. Refresh uses the displayed version and invalidates older approval forms. Existing issued snapshots stay unchanged; legacy submitted snapshots were already made under the reviewed-template requirement.
+
+Show saved/unsubmitted drafts and submitted review work clearly on the Owner's landing page and register. Submission errors move focus to visible feedback. Never silently submit or issue Henry's existing records while implementing this correction.
+
+The 6 November core-usability pass keeps Owner review first, then the document register, then the creation form. A shortcut opens the creation section. Existing issue/return/edit/download rules and permissions stay in effect.

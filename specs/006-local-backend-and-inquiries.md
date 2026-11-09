@@ -8,6 +8,8 @@ Builds on: [feature backlog](../docs/plans/feature-backlog.md) §4–5, which re
 
 Turn the Contact page into an inquiry form that really works, and lay the backend foundation that logins, jobs and staff publishing will reuse. Everything runs locally with free tools; no online service is used or paid for.
 
+**Validation retry correction — 6 November 2026:** during Henry's requested core-quality pass, a failed submission was found to reset the reply radio from Email to WhatsApp. Preserve all customer choices through validation errors and retries, including reply method and service. A valid corrected submission must work without re-entering unrelated fields. JavaScript-disabled submission and pre-hydration typing remain supported.
+
 1. **A local database:** PostgreSQL-compatible, with versioned schema changes, so the same design moves to a hosted database at launch.
 2. **An inquiry form that saves every valid inquiry** with a unique reference number, never creates duplicates, and tells the visitor honestly what happened.
 3. **A notification email to Mias for each inquiry,** captured in a local **development inbox** instead of being sent. Delivery failures are recorded and retried, not hidden.

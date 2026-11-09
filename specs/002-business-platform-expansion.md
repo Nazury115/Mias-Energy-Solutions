@@ -5,6 +5,8 @@ Date: **2026-10-19**
 Stage: **Public increment authorized; portal, document and calculator implementation remain separately gated.**  
 Delivery: Flexible increments; no fixed 16-week deadline.
 
+**Scope amendment — Henry, 6 November 2026:** the solar planner (SOL-01–07) is removed from active delivery and remains a deferred suggestion. Improve the existing public site, inquiries, customer/staff jobs, messages, publishing and documents first. The historical calculator requirements below do not authorize implementation or block launch. See [the scope change](../docs/plans/planner-retirement.md).
+
 ## 1. Purpose and relationship to the approved website
 
 Expand Mias Energy Solutions from its current responsive homepage into a credible public business website, a private customer/company service workspace, and a solar planning tool that helps customers prepare quotation requests.

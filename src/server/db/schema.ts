@@ -1,6 +1,7 @@
 import { boolean, customType, index, integer, jsonb, pgTable, primaryKey, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import type { PublicationDraft } from "@/lib/publishing";
 import type { DocumentDraft, DocumentSnapshot, DocumentTemplate } from "@/lib/commercial-documents";
+import type { SavedLoadSummary } from "@/lib/saved-load-summary";
 
 // Better Auth tables (spec 007). Column names follow Better Auth's model; role/phone/status are our additions.
 export const user = pgTable("user", {
@@ -97,6 +98,7 @@ export const inquiries = pgTable("inquiries", {
   area: text("area"),
   message: text("message").notNull(),
   sourcePath: text("source_path"),
+  solarPlan: jsonb("solar_plan").$type<SavedLoadSummary>(),
   networkHash: text("network_hash").notNull(),
   userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
   reviewStatus: text("review_status").notNull().default("received"),
@@ -201,6 +203,10 @@ export const publications = pgTable("publications", {
   id: uuid("id").primaryKey().defaultRandom(),
   slug: text("slug").notNull().unique(),
   kind: text("kind").notNull(),
+  sourceSlug: text("source_slug").unique(),
+  repositoryHero: jsonb("repository_hero").$type<{src:string;alt:string}>(),
+  repositoryHidden: boolean("repository_hidden").notNull().default(false),
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
   sample: boolean("sample").notNull(),
   draft: jsonb("draft").$type<PublicationDraft>().notNull(),
   published: jsonb("published").$type<PublicationDraft>(),

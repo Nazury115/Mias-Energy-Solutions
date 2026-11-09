@@ -1,11 +1,13 @@
 "use client";
 import { useActionState, useEffect, useRef, useState } from "react";
-import { cancelDoc, createDoc, issueDoc, returnDoc, reviseDoc, saveDoc, saveTemplate, submitDoc, type DocumentState } from "@/app/staff/documents/actions";
+import { cancelDoc, createDoc, issueDoc, refreshTemplatePreview, returnDoc, reviseDoc, saveDoc, saveTemplate, submitDoc, type DocumentState } from "@/app/staff/documents/actions";
 import { calculateDocument, documentFields, templateLimits, type DocumentDraft, type DocumentTemplate } from "@/lib/commercial-documents";
 
 const idle:DocumentState={status:"idle"};
 function Feedback({state}:{state:DocumentState}) {
-  return state.status==="idle"?null:<p role={state.status==="error"?"alert":"status"} className={state.status==="error"?"form-alert":"form-success"}>{state.message}</p>;
+  const feedback=useRef<HTMLParagraphElement>(null);
+  useEffect(()=>{if(state.status==="error")feedback.current?.focus();},[state]);
+  return state.status==="idle"?null:<p ref={feedback} tabIndex={state.status==="error"?-1:undefined} role={state.status==="error"?"alert":"status"} className={state.status==="error"?"form-alert":"form-success"}>{state.message}</p>;
 }
 export function CreateDocumentForm({job,keyValue,jobs=[]}:{job?:string;keyValue:string;jobs?:{reference:string}[]}) {
   const [state,submit,pending]=useActionState(createDoc,idle);
@@ -59,11 +61,11 @@ export function DocumentEditor({id,draft,version}:{id:string;draft:DocumentDraft
     <Feedback state={state}/><button className="button button-small" disabled={pending}>Save document draft</button>
   </form>;
 }
-export function DocumentOperation({id,version,operation}:{id:string;version:number;operation:"issue"|"cancel"|"revise"|"submit"|"return"}) {
-  const action={issue:issueDoc,cancel:cancelDoc,revise:reviseDoc,submit:submitDoc,return:returnDoc}[operation];
+export function DocumentOperation({id,version,operation}:{id:string;version:number;operation:"issue"|"cancel"|"revise"|"submit"|"return"|"refresh"}) {
+  const action={issue:issueDoc,cancel:cancelDoc,revise:reviseDoc,submit:submitDoc,return:returnDoc,refresh:refreshTemplatePreview}[operation];
   const reasons={issue:"Issue reason",cancel:"Cancellation reason",return:"Return reason"};
-  const headings={issue:"Approve submitted draft",cancel:"Cancel document",revise:"Prepare a revision",submit:"Ready for Owner review?",return:"Return for changes"};
-  const labels={issue:"Approve and issue",cancel:"Cancel document",revise:"Create revision draft",submit:"Submit for review",return:"Deny draft"};
+  const headings={issue:"Approve submitted draft",cancel:"Cancel document",revise:"Prepare a revision",submit:"Ready for Owner review?",return:"Return for changes",refresh:"Apply reviewed business details"};
+  const labels={issue:"Approve and issue",cancel:"Cancel document",revise:"Create revision draft",submit:"Submit for review",return:"Deny draft",refresh:"Refresh preview with reviewed settings"};
   const [state,submit,pending]=useActionState(action,idle);
   return <form action={submit} className="account-card account-form">
     <input type="hidden" name="id" value={id}/><input type="hidden" name="version" value={version}/>

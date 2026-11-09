@@ -6,7 +6,7 @@ import type { Viewer } from "@/server/session";
 export async function JobFiles({ reference, stage, viewer }: { reference: string; stage: string; viewer: Viewer }) {
   const files = await visibleFiles(viewer, reference);
   const customer = viewer.role === "customer";
-  return <section className="account-card job-file-list"><h2>Job files</h2>
+  return <section className="account-card job-file-list"><h2 id="files" tabIndex={-1}>Job files</h2>
     <p>Shared with this job’s customers and Mias staff.</p>
     {files.length ? <ul>{files.map(file => <li key={file.id}>
       <a href={`/jobs/${reference}/files/${file.id}`} download>{file.name}</a>

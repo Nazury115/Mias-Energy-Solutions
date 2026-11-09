@@ -45,6 +45,8 @@ export async function saveDocumentSettings(viewer:Viewer,version:number,data:Doc
 
 export async function documentList(viewer:Viewer,reference?:string) {
   return (await getDb()).select({id:commercialDocuments.id,reference:commercialDocuments.reference,kind:commercialDocuments.kind,status:commercialDocuments.status,
+    issueDate: sql<string | null>`${commercialDocuments.snapshot}->>'date'`,
+    total: sql<string | null>`${commercialDocuments.snapshot}->'totals'->>'total'`,
     jobReference:jobs.reference,customer:sql<string>`${commercialDocuments.draft}->>'customer'`}).from(commercialDocuments)
     .innerJoin(jobs,eq(jobs.id,commercialDocuments.jobId)).where(and(jobAccess(viewer),
       viewer.role==="customer"?inArray(commercialDocuments.status,issuedDocumentStates):undefined,reference?eq(jobs.reference,reference):undefined))
@@ -95,6 +97,7 @@ export async function saveCommercialDocument(viewer:Viewer,id:string,version:num
 export async function submitCommercialDocument(viewer:Viewer,id:string,version:number) {
   staff(viewer);
   if(!uuid.test(id))notFound();
+  const fallback=await getDocumentSettings();
   await (await getDb()).transaction(async tx=>{
     const [document]=await tx.select().from(commercialDocuments).where(eq(commercialDocuments.id,id)).for("update");
     if(!document)notFound();
@@ -103,7 +106,6 @@ export async function submitCommercialDocument(viewer:Viewer,id:string,version:n
     const problem=documentProblem(document.draft);
     if(problem)throw new DocumentProblem(problem);
     const [settings]=await tx.select().from(documentSettings).where(eq(documentSettings.id,"business")).for("share");
-    if(!settings)throw new DocumentProblem("An Owner must review and save the document settings before submission.");
     const [job]=await tx.select().from(jobs).where(eq(jobs.id,document.jobId));
     const totals=calculateDocument(document.draft.lines,document.draft.overallDiscount);
     if("error" in totals)throw new DocumentProblem(totals.error);
@@ -113,10 +115,23 @@ export async function submitCommercialDocument(viewer:Viewer,id:string,version:n
       previous=source?.reference??null;
     }
     const reviewSnapshot:DocumentSnapshot={kind:document.kind,reference:"SUBMITTED DRAFT",date:"Not issued",jobReference:job.reference,
-      draft:document.draft,template:settings.data,totals,issuedBy:"Not issued",revisionOf:previous};
+      draft:document.draft,template:settings?.data??fallback.data,templateReviewed:Boolean(settings),totals,issuedBy:"Not issued",revisionOf:previous};
     await tx.update(commercialDocuments).set({status:"submitted",reviewSnapshot,reviewReason:null,submittedAt:new Date(),submittedBy:viewer.name,version:version+1})
       .where(eq(commercialDocuments.id,id));
     await tx.insert(auditLog).values({actorId:viewer.id,action:"document.submitted",detail:`${id} — saved version submitted for review.`});
+  });
+}
+
+export async function refreshReviewTemplate(viewer:Viewer,id:string,version:number) {
+  if(viewer.role!=="owner")notFound();
+  if(!uuid.test(id))notFound();
+  await (await getDb()).transaction(async tx=>{
+    const [document]=await tx.select().from(commercialDocuments).where(eq(commercialDocuments.id,id)).for("update");
+    if(!document||document.version!==version||document.status!=="submitted"||!document.reviewSnapshot)throw new DocumentProblem(conflict);
+    const [settings]=await tx.select().from(documentSettings).where(eq(documentSettings.id,"business")).for("share");
+    if(!settings)throw new DocumentProblem("Review and save the business settings first, then refresh this preview.");
+    await tx.update(commercialDocuments).set({reviewSnapshot:{...document.reviewSnapshot,template:settings.data,templateReviewed:true},version:version+1}).where(eq(commercialDocuments.id,id));
+    await tx.insert(auditLog).values({actorId:viewer.id,action:"document.preview-refreshed",detail:`${id} — reviewed business template applied to the submitted preview.`});
   });
 }
 
@@ -141,6 +156,7 @@ export async function issueCommercialDocument(viewer:Viewer,id:string,version:nu
     if(!document)notFound();
     if(document.status==="issued")return;
     if(document.status!=="submitted"||document.version!==version||!document.reviewSnapshot)throw new DocumentProblem(conflict);
+    if(document.reviewSnapshot.templateReviewed===false)throw new DocumentProblem("Review the business settings, then refresh this draft preview with the reviewed settings before issue.");
     const [job]=await tx.select().from(jobs).where(eq(jobs.id,document.jobId));
     let previous:string|null=null;
     if(document.revisionOf) {
@@ -154,7 +170,9 @@ export async function issueCommercialDocument(viewer:Viewer,id:string,version:nu
       .where(eq(documentCounters.kind,document.kind)).returning();
     const date=new Intl.DateTimeFormat("en-CA",{timeZone:"Africa/Lusaka",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
     const reference=`TEST-${document.kind==="invoice"?"I":"Q"}-${date.slice(0,4)}-${String(counter.nextNumber-1).padStart(6,"0")}`;
-    const snapshot:DocumentSnapshot={...document.reviewSnapshot,reference,date,issuedBy:viewer.name,revisionOf:previous};
+    const {templateReviewed:_reviewed,...reviewSnapshot}=document.reviewSnapshot;
+    void _reviewed;
+    const snapshot:DocumentSnapshot={...reviewSnapshot,reference,date,issuedBy:viewer.name,revisionOf:previous};
     let pdf:Buffer,xlsx:Buffer;
     try { [pdf,xlsx]=await Promise.all([createDocumentPdf(snapshot),createDocumentExcel(snapshot)]); }
     catch {throw new DocumentProblem("The document files could not be created. Check the document text for unsupported characters and try again.");}

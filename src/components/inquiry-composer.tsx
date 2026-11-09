@@ -91,7 +91,9 @@ export function InquiryComposer({ initialService, initialArea = "", initialConta
   return <div className="inquiry-card">
     <p className="eyebrow">START WITH A FEW DETAILS</p><h2>Tell us what you need.</h2>
     <p className="muted">Send your inquiry straight to Mias and Israel will reply the way you choose. Prefer WhatsApp? You can prepare a WhatsApp message instead.</p>
-    <form ref={form} action={formAction} noValidate data-inquiry-form onSubmit={() => setMode("send")}>
+    {/* React resets forms after an action, including validation failures. Keep the
+        controlled radio/select choices intact so a corrected retry uses them. */}
+    <form ref={form} action={formAction} noValidate data-inquiry-form onSubmit={() => setMode("send")} onReset={event=>event.preventDefault()}>
       <input type="hidden" name="formToken" value={formToken} />
       <input type="hidden" name="idempotencyKey" value={idempotencyKey} />
       <div className="trap-field" aria-hidden="true"><label htmlFor="inquiry-check">Leave this field empty</label><input id="inquiry-check" name="mias_check" tabIndex={-1} autoComplete="off" defaultValue="" /></div>

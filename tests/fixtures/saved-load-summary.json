@@ -1,0 +1,6 @@
+{
+  "version": "load-summary-v1", "mode": "load-summary", "area": "Synthetic test area", "backupHours": null,
+  "loads": [{"name": "Synthetic historical lights", "quantity": 4, "watts": "10", "hours": "4", "category": "lighting", "essential": false, "simultaneous": false, "dailyWh": "160"}],
+  "totals": {"connectedW": "40", "selectedW": null, "dailyWh": "160", "essentialWh": "0", "connectedIncomplete": false, "selectedIncomplete": false, "dailyIncomplete": false, "essentialIncomplete": false, "knownEnergyLines": 1, "essentialLines": 0, "selectedLines": 0},
+  "assessmentReasons": []
+}

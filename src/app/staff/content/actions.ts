@@ -4,7 +4,7 @@ import { redirect, unstable_rethrow } from "next/navigation";
 import { parseVersion } from "@/lib/jobs";
 import type { PublicationDraft } from "@/lib/publishing";
 import { requireViewer } from "@/server/session";
-import { createPublication, draftFromForm, PublishingProblem, publishPublication, savePublication, uploadPublicationImage } from "@/server/publishing";
+import { createPublication, draftFromForm, manageRepositoryProject, PublishingProblem, publishPublication, savePublication, trashPublication, uploadPublicationImage } from "@/server/publishing";
 
 export type ContentState = {status:"idle"|"done"|"error";message?:string;values?:PublicationDraft;version?:number};
 const value=(form:FormData,key:string)=>String(form.get(key)??"");
@@ -62,4 +62,23 @@ export async function uploadPhoto(_state:ContentState,form:FormData):Promise<Con
     refresh(id);
     return {status:"done",message:"Photo registered. Select it in the draft and save."};
   } catch(error){return failed(error);}
+}
+
+export async function manageProject(_state:ContentState,form:FormData):Promise<ContentState> {
+  const viewer=await requireViewer(["staff","owner"],"/staff/content");
+  let id:string;
+  try{id=await manageRepositoryProject(viewer,value(form,"slug"));}catch(error){return failed(error);}
+  refresh(id);
+  redirect("/staff/content/"+id+(value(form,"intent")==="delete"?"#delete-content":""));
+}
+
+export async function moveContent(_state:ContentState,form:FormData):Promise<ContentState> {
+  const viewer=await requireViewer(["owner"],"/staff/content");
+  const restore=value(form,"operation")==="restore";
+  try{
+    const id=value(form,"id");
+    await trashPublication(viewer,id,version(form),value(form,"reason"),form.get("checked")==="yes",restore);
+    refresh(id);
+  }catch(error){return failed(error);}
+  redirect("/staff/content?view=trash&notice="+(restore?"restored":"trashed"));
 }

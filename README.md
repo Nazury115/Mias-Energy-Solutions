@@ -4,6 +4,14 @@ Responsive website and digital lead platform for Mias Energy Solutions, Lusaka, 
 
 ## Current increment
 
+Workspace review corrections add submission before template setup (Owner review is still required before issue), existing-project management with recoverable Owner-only Trash, and a development-only [mobile preview](http://127.0.0.1:3000/dev/mobile?path=%2Fstaff). See the [review walkthrough](docs/journal/workspace-corrections.md).
+
+The current core-quality pass preserves the chosen reply method after inquiry validation, puts saved projects/documents before creation forms, and adds shortcuts to create new records. Owner document review stays first.
+
+Henry removed the solar planner from the active scope on **6 November 2026**. Its page, navigation and submission flow are retired; solar customers use the normal assessment inquiry and staff prepare quotations using current prices. The planner remains only a [deferred idea](docs/ideas/solar-planner.md). Earlier saved request details remain readable through existing protected job access. The current priority is improving inquiries, jobs, messaging, publishing, documents and mobile usability; see the [scope change and improvement plan](docs/plans/planner-retirement.md). The local 010 milestone is `c055dc6`; later portal, workspace and security changes are recorded in the [changelog](CHANGELOG.md).
+
+The customer portal now leads with linked jobs, uses scope as the job title, provides section shortcuts and shows issued dates/totals with PDF and Excel downloads. See the [approved follow-up](specs/008-customer-portal-usability.md) and [9 November verification closure](docs/testing/commit-review-2026-11-09.md).
+
 The first local slice of increment 010 adds **Documents** in the staff workspace. Staff prepare, edit and submit a quotation or invoice for a job. Owners preview the submitted version, then approve and issue or deny it with a return reason. Both portals offer PDF and Excel downloads; draft access is limited to Staff and Owners. The design follows Henry's corrected invoice workbook, with fixed issue dates, exact decimal totals, separate line and overall discounts, and frozen issued copies. This local slice uses TEST numbers; live tax treatment and commercial rules still require business confirmation. See the [010 specification](specs/010-quotations-and-invoices.md), [walkthrough](docs/journal/010-quotations-and-invoices.md) and [verification results](docs/testing/010-results.md).
 
 Increment 009 adds **Publishing** at `/staff/content`. Staff create project stories and testimonials, register JPEG/PNG photographs, save drafts and preview them. An Owner approves a saved version or unpublishes it. Editing a published entry keeps the previous approved version public until a replacement is approved. Test content keeps its fictional label and is hidden in launch mode. See the [009 specification](specs/009-staff-publishing.md), [walkthrough](docs/journal/009-staff-publishing.md) and [verification record](docs/testing/009-results.md).
@@ -44,7 +52,7 @@ The three stories are visibly fictional, with no customer attribution or fabrica
 
 ## Approved direction and remaining work
 
-The [business platform specification](specs/002-business-platform-expansion.md) records the approved direction. The public website, saved inquiries, accounts, job portal, staff publishing and the local quotation/invoice workflow are implemented. Commercial follow-ups and the solar planner retain their own SDD gates.
+The [business platform specification](specs/002-business-platform-expansion.md) records the approved direction. The public website, saved inquiries, accounts, job portal, staff publishing, local quotation/invoice workflow and the solar load-summary/inquiry slice are implemented. Commercial follow-ups and solar equipment sizing/pricing retain their own SDD gates.
 
 See the [competitor review](docs/research/loxlak-review-2026-10-19.md), [photograph inventory](docs/content/proof-of-service-inventory.md) and [information worksheet](docs/content/business-intake.md). The final production MVP is not complete merely because the local public preview works.
 

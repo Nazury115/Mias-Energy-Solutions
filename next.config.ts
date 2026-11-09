@@ -4,6 +4,16 @@ const nextConfig: NextConfig = {
   // Verification can use a separate build directory alongside the normal local preview.
   distDir: process.env.MIAS_BUILD_DIR ?? ".next",
   poweredByHeader: false,
+  async headers() {
+    return [{
+      source: "/:path*",
+      headers: [
+        { key: "X-Frame-Options", value: "SAMEORIGIN" },
+        // Hide paths/query tokens without nulling the Origin on native form POSTs.
+        { key: "Referrer-Policy", value: "strict-origin" },
+      ],
+    }];
+  },
   devIndicators: false,
   // PGlite loads its WebAssembly files from node_modules at runtime, so it must not be bundled.
   serverExternalPackages: ["@electric-sql/pglite"],

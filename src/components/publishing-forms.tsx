@@ -1,12 +1,29 @@
 "use client";
 import { useActionState, useEffect, useRef, useState } from "react";
-import { createDraft, publishDraft, saveDraft, uploadPhoto, type ContentState } from "@/app/staff/content/actions";
+import { createDraft, manageProject, moveContent, publishDraft, saveDraft, uploadPhoto, type ContentState } from "@/app/staff/content/actions";
 import { publicationLimits, type PublicationDraft } from "@/lib/publishing";
 import { provinces } from "@/lib/coverage";
 
 const idle:ContentState={status:"idle"};
 function Feedback({state}:{state:ContentState}) {
-  return state.status==="idle" ? null : <p role={state.status==="error"?"alert":"status"} className={state.status==="error"?"form-alert":"form-success"}>{state.message}</p>;
+  const ref=useRef<HTMLParagraphElement>(null);
+  useEffect(()=>{if(state.status==="error")ref.current?.focus();},[state]);
+  return state.status==="idle" ? null : <p ref={ref} tabIndex={-1} role={state.status==="error"?"alert":"status"} className={state.status==="error"?"form-alert":"form-success"}>{state.message}</p>;
+}
+export function RepositoryProjectForm({slug,remove=false}:{slug:string;remove?:boolean}) {
+  const [state,submit,pending]=useActionState(manageProject,idle);
+  return <form action={submit}><input type="hidden" name="slug" value={slug}/><input type="hidden" name="intent" value={remove?"delete":"edit"}/>
+    <Feedback state={state}/><button className="button button-small" disabled={pending}>{remove?"Delete project":"Edit project"}</button></form>;
+}
+export function TrashContentForm({id,version,kind,restore=false}:{id:string;version:number;kind:string;restore?:boolean}) {
+  const [state,submit,pending]=useActionState(moveContent,idle);
+  return <form action={submit} className="account-form account-card" id={restore?undefined:"delete-content"}>
+    {!restore&&<><h2>Delete {kind}</h2><p>The public version will be removed. The saved draft and its photos stay in Trash so an Owner can restore them.</p></>}
+    <input type="hidden" name="id" value={id}/><input type="hidden" name="version" value={version}/><input type="hidden" name="operation" value={restore?"restore":"trash"}/>
+    {!restore&&<><label htmlFor="delete-reason">Delete reason</label><textarea id="delete-reason" name="reason" maxLength={500} required rows={2}/>
+      <label className="publishing-check"><input name="checked" type="checkbox" value="yes" required/> I understand this removes the public version and moves the record to Trash</label></>}
+    <Feedback state={state}/><button className="button button-small" disabled={pending}>{restore?"Restore as draft":`Delete ${kind}`}</button>
+  </form>;
 }
 export function CreateContentForm() {
   const [state,submit,pending]=useActionState(createDraft,idle);

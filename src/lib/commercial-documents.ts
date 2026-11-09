@@ -20,6 +20,7 @@ export const documentFields = {customer:160,attention:160,address:600,contact:20
 export type DocumentSnapshot = {
   kind: string; reference: string; jobReference: string; date: string; draft: DocumentDraft;
   template: DocumentTemplate; totals: DocumentCalculation; issuedBy: string; revisionOf: string | null;
+  templateReviewed?:boolean;
 };
 export const blankDocument: DocumentDraft = {
   customer: "", attention: "", address: "", contact: "", customerId: "", terms: "", deadline: "",

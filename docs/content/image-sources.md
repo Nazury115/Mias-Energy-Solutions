@@ -58,3 +58,5 @@ Several photos show workers. Before public launch, confirm permission for people
 Each runtime upload is registered in the private `publication_images` inventory with its ID, draft association, source, description, permission evidence, uploader and date. The staff editor displays that inventory. Images are JPEG publication copies with metadata removed. The raw job-file store and `Proof of service/` remain separate.
 
 The source and permission fields contain private review evidence and stay out of the public response and Git. A public image address is `/media/publishing/<registered-image-id>`. Only a currently published snapshot can authorize that response. The corresponding private preview requires Staff or Owner access.
+
+Opening an existing repository project for management freezes its existing hero path and description in the private record. This reuses the inventory above; it does not upload or reclassify an image. Illustrative stock descriptions and fictional labels are retained. Trash blocks both public media and private image previews until the draft is restored; restoration does not republish images.

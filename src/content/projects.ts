@@ -74,15 +74,17 @@ if (problems.length) throw new Error(`Fix src/content/projects.ts:\n- ${problems
 // Public content is assembled here from the repository inventory and approved
 // snapshots. Drafts, permission evidence and staff notes never enter the result.
 export async function loadProjectContent() {
-  const { publishedEntries, publishedPhotoCaptions } = await import("@/server/publishing");
+  const { publishedEntries, publishedPhotoCaptions, repositoryPublicationStates } = await import("@/server/publishing");
   const entries = await publishedEntries();
   const photos = await publishedPhotoCaptions();
+  const states = await repositoryPublicationStates();
   const categories: Record<string,string> = { water:"Water",electrical:"Electrical","renewable-energy":"Renewable energy" };
   const managed: ProjectStory[] = entries.filter(entry=>entry.kind==="project").map(entry=>{
     const draft = entry.content!;
     const gallery = draft.photoIds.map(id=>({src:`/media/publishing/${id}`,alt:photos.find(photo=>photo.id===id)?.alt ?? ""}));
     const existing = workPhotos.find(photo=>photo.src===draft.existingPhoto);
     if (existing) gallery.unshift({src:existing.src,alt:existing.caption});
+    if(!gallery.length && entry.repositoryHero)gallery.push(entry.repositoryHero);
     return {slug:entry.slug,title:draft.title,summary:draft.summary,family:draft.family as ProjectFamily,
       category:categories[draft.family],province:draft.province as Province,area:draft.area || undefined,
       year:draft.year ? Number(draft.year) : undefined,fictional:entry.sample,
@@ -91,7 +93,8 @@ export async function loadProjectContent() {
       alt:gallery[0]?.alt ?? "Illustrative stock photograph for a fictional example.",
       problem:draft.problem,approach:draft.approach,outcome:draft.outcome,gallery};
   });
-  const all = [...projectStories,...managed];
+  const replaced=new Set(states.filter(state=>state.hidden||state.deletedAt||state.hasPublished).map(state=>state.slug));
+  const all = [...projectStories.filter(story=>!replaced.has(story.slug)),...managed];
   const reviews = entries.filter(entry=>entry.kind==="testimonial");
   const visible = filterPublicationCollections(all,provinceTotals,reviews,process.env.MIAS_PUBLIC_LAUNCH==="true");
   const testimonials = visible.testimonials.map(entry=>({

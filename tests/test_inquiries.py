@@ -120,6 +120,22 @@ def test_validation_keeps_input_and_focuses_first_error(browser, base_url):
 
 
 @pytest.mark.browser
+def test_reply_choice_survives_validation_and_retry(browser, base_url):
+    page=new_page(browser,base_url)
+    try:
+        open_form(page,base_url)
+        fill_form(page,unique_email(),details="")
+        send(page)
+        page.locator('[name="message"][aria-invalid="true"]').wait_for()
+        assert page.get_by_role("radio",name="Email",exact=True).is_checked()
+        assert page.get_by_label("Your name",exact=True).input_value()=="Test Visitor"
+        page.get_by_label("Project details",exact=True).fill("Synthetic corrected inquiry after validation.")
+        send(page)
+        page.get_by_role("status").get_by_text("Thank you",exact=False).wait_for()
+    finally:page.context.close()
+
+
+@pytest.mark.browser
 def test_database_failure_is_reported_honestly(browser, base_url):
     page, email = new_page(browser, base_url, simulate="db-failure"), unique_email()
     try:

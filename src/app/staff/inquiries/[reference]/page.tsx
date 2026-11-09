@@ -11,6 +11,7 @@ import { requireViewer } from "@/server/session";
 import { activeStaff, jobForInquiry } from "@/server/jobs";
 import { JobWorkflowForm, ReviewForm } from "@/components/job-forms";
 import { requestStages } from "@/lib/jobs";
+import { SolarSummary } from "@/components/solar-summary";
 
 // Signed-in content must never be pre-rendered at build time (found in production verification, 007).
 export const dynamic = "force-dynamic";
@@ -37,6 +38,7 @@ export default async function InquiryDetail({ params }: { params: Promise<{ refe
     <WorkspaceHeader viewer={viewer} title={inquiry.reference} current="inquiries" />
     <p className="account-links"><a href="/staff">← All inquiries</a>{!existingJob && <> · <a href="#review-request">Review request</a>{inquiry.reviewStatus !== "closed" && <> · <a href="#accept-request">Accept request</a></>}</>}</p>
     <dl className="detail-list">{rows.map(([term, value]) => <div key={term} style={{ display: "contents" }}><dt>{term}</dt><dd>{value}</dd></div>)}</dl>
+    {inquiry.solarPlan&&<SolarSummary plan={inquiry.solarPlan}/>}
     <p className="notice">Review: {requestStages[inquiry.reviewStatus as keyof typeof requestStages]}{inquiry.reviewReason ? ` · ${inquiry.reviewReason}` : ""}</p>
     {existingJob ? <p><a className="button" href={`/staff/jobs/${existingJob.reference}`}>Open job</a></p> : <div className="job-columns">
       <section className="account-card" id="review-request"><h2>Review request</h2><ReviewForm reference={inquiry.reference} version={inquiry.version} status={inquiry.reviewStatus} /></section>

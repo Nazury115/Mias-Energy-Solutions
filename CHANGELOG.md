@@ -2,11 +2,53 @@
 
 Newest first. Each entry records what changed, where, and why, so work can continue in any tool (Claude, ChatGPT/Codex) or folder. For what is still to build, see [the feature backlog](docs/plans/feature-backlog.md).
 
+## Verification closure and reviewed baseline, 9 November 2026
+
+- Henry authorized diagnosis of the two blocked development journeys and committing the pending changes. Reviewed the workspace/document/publishing improvements, planner retirement, customer portal usability, security changes, migrations and supporting records from 5–8 November.
+- Fixed native form submissions rejected by Next.js after the initial referrer-policy change. `strict-origin` preserves a valid request Origin and keeps referrers free of paths and invitation tokens. SAMEORIGIN framing and Next.js's Origin validation remain enabled.
+- Both previously blocked journeys pass. All 192 unit checks, seven distinct focused browser checks across final runs, TypeScript, the optimized production build and the ten-route compiled production workflow pass. The production workflow reports no runtime errors. Drizzle consistency/schema checks pass and the refreshed dependency audit reports zero known vulnerabilities. See the [verification and review record](docs/testing/commit-review-2026-11-09.md).
+- Saved the existing customer portal review brief and standalone project presentation as separate review materials. Private configuration, databases, raw proof files and local test outputs are excluded. Earlier entries below retain their verification-time status; this entry closes their pending review and commit work.
+
+## Customer portal usability, 8 November 2026
+
+Customer accounts prioritize active jobs and surface inquiries when no jobs are linked. Job summaries lead with the scope and include shortcuts to messaging, progress, issued documents and files. Customers see issued dates and totals with direct PDF and Excel downloads. See the [approved scope](specs/008-customer-portal-usability.md).
+
+Verification: TypeScript, the production build, 192 unit tests and the isolated production browser workflow passed. Phone and desktop captures are in the local test-results folder. Two development browser checks originally stopped during staff job acceptance before reaching the customer screens; their 9 November follow-up is recorded in the [verification closure](docs/testing/commit-review-2026-11-09.md).
+
+## Local security review, 8 November 2026
+
+Production account and inquiry rate limits now require explicit proxy trust before using a network header. Account pages restrict framing to the same origin. The initial referrer policy was corrected to origin-only referrers on 9 November to support native forms. See the [findings and verification record](docs/testing/security-review-2026-11-08.md).
+
 ## Where the project lives
 
 - Two working copies of one git repository: `D:\CS\Projects\Mias Enterprise Project\AI Projects` and `C:\Users\nazur\Desktop\AI Projects`, kept in sync on branch `feature/004-scroll-redesign`. Increment 005 continues on that branch. `main` still points at the 001 foundation commit until the branch is merged.
 - How to keep them in sync: [AGENTS.md › Two working copies](AGENTS.md#two-working-copies).
 - `Proof of service/` (the 30 original WhatsApp photos) exists in both folders but is deliberately not in git.
+
+## [Scope change] Retire the solar planner; improve the core platform — 2026-11-06
+
+- Henry requested removal of the solar planner and a focus on the existing system. Removed the public route, interactive form/calculator, navigation and mobile-helper choice. Solar services now direct customers to the normal assessment inquiry for a staff-prepared quotation using current prices.
+- Removed planner processing from new inquiry intake and receipts. Stale planner payloads receive visible feedback without saving a request. Historical saved details remain read-only within existing protected inquiry/job views; generated migration 0008 and stored records are preserved.
+- Updated privacy wording, current scope and roadmap. 011 is a deferred suggestion rather than the next implementation or a launch prerequisite. Historical specifications/plans/results remain marked as superseded. See the [core-improvement plan](docs/plans/planner-retirement.md) and [verification](docs/testing/planner-retirement.md).
+- Began the core-quality pass: fixed a reproduced reply-radio reset that changed Email to WhatsApp after validation, and moved project/document registers ahead of creation forms with direct new-record shortcuts. Owner review remains first and all existing permissions stay in effect.
+- Verified 188 remaining unit checks, eight focused HTTP/browser checks, five normal-preview pages at four widths, TypeScript, the optimized production build and the extended production journey with ten route checks and no runtime errors. New requests carry no planning snapshot; synthetic historical details remain protected and readable. The normal preview is running, verification servers are stopped, and changes remain uncommitted for review.
+
+## [Workspace corrections] Review visibility, project controls and mobile preview — 2026-11-06
+
+- Resumed the requested local preview. Staff can submit a valid saved document before Owner template setup; the Owner sees the review queue and unsubmitted count. An unreviewed template blocks issue until the Owner saves business settings and explicitly refreshes the versioned preview.
+- Publishing includes existing repository projects with stable public URLs, private editable drafts, frozen image attribution and approved replacements. Added direct preview/edit/publication controls and Owner-only, version-checked, audited Trash/restore. Restoration remains unpublished and removed repository stories do not reappear as fallbacks. Trashed previews and photo routes are unavailable.
+- Added the development-only `/dev/mobile` live phone frame with allowlisted routes and 320/390/430 px widths. Authentication is unchanged inside the frame. Added a Staff/Owner project-management link to the public Projects page.
+- Applied Next.js 16's documented smooth-scroll HTML marker so route transitions honor the site's existing global scroll styling without the development warning.
+- Generated migration 0009 adds repository-source tracking and recoverable deletion metadata. Henry's existing records are not automatically submitted, published or deleted. See the [walkthrough](docs/journal/workspace-corrections.md) and [verification](docs/testing/workspace-corrections.md).
+- Verified 204 unit checks, six focused Edge checks across the final runs, five normal-preview pages at four widths, TypeScript, the production build and the extended production integration journey with ten route checks and no runtime errors. Corrected a screenshot timeout by capturing the Owner review queue. The normal preview is running; verification servers are stopped and changes remain uncommitted for review.
+
+## [011 local slice] Solar load summary and quotation handoff — 2026-11-05
+
+- Committed the local 010 workflow as `c055dc6`, then recorded Henry's explicit approval of [011's first slice](specs/011-solar-planner.md) before tests-first implementation.
+- Added `/solar-planner`, public/service links, editable appliance rows, exact decimal W/kW and Wh/kWh summaries, essential/simultaneous-use choices and explicit incomplete/assessment states. No appliance wattages, equipment or prices are guessed.
+- Added a nullable private inquiry snapshot through generated migration 0008. The existing inquiry pipeline recalculates it on the server, saves it atomically with the request and retains the original snapshot on retries. Staff inquiry/job views and explicitly linked customer jobs show it; existing access/revocation rules apply.
+- Verified 204 unit checks, planner/no-JavaScript/delayed-hydration journeys, affected contact/navigation regressions, legacy-data migration, responsive screenshots, TypeScript and production-mode solar intake plus the existing portal/document/publishing journey. Fixed native Enter targeting Remove and no-JavaScript editing after clearing an unknown-value checkbox. See [results](docs/testing/011-results.md).
+- Equipment sizing and prices remain a later slice requiring approved technical rules, catalogue, dated pricing and worked designs. The normal preview remains stopped at Henry's request; 011 changes are uncommitted for review.
 
 ## [010 local slice] Quotations and invoices — 2026-11-05
 

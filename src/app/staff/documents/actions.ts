@@ -3,7 +3,7 @@ import { revalidatePath } from "next/cache";
 import { redirect, unstable_rethrow } from "next/navigation";
 import { documentFields, type DocumentDraft, type DocumentTemplate } from "@/lib/commercial-documents";
 import { requireViewer } from "@/server/session";
-import { cancelCommercialDocument, createCommercialDocument, DocumentProblem, issueCommercialDocument, returnCommercialDocument, reviseCommercialDocument, saveCommercialDocument, saveDocumentSettings, submitCommercialDocument, templateKeys } from "@/server/commercial-documents";
+import { cancelCommercialDocument, createCommercialDocument, DocumentProblem, issueCommercialDocument, refreshReviewTemplate, returnCommercialDocument, reviseCommercialDocument, saveCommercialDocument, saveDocumentSettings, submitCommercialDocument, templateKeys } from "@/server/commercial-documents";
 
 export type DocumentState={status:"idle"|"done"|"error";message?:string;values?:DocumentDraft;templateValues?:DocumentTemplate;version?:number};
 const read=(form:FormData,key:string)=>String(form.get(key)??"");
@@ -18,6 +18,7 @@ function fail(error:unknown):DocumentState {
 }
 function refresh(id:string) {
   revalidatePath("/staff/documents");
+  revalidatePath("/staff");
   revalidatePath("/staff/documents/"+id);
   revalidatePath("/staff/documents/"+id+"/preview");
   revalidatePath("/account/documents/"+id);
@@ -70,6 +71,14 @@ export async function returnDoc(_state:DocumentState,form:FormData):Promise<Docu
     const id=read(form,"id");
     await returnCommercialDocument(viewer,id,version(form),read(form,"reason"));
     refresh(id);redirect("/staff/documents/"+id+"?notice=returned");
+  } catch(error){return fail(error);}
+}
+export async function refreshTemplatePreview(_state:DocumentState,form:FormData):Promise<DocumentState> {
+  const viewer=await requireViewer(["owner"],"/staff/documents");
+  try {
+    const id=read(form,"id");
+    await refreshReviewTemplate(viewer,id,version(form));
+    refresh(id);redirect("/staff/documents/"+id+"?notice=template-refreshed");
   } catch(error){return fail(error);}
 }
 export async function reviseDoc(_state:DocumentState,form:FormData):Promise<DocumentState> {

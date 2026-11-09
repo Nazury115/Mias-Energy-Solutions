@@ -7,6 +7,7 @@ import { normalizePhone } from "@/lib/inquiry-submission";
 import { accountsReady, getAuth } from "@/server/auth";
 import { recordAttempt, tooManyAttempts } from "@/server/attempts";
 import { hashNetworkAddress } from "@/server/form-token";
+import { networkAddress } from "@/server/network-address";
 import { requireViewer } from "@/server/session";
 import { acceptInvitation } from "@/server/team";
 
@@ -23,7 +24,7 @@ const read = (formData: FormData, name: string) => {
 };
 async function networkKey() {
   const request = await headers();
-  const address = request.get("x-forwarded-for")?.split(",")[0]?.trim() || request.get("x-real-ip") || "local";
+  const address = networkAddress(request);
   return `network:${hashNetworkAddress(address)}`;
 }
 const MINUTE = 60_000;

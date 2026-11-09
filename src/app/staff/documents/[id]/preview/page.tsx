@@ -15,6 +15,7 @@ export default async function Preview({params}:{params:Promise<{id:string}>}) {
   }
   return <main id="main-content" className="site-container workspace" tabIndex={-1}>
     <h1>{editable?"Draft preview":"Document preview"}</h1><p>{documentStatus(document.status)} · Preview of the saved version</p>
+    {snapshot?.templateReviewed===false&&<p className="notice">Business settings await Owner review. This preview can be reviewed, but cannot be issued until reviewed settings are applied.</p>}
     <nav className="document-toolbar" aria-label="Preview actions"><a href={`/staff/documents/${id}`}>← Document details</a>
       {editable&&<a className="button button-light button-small" href={`/staff/documents/${id}#document-editor`}>Edit draft</a>}
       {document.status==="submitted"&&viewer.role==="owner"&&<a className="button button-small" href={`/staff/documents/${id}#owner-review`}>Review draft</a>}

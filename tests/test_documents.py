@@ -180,7 +180,10 @@ def test_review_return_edit_frozen_preview_and_excel(browser,base_url):
         url=prepare(admin,job)
         document_id=url.rsplit("/",1)[1]
         invite=invite_customer(admin,base_url,job,email)
-        open_new_customer(client,invite)
+        with client.expect_request(lambda request:request.method=="POST" and request.url.startswith(base_url+"/job-invite")) as invitation_post:
+            open_new_customer(client,invite)
+        assert invitation_post.value.headers.get("origin")==base_url
+        assert invitation_post.value.headers.get("referer")==base_url+"/","Invitation tokens must stay out of referrer headers."
         staff_invite=invite_staff(admin,base_url,unique_email("review"),name="Review Writer")
         writer.goto(staff_invite,wait_until="networkidle")
         writer.get_by_label("Choose a password").fill(PASSWORD)
@@ -249,9 +252,15 @@ def test_review_return_edit_frozen_preview_and_excel(browser,base_url):
         (ROOT/"test-results/010-issued.xlsx").write_bytes(response.body())
         assert client.request.get(base_url+"/documents/"+document_id+"/download?format=xlsx&portal=staff").status==403
         client.goto(base_url+"/account/documents/"+document_id,wait_until="networkidle")
-        client.get_by_label("Download format").select_option("xlsx")
+        client.goto(customer_job + "#documents",wait_until="networkidle")
+        listed = client.locator(".portal-documents li").filter(has_text="28900.00")
+        assert "Issued " in listed.inner_text()
+        listed.get_by_role("link").click()
+        with client.expect_download() as pdf:
+            client.get_by_role("link",name="Download PDF").click()
+        assert pdf.value.suggested_filename.endswith(".pdf")
         with client.expect_download() as download:
-            client.get_by_role("button",name="Download document",exact=True).click()
+            client.get_by_role("link",name="Download Excel",exact=True).click()
         assert download.value.suggested_filename.endswith(".xlsx")
         for width in [320,390,768,1440]:
             admin.set_viewport_size({"width":width,"height":900})

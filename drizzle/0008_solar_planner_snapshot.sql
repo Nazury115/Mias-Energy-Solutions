@@ -1,0 +1,1 @@
+ALTER TABLE "inquiries" ADD COLUMN "solar_plan" jsonb;

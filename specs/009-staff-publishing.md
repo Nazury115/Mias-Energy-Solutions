@@ -26,3 +26,13 @@ Henry requested implementation on 4 November 2026 after reviewing the proposed s
 ## Verification
 
 Use fictional entries in an isolated database. Verify Staff draft → private preview → Owner publish → public project/testimonial → draft edit → replacement → unpublish. Check customer and signed-out access directly, stale versions, failed saves, required permissions, upload restrictions, image removal from the public version and map/sitemap changes. Run the production build and inspect desktop and phone layouts.
+
+## Project-management correction — 5 November 2026
+
+Henry requested visible preview/edit/publish/delete controls and access to projects already on the website. The workspace must list repository project stories alongside database-managed entries, clearly identifying their origin, status and fictional classification. Staff may open a repository story as a managed draft; this copies its supported fields and illustrative-photo metadata without publishing changes. Keep its public slug stable and show one public version at a time. Draft edits leave the existing public version intact until Owner publication.
+
+Only an Owner can publish, unpublish or delete. Delete means move to Trash with a reason and confirmation, remove the public snapshot and block public media, while retaining records/photos/audit history. Owner restore returns an entry to drafts and never republishes automatically. Deleting/unpublishing a managed repository story suppresses the repository fallback so it cannot reappear. Classification and photo provenance remain intact; original source photos/files are never deleted. Version checks protect edits, publication, trash and restore. Native database projects and testimonials retain their existing workflow.
+
+The register exposes direct preview/edit/Owner-publish/delete links, plus Trash and restore. The public Projects page offers an authenticated Staff/Owner management link. Customer and guest requests cannot access management, previews, deleted entries or mutation actions. Mobile layouts must preserve these controls at 320–1440 pixels.
+
+The 6 November core-usability pass places existing projects/testimonials before the creation form and supplies a direct new-content shortcut. Preserve the existing labels, role restrictions and publication behavior.

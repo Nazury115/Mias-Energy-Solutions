@@ -4,6 +4,7 @@ import { WorkspaceHeader } from "@/components/workspace-header";
 import { CancelCustomerInviteForm, ChatReplyForm, CustomerInviteForm, JobMessageForm, JobWorkflowForm, RetryJobNotificationsForm, RevokeAccessForm } from "@/components/job-forms";
 import { JobFiles } from "@/components/job-files";
 import { JobDocuments } from "@/components/job-documents";
+import { JobSolarPlan } from "@/components/job-solar-plan";
 import { JobHistory } from "@/components/job-history";
 import { JobConversation } from "@/components/job-conversation";
 import { readConversation } from "@/server/job-conversation";
@@ -50,5 +51,6 @@ export default async function StaffJob({ params, searchParams }: { params: Promi
     </div></div>
     <JobFiles reference={job.reference} stage={job.stage} viewer={viewer} />
     <JobDocuments reference={job.reference} viewer={viewer} />
+    <JobSolarPlan reference={job.reference} viewer={viewer}/>
   </main>;
 }

@@ -633,3 +633,39 @@ form.search-bar .button { margin-top: 0; }
 .document-register .document-toolbar { margin: .25rem 0; }
 .document-feedback { white-space: pre-wrap; overflow-wrap: anywhere; }
 #document-editor, #owner-review { scroll-margin-top: 6rem; }
+.solar-totals { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1rem; margin-block: 1.5rem; }
+.solar-totals > div { padding: 1rem; background: #eef4fa; border-radius: .5rem; }
+.solar-totals dt { font-size: .85rem; color: var(--muted); }
+.solar-totals dd { margin: .4rem 0 0; font-size: 1.2rem; font-weight: 700; overflow-wrap: anywhere; }
+.solar-summary { min-width: 0; overflow-wrap: anywhere; }
+.solar-summary-table { min-width: 670px; }
+.solar-summary-table td:first-child { max-width: 260px; overflow-wrap: anywhere; }
+.solar-assessment { margin-block: 1.25rem; padding: 1rem; border-left: 4px solid var(--blue); background: #eef4fa; }
+.solar-assessment ul { margin-bottom: 0; }
+@media(max-width:600px) { .solar-totals { grid-template-columns: minmax(0,1fr); } }
+@media(min-width:1001px) and (max-width:1200px) { .header-cta { display: none; } .desktop-nav { gap: 14px; } }
+.content-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1rem; margin-block: 1rem; }
+.content-list > li { padding-block: 1rem; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.content-list .account-card { margin-block: .75rem; }
+#edit-content, #owner-approval, #delete-content, #content-register, #new-content, #document-register, #new-document { scroll-margin-top: 6rem; }
+.workspace-review { margin-block: 1rem 2rem; }
+.mobile-preview-controls { display: flex; align-items: end; flex-wrap: wrap; gap: 1rem; margin-block: 1.5rem; }
+.mobile-preview-controls label { display: grid; gap: .4rem; min-width: 0; }
+.mobile-preview-controls select { max-width: 100%; padding: .65rem; border: 1px solid var(--line); border-radius: .4rem; background: white; color: var(--ink); }
+.mobile-preview-stage { max-width: 100%; overflow-x: auto; padding-block: 1rem; }
+.mobile-preview-frame { display: block; box-sizing: content-box; max-width: none; border: 8px solid #223347; border-radius: 1.75rem; background: white; margin-inline: auto; }
+
+/* Customer account and job navigation */
+.customer-account { width: min(calc(100% - 40px), 58rem); overflow-wrap: anywhere; }
+.customer-account .account-jobs a { font-size: 1.2rem; margin: .45rem 0; }
+.customer-account .account-jobs strong { display: inline; }
+.account-jobs small, .portal-reference { color: var(--muted); }
+.portal-profile summary { cursor: pointer; font-weight: 600; }
+.portal-overview h1 { font-size: clamp(1.75rem, 4vw, 3.25rem); margin: .5rem 0; }
+.portal-next { margin: 1rem 0 .5rem; border-left: 3px solid var(--blue); padding-left: .85rem; }
+.portal-stage, .account-jobs .portal-stage { display: inline-block; color: var(--navy); background: #deebf8; padding: .15rem .65rem; border-radius: 1rem; font-size: .85rem; font-weight: 600; }
+.portal-actions { display: flex; flex-wrap: wrap; gap: .35rem .6rem; align-items: center; }
+.portal-actions a:not(.button) { display: inline-flex; align-items: center; min-height: 44px; padding-inline: .5rem; text-decoration: underline; color: var(--blue); font-weight: 600; }
+.portal-documents { list-style: none; padding: 0; }
+.portal-documents li { padding-block: .85rem; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.portal-documents p { color: var(--muted); }

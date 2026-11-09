@@ -4,6 +4,8 @@ Date: 2026-10-19
 Status: **Proposed for Henry's review — planning only, not feature implementation or deployment approval.**  
 Schedule: Outcome-based increments; no fixed deadline.
 
+**Current scope — Henry, 6 November 2026:** the solar planner is removed and retained only as a deferred idea. Phase 6 below records the earlier proposal and is no longer required for release. The immediate priority is improving existing inquiry, job, messaging, publishing and document workflows, including phone use. Follow [the current improvement plan](planner-retirement.md); do not treat this older roadmap's immediate-next-action section as current implementation authorization.
+
 ## 1. Objective and boundaries
 
 Build a dependable Mias Energy Solutions website and service platform, demonstrate that its important journeys work, and keep it private until Henry and the business owner explicitly approve launch. “Ready” means meeting agreed acceptance criteria with evidence; it cannot mean a guarantee that software will never have a defect.

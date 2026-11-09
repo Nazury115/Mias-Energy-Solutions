@@ -53,8 +53,12 @@ def accept_job(staff, base_url, reference):
     form.get_by_label("Next step").fill("Arrange a site visit")
     form.get_by_label("Reason").fill("Customer confirmed the assessment")
     form.get_by_role("button", name="Accept and create job").click()
-    staff.wait_for_url("**/staff/jobs/*")
-    staff.get_by_role("heading", level=1, name=re.compile(r"^JOB-")).wait_for()
+    try:
+        staff.wait_for_url("**/staff/jobs/*")
+        staff.get_by_role("heading", level=1, name=re.compile(r"^JOB-")).wait_for()
+    except Exception as error:
+        fields=form.evaluate("el => Object.fromEntries([...new FormData(el)].filter(([key]) => ['reference','expectedVersion','scope','nextStep','assigneeId','reason'].includes(key)))") if form.count() else {}
+        raise AssertionError({"acceptance_url":staff.url,"visible_errors":staff.get_by_role("alert").all_inner_texts(),"form_fields":fields}) from error
     staff.wait_for_load_state("networkidle")
     return urlsplit(staff.url)._replace(query="", fragment="").geturl()
 
@@ -131,6 +135,20 @@ def test_guest_request_becomes_private_job_with_progress_and_messages(browser, b
             assert staff.locator(f'[data-notification-kind="request-accepted"][data-channel="{channel}"]', has_text=job_url.rsplit("/", 1)[1]).count() == 1
         open_new_customer(visitor, invite)
         assert visitor.url == customer_url
+        scope = visitor.locator("h1").inner_text()
+        assert scope == "Assess and repair the booster set"
+        visitor.goto(base_url + "/account")
+        assert visitor.locator("main h2").first.inner_text() == "Your jobs"
+        assert not visitor.get_by_label("Your name").is_visible()
+        visitor.get_by_text("Edit contact details", exact=True).click()
+        assert visitor.get_by_label("Your name").is_visible()
+        visitor.get_by_role("link", name=scope, exact=True).click()
+        visitor.set_viewport_size({"width": 390, "height": 844})
+        visitor.get_by_role("link", name="Documents", exact=True).click()
+        from playwright.sync_api import expect
+        expect(visitor.locator("#documents")).to_be_in_viewport()
+        visitor.get_by_role("link", name="Message Mias", exact=True).click()
+        assert visitor.get_by_label("Message to Mias").evaluate("el => document.activeElement === el")
         text = visitor.locator("main").inner_text()
         assert "Arrange a site visit" in text and "We are arranging your site assessment." in text
         assert "PRIVATE-008-SENTINEL" not in visitor.content()
@@ -141,8 +159,13 @@ def test_guest_request_becomes_private_job_with_progress_and_messages(browser, b
         plain = no_js.new_page()
         plain.goto(customer_url, wait_until="networkidle")
         plain.get_by_label("Message to Mias").fill("No-JavaScript job message")
-        plain.get_by_role("button", name="Send message", exact=True).click()
+        with plain.expect_request(lambda request:request.method=="POST" and request.url.startswith(customer_url)) as native_post:
+            plain.get_by_role("button", name="Send message", exact=True).click()
         plain.locator("main").get_by_role("status").wait_for()
+        request=native_post.value
+        assert request.headers.get("origin")==base_url
+        assert request.headers.get("referer")==base_url+"/"
+        native_body,native_type=request.post_data,request.headers["content-type"]
         no_js.close()
         staff.goto(job_url, wait_until="networkidle")
         assert "Please call before visiting." in staff.locator("main").inner_text()
@@ -150,9 +173,11 @@ def test_guest_request_becomes_private_job_with_progress_and_messages(browser, b
         for width in [320, 390, 768, 1366, 1440]:
             for view in [visitor, staff]:
                 view.set_viewport_size({"width": width, "height": 900})
-                assert view.evaluate("document.documentElement.scrollWidth <= innerWidth"), f"Job overflow at {width}px"
+                view.evaluate("() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))")
+                assert view.evaluate("document.documentElement.scrollWidth <= innerWidth"), {"width":width,"elements":view.evaluate("[...document.querySelectorAll('body *')].filter(el=>el.getBoundingClientRect().right>innerWidth+.5).slice(0,12).map(el=>({tag:el.tagName,cls:el.className,right:el.getBoundingClientRect().right}))")}
             if width in [390, 1440]:
                 output = Path(__file__).resolve().parents[1] / "test-results"
+                visitor.evaluate("window.scrollTo({top: 0, behavior: 'instant'})")
                 visitor.screenshot(path=str(output / f"008-customer-{width}.png"))
                 staff.screenshot(path=str(output / f"008-staff-{width}.png"))
         stranger, _ = customer(browser, base_url, name="Other Customer")
@@ -162,6 +187,10 @@ def test_guest_request_becomes_private_job_with_progress_and_messages(browser, b
         assert response.status == 403
         visitor.goto(invite, wait_until="networkidle")
         assert "already been used" in visitor.locator("main").inner_text()
+        # Fault injection comes after layout measurements so development error UI
+        # cannot contaminate the customer-page checks.
+        rejected=visitor.request.post(customer_url,data=native_body,headers={"Content-Type":native_type,"Origin":"https://untrusted.example"})
+        assert rejected.status>=400,"Cross-origin Server Actions must remain rejected."
     finally:
         staff.context.close()
         visitor.context.close()

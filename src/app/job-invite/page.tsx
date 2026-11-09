@@ -5,8 +5,8 @@ import { findCustomerInvitation } from "@/server/jobs";
 import { getViewer } from "@/server/session";
 
 export const dynamic = "force-dynamic";
-// Keep secret invitation URLs out of cross-origin referrers while allowing same-origin Server Actions.
-export const metadata: Metadata = { title: "Set up job access | Mias Energy Solutions", robots: { index: false, follow: false }, referrer: "same-origin" };
+// Strip the invitation path/query from referrers and keep native Server Actions working.
+export const metadata: Metadata = { title: "Set up job access | Mias Energy Solutions", robots: { index: false, follow: false }, referrer: "strict-origin" };
 export default async function JobInvite({ searchParams }: { searchParams: Promise<{ token?: string }> }) {
   const { token } = await searchParams, safeToken = typeof token === "string" ? token.slice(0, 100) : "";
   const invite = accountsReady() ? await findCustomerInvitation(safeToken) : null, viewer = await getViewer();

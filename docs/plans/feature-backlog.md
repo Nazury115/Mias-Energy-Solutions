@@ -31,7 +31,7 @@ Every increment below follows the project's SDD loop: **spec → implementation/
 | Portal | Private photo/document uploads; shared company-customer access | Local implementation in [008 follow-up](../../specs/008-follow-up-job-files-and-company-access.md) | PORT-07, organization rules |
 | Content | Staff publishing of projects, testimonials (and map data) | Implemented locally in [009](../../specs/009-staff-publishing.md) | CMS-01 |
 | Documents | Quotations and invoices | Initial local test workflow implemented; real tax/numbering/commercial rules pending | DOC-01–06 |
-| Planner | Household solar planner | Not started | SOL-01–07 |
+| Deferred idea | Household solar planner | Removed from active scope by Henry on 2026-11-06; [suggestion only](../ideas/solar-planner.md). Existing request history is retained. | SOL-01–07 deferred |
 | Launch | Hosting, domain, full QA, Lighthouse, private pilot, launch approval | Not started | Phases 7–8 |
 
 ## 2. New: Zambia coverage map (Projects page)
@@ -125,12 +125,12 @@ Order chosen so that each step delivers something usable and unblocks the next. 
 | **008** | **Requests, jobs and progress** | Approved core: guest/signed-in requests; staff acceptance → job → verified customer invitation; history, messages/private notes; email/SMS receipt and acceptance captures. Uploads/shared access follow separately | [Approved core 008](../../specs/008-requests-jobs-and-progress.md); operating-process confirmation, upload/shared-account rules and retention still needed before their rollout | Request → acceptance → job → customer access → progress works end to end; honest notifications and private notes |
 | **009** | **Staff publishing (CMS-01)** | Staff create/edit projects (with province, so the map updates), photos and genuine testimonials; draft → preview → publish/unpublish with approval record | Who approves publishing; testimonial permissions process | Staff update public content without code; drafts stay private |
 | **010** | **Quotations and invoices** | Draft editing, submission, Owner preview/approve/deny, issue, numbering, revisions, PDF/Excel downloads limited to the right customer | Corrected template supplied; final tax/rounding/validity and live numbering rules still need confirmation | Owner-approved worked totals reproduce exactly; only the intended customer can download |
-| **011** | **Solar planner** | Load summary first (appliances, hours, energy); equipment/cost suggestions only with approved rules | Technical reviewer, product catalogue, price list, 3 worked examples | Approved examples reproduce; unsupported loads route to assessment. Can move earlier, since it needs no login |
+| **011 — deferred** | **Solar planner (suggestion only)** | Henry requested removal on 2026-11-06. Public page/calculator/intake removed; historic request details retained privately. Solar work uses normal inquiries and staff quotations. | Fresh approval if ever reconsidered; technical rules and maintainable product/pricing data | Outside current delivery scope |
 | **012** | **Choose services, release verification and launch** | Compare and choose host, database, email and file storage within the budget (§5); connect them; production-build test run, real devices, Lighthouse, accessibility, security/privacy review, private pilot with a real test inquiry to Israel, domain, launch | Launch approval, domain, operating owner | All release gates in the [launch-readiness plan](next-steps-and-launch-readiness.md#6-release-gates) pass |
 
 ### Current step
 
-Increment 005 still needs confirmed project figures, portrait/bio, hours and real photos. Increments 006–008 added saved inquiries, accounts and the job portal. Job files, company contacts and the conversation interface extend 008. [Staff publishing (009)](../../specs/009-staff-publishing.md) is implemented locally. Quotations/invoices (010) now have a local test workflow based on the corrected template, including Staff submissions, Owner review and PDF/Excel downloads. Final tax/numbering/commercial rules remain pending. The solar planner (011) follows. Launch still needs Israel's operational confirmation, retention and real providers/budget.
+Henry's 2026-11-06 decision removes 011 from active scope and prioritizes the existing system. Review and improve the daily inquiry → job → messages/files → quotation/invoice journey, publishing controls and mobile use before adding modules. See the [scope change and improvement plan](planner-retirement.md). Local 010's milestone is `c055dc6`; customer-portal, workspace and security updates follow it, with their [verification closure](../testing/commit-review-2026-11-09.md). Confirmed project figures, permissions, portrait/bio and hours remain business-content inputs. Final commercial rules and the services/release decisions for 012 remain pending. Launch still needs Israel's operational confirmation, retention and real providers/budget; a solar planner is not a release prerequisite.
 
 ## 5. Running costs and local-first build
 
@@ -145,7 +145,6 @@ Recorded 2026-10-21. Henry considers **US$20–50 a month** acceptable once the 
 | Uploads (008, 009) | File storage | Private local folder outside `public/` | Usually $0 at first |
 | Staff publishing (009) | Database, file storage | Local | Included |
 | Quotations and invoices (010) | None (PDFs generated in-app) | — | $0 |
-| Solar planner (011) | None (runs in the browser) | — | $0 |
 
 Estimated total once live: about $20–50 a month plus the domain. Starting nearer $0 on free plans is possible.
 

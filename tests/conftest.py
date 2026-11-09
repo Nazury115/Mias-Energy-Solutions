@@ -9,8 +9,9 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 # One request per route, so the dev server builds every page before a browser opens one.
-WARM_UP_PATHS = ["/", "/services", "/services/warm-up", "/projects", "/projects/warm-up", "/about", "/contact", "/privacy",
+WARM_UP_PATHS = ["/", "/services", "/services/warm-up", "/projects", "/projects/warm-up", "/about", "/contact", "/solar-planner", "/privacy",
                  "/sign-in", "/sign-up", "/verify-email", "/forgot-password", "/reset-password", "/invite", "/account",
+                 "/dev/mobile", "/staff/content/repository/home-water-pressure/preview",
                  "/staff", "/staff/team", "/staff/content", "/staff/content/00000000-0000-0000-0000-000000000000", "/staff/content/00000000-0000-0000-0000-000000000000/preview",
                  "/staff/documents", "/staff/documents/settings", "/staff/documents/00000000-0000-0000-0000-000000000000",
                  "/account/documents/00000000-0000-0000-0000-000000000000", "/documents/00000000-0000-0000-0000-000000000000/pdf",

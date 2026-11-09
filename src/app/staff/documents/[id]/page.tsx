@@ -16,7 +16,7 @@ export default async function StaffDocument({params,searchParams}:{params:Promis
     if(!(error instanceof DocumentProblem))throw error;
     problem=error.message;
   }
-  const notices:Record<string,string>={issued:"Test document issued.",cancelled:"Document cancelled.",submitted:"Draft submitted for Owner review.",returned:"Draft returned for changes."};
+  const notices:Record<string,string>={issued:"Test document issued.",cancelled:"Document cancelled.",submitted:"Draft submitted for Owner review.",returned:"Draft returned for changes.","template-refreshed":"Review preview updated with reviewed business settings."};
   return <main id="main-content" className="site-container workspace" tabIndex={-1}>
     <WorkspaceHeader viewer={viewer} title={document.reference??"Draft "+document.kind} current="documents"/>
     {notice&&notices[notice]&&(notice!=="submitted"||submitted)&&(notice!=="returned"||document.status==="returned")&&<p role="status" className="form-success">{notices[notice]}</p>}
@@ -29,6 +29,7 @@ export default async function StaffDocument({params,searchParams}:{params:Promis
       {submitted&&viewer.role==="owner"&&<a className="button button-small" href="#owner-review">Review draft</a>}
     </nav>
     {snapshot&&<DocumentDownload id={id} staff/>}
+    {submitted&&snapshot?.templateReviewed===false&&<aside className="account-card"><h2>Business settings await Owner review</h2><p>This draft is in the review queue. Before issuing, an Owner must review the business and bank details, then apply them to the preview.</p>{viewer.role==="owner"&&<><p><a className="button button-light button-small" href="/staff/documents/settings">Review business settings</a></p><DocumentOperation id={id} version={document.version} operation="refresh"/></>}</aside>}
     {problem&&<p className="notice">Save a complete draft to preview or download it. {problem}</p>}
     {submitted&&snapshot&&<section aria-label="Submitted draft preview"><h2>Submitted draft preview</h2><DocumentView snapshot={snapshot}/></section>}
     {submitted&&(viewer.role==="owner"?<div className="job-columns" id="owner-review"><DocumentOperation id={id} version={document.version} operation="issue"/><DocumentOperation id={id} version={document.version} operation="return"/></div>
