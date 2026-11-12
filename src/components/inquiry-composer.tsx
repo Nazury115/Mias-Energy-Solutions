@@ -132,7 +132,7 @@ export function InquiryComposer({ initialService, initialArea = "", initialConta
         {ready && <button type="button" className="text-button" onClick={prepareWhatsApp}>Prepare WhatsApp message</button>}
       </div>
       <span className="visually-hidden" aria-live="polite">{pending ? "Sending your inquiry" : ""}</span>
-      <p className="privacy-note">We use your supplied email and phone number for receipt confirmations by email and SMS, and to discuss your inquiry. Your preferred reply method is for Israel's follow-up. <a href="/privacy">Privacy notice</a></p>
+      <p className="privacy-note">Add an email address to receive a confirmation. You can also submit with a phone number alone and keep the reference shown here. Your preferred reply method is for Israel's follow-up. <a href="/privacy">Privacy notice</a></p>
     </form>
     {prepared && whatsapp && <section className="message-preview" aria-label="Prepared WhatsApp message">
       <p role="status"><strong>Nothing has been sent yet.</strong></p><p>Review your message, then send it from WhatsApp.</p>

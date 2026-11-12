@@ -8,7 +8,7 @@ from test_foundation import Document
 ROUTES = ["/services", "/services/water", "/services/electrical", "/services/renewable-energy",
           "/services/solar-water-pumping", "/projects", "/about", "/contact"]
 DEMOS = ["home-water-pressure", "control-panel-renewal", "home-solar-backup"]
-CUSTOMERS = ["Lusaka Water and Sewerage Company", "Plumbfix", "Family Legacy"]
+CUSTOMERS = ["Lusaka Water Supply and Sanitation Company", "Plumbfix", "Family Legacy", "Egyptian Embassy in Lusaka", "EastPark Mall"]
 
 
 def document(base_url, path):

@@ -7,9 +7,16 @@ export const business = {
 
 export const navigation = [
   { label: "Home", href: "/" }, { label: "Services", href: "/services" },
+  { label: "Sectors we serve", href: "/who-we-serve" },
   { label: "Projects", href: "/projects" }, { label: "About Mias", href: "/about" }, { label: "Contact", href: "/contact" },
 ] as const;
-export const customers = ["Lusaka Water and Sewerage Company", "Plumbfix", "Family Legacy"];
+export const customers = [
+  { name: "Lusaka Water Supply and Sanitation Company", logo: "/brand/customers/lwsc.png" },
+  { name: "Plumbfix", logo: null },
+  { name: "Family Legacy", logo: "/brand/customers/family-legacy.png" },
+  { name: "Egyptian Embassy in Lusaka", logo: null },
+  { name: "EastPark Mall", logo: "/brand/customers/eastpark.png" },
+] as const;
 
 // Confirmed working days/hours, e.g. { label: "Monday to Friday, 09:00–17:00 (Zambia time, CAT)", schema: "Mo-Fr 09:00-17:00" }.
 // Shown on Contact, in the footer and in structured data; null keeps hours hidden everywhere until confirmed.
@@ -17,7 +24,57 @@ export const operatingHours: { label: string; schema: string } | null = null;
 // Israel's approved portrait (put the file in public/images/people/) and short bio, word for word as approved.
 // null keeps the "IM" monogram and the current text. Never use a generated likeness.
 export const leadership: { portrait: { src: string; width: number; height: number } | null; bio: string | null } = { portrait: null, bio: null };
-export const audiences = ["Homeowners", "Farms", "Businesses", "NGOs", "Schools & institutions", "Property developers"];
+export const sectors = [
+  {
+    name: "Homeowners", slug: "homeowners",
+    challenge: "When the power goes out, the taps may stop as well. Keeping the lights, fridge and a few sockets running is one need. Starting a borehole or booster pump can place a different demand on the same system.",
+    response: "We can check where water pressure drops, assess the pump and its electrical supply, and help you decide what should stay on during an outage. If you’re considering solar, we can assess the appliances you need and whether pumping water into storage during the day would suit your household.",
+    inquiry: "Discuss your home water supply",
+    link: "Explore water systems", href: "/services/water",
+    thumbnail: "kitchen-tap.jpg", photo: "/images/zambia/lusaka-estate.jpg", alt: "Homes and shared grounds in a Lusaka housing estate.",
+  },
+  {
+    name: "Farmers & Growers", slug: "farms",
+    challenge: "The fields furthest from the pump may receive too little water before the irrigation window closes. An unreliable electrical supply makes that window shorter. If you switch to solar, can enough water be pumped and stored before the next watering cycle?",
+    response: "We start with the water source, the height and distance it must travel, and when each field needs it. We can then assess the pump, pipework, motor supply and controls together, and work out whether solar pumping and water storage fit the farm’s schedule.",
+    inquiry: "Discuss your irrigation needs",
+    link: "Explore solar water pumping", href: "/services/solar-water-pumping",
+    thumbnail: "crop-rows.jpg", photo: "/images/zambia/chipangali-soybeans.jpg", alt: "A soybean field in Chipangali District, Zambia.",
+  },
+  {
+    name: "Commercial & Business Premises", slug: "businesses",
+    challenge: "In a busy shop or office building, low pressure may show up first in the upper-floor washrooms. A tripping circuit can interrupt trading at the same time. Backup power only helps if it serves the equipment the business needs to keep open.",
+    response: "We can investigate the pressure loss and electrical trips, check the booster pump and control panel, and identify which circuits matter during business hours. That gives us a basis for recommending repairs, electrical upgrades or a solar option matched to the working day.",
+    inquiry: "Discuss equipment at your premises",
+    link: "Explore electrical services", href: "/services/electrical",
+    thumbnail: "office-windows.jpg", photo: "/images/zambia/lusaka-offices.jpg", alt: "Glass and steel facade of a building in Lusaka.",
+  },
+  {
+    name: "Community & NGO Projects", slug: "ngos",
+    challenge: "A shared water point has to meet demand at the times people collect water. Where grid power is limited, the pump’s energy source matters as much as the water source. Once the project is handed over, someone local has to operate and maintain it.",
+    response: "We can assess the source, intended water use, collection times and storage needs. We can then discuss pumping and treatment, electrical controls the operator can manage, and whether solar can supply the required water during daylight.",
+    inquiry: "Discuss your community water project",
+    link: "Explore pumping and water treatment", href: "/services/water",
+    thumbnail: "outdoor-tap.jpg", photo: "/images/zambia/community-landscape.jpg", alt: "Rural buildings beneath a tree in Zambia.",
+  },
+  {
+    name: "Education & Institutions", slug: "schools-and-institutions",
+    challenge: "At a school, taps, washrooms and kitchens can all be in use during the same short break. Classrooms and administration offices need electricity on a different schedule. A system that handles an average day can still fall short at the busiest hour.",
+    response: "We can trace how water reaches each building, check pump controls and review which electrical circuits serve teaching, administration and kitchens. From there, we can assess water storage for peak use and solar options for equipment used during the school day.",
+    inquiry: "Discuss your institution’s facilities",
+    link: "Explore water systems", href: "/services/water",
+    thumbnail: "school-corridor.jpg", photo: "/images/stock/classroom.jpg", alt: "Empty desks facing a chalkboard in a classroom.",
+  },
+  {
+    name: "Property Development", slug: "property-developers",
+    challenge: "The first occupied block may have adequate water and power. Connecting the next phase can expose limits in shared pipes, pumps and electrical distribution. Adding solar later is harder if roof space, equipment locations and cable routes have already been committed.",
+    response: "We can review the site layout and occupation phases with the developer, assess water distribution and pumping alongside electrical connections, and identify where solar equipment could fit. The aim is to make the first phase workable while allowing for the next one.",
+    inquiry: "Discuss your development plans",
+    link: "Explore installation services", href: "/services",
+    thumbnail: "building-in-progress.jpg", photo: "/images/stock/concrete-frame.jpg", alt: "Exposed concrete floors of a building under construction.",
+  },
+] as const;
+export const audiences = sectors.map(sector => sector.name);
 
 export type ServiceFamily = {
   slug: string; number: string; title: string; shortTitle: string; tagline: string;
@@ -65,6 +122,17 @@ export const serviceFamilies: ServiceFamily[] = [
 ];
 
 // Illustrative stock photography (Unsplash License); sources are recorded in docs/content/image-sources.md.
+// Distinct editorial photographs for the service directory and each service detail.
+export const directoryPhotos = [
+  { image: "/images/stock/water-outlet.jpg", alt: "Water flowing from an industrial outlet." },
+  { image: "/images/stock/electrical-cables.jpg", alt: "Electrician working with cables." },
+  { image: "/images/stock/roof-array.jpg", alt: "Installer handling a solar panel on a roof." },
+];
+export const detailPhotos = [
+  { image: "/images/stock/water-installation.jpg", alt: "Water flowing from pipes." },
+  { image: "/images/stock/switchgear.jpg", alt: "Technician working on electrical switchgear." },
+  { image: "/images/stock/roof-installation.jpg", alt: "Solar panel installation on a roof." },
+];
 export const stockImages = {
   hero: { src: "/images/stock/hero-solar-field.jpg", alt: "Rows of solar panels in a green field under a cloudy sky." },
   solarPumping: { src: "/images/stock/irrigation-pivot.jpg", alt: "Centre-pivot irrigation over a field at dusk." },

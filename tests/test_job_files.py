@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 
+from playwright.sync_api import expect
 from test_accounts import customer, inbox_link, new_page, owner, unique_email
 from test_jobs import accept_job, invite_customer, open_new_customer, request_job
 
@@ -36,18 +37,23 @@ def test_shared_files_and_independent_contacts(browser, base_url):
         assert "cancelled" in guest.locator("main").inner_text()
         open_new_customer(first, invite_one)
         open_new_customer(second, invite_two)
-        first.get_by_label("Choose a job file").set_input_files(
+        first.get_by_role("link", name="Messages", exact=True).click()
+        first.get_by_text("Attach a photo or file", exact=True).click()
+        first.get_by_label("Choose an attachment").set_input_files(
             {"name": "inspection.png", "mimeType": "image/png", "buffer": PNG})
-        first.get_by_role("button", name="Upload file").click()
+        first.get_by_role("button", name="Send attachment").click()
         first.get_by_role("link", name="inspection.png").wait_for()
-        second.reload(wait_until="networkidle")
+        chat_link = first.get_by_role("link", name="inspection.png").get_attribute("href")
+        second.get_by_role("link", name="Documents & files", exact=True).click()
         link = second.get_by_role("link", name="inspection.png").get_attribute("href")
+        assert link == chat_link
         download = second.request.get(base_url + link)
         assert download.status == 200 and download.body() == PNG
         assert "no-store" in download.headers["cache-control"]
         assert "attachment" in download.headers["content-disposition"]
         assert guest.request.get(base_url + link, max_redirects=0).status != 200
         staff.goto(job, wait_until="networkidle")
+        assert staff.locator(".chat-thread a[download]").get_attribute("href") == link
         contact = staff.locator("[data-job-contact]", has_text=email)
         contact.get_by_label("Reason for revoking access").fill("Fictional contact changed")
         contact.get_by_role("button", name="Revoke customer access").click()
@@ -58,6 +64,15 @@ def test_shared_files_and_independent_contacts(browser, base_url):
         staff.get_by_role("button", name="Remove file").click()
         staff.get_by_text("File removed.", exact=True).wait_for()
         assert second.request.get(base_url + link).status == 404
+        second.get_by_role("link", name="Messages", exact=True).click()
+        expect(second.locator(".chat-thread")).to_contain_text("Attachment removed")
+        expect(second.locator(".chat-thread a[download]")).to_have_count(0)
+        second.get_by_role("link", name="Progress", exact=True).click()
+        form = staff.locator("form[data-workflow-form]")
+        form.get_by_label("Stage", exact=True).select_option("scheduled")
+        form.get_by_label("Reason").fill("Site visit agreed")
+        form.get_by_role("button", name="Update job").click()
+        expect(second.locator('[aria-current="step"]')).to_contain_text("Scheduled", timeout=35000)
     finally:
         for page in (staff, first, second, guest):
             page.context.close()

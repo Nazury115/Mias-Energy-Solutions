@@ -244,7 +244,7 @@ export async function jobNotifications(viewer: Viewer, reference: string) {
   const { job } = await readJob(viewer, reference);
   return (await getDb()).select({ id: notifications.id, kind: notifications.kind, channel: notifications.channel, recipient: notifications.recipient, status: notifications.status,
     attempts: notifications.attempts, lastError: notifications.lastError }).from(notifications)
-    .where(or(eq(notifications.jobId, job.id), and(eq(notifications.inquiryId, job.inquiryId), eq(notifications.kind, "request-receipt")))).orderBy(notifications.createdAt);
+    .where(and(eq(notifications.channel, "email"), or(eq(notifications.jobId, job.id), and(eq(notifications.inquiryId, job.inquiryId), eq(notifications.kind, "request-receipt"))))).orderBy(notifications.createdAt);
 }
 
 export async function cancelCustomerInvitation(viewer: Viewer, reference: string, id: string, version: number) {

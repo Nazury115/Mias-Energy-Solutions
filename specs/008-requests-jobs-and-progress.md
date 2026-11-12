@@ -1,5 +1,8 @@
 # Increment 008 — requests, jobs, customer access and notifications
 
+**Current amendment, 11 November 2026.** Henry approved email-only notifications. Receipt and acceptance emails go to a supplied email address. Phone-only inquiries retain an on-screen reference. Historical SMS rows are never delivered or retried. This supersedes the original channel requirements below.
+
+
 Date: 2026-10-26.
 
 Status: **Approved for the core local build by Henry on 2026-10-26.** Henry requested planning and execution, then approved the stages, core-first scope, and email/SMS acceptance messages. Uploads and shared company access remain an explicit follow-up slice; delivery providers, budget, retention and Israel's operational confirmation remain launch decisions. This status is authorization to implement, not a claim of completion.
@@ -107,3 +110,7 @@ Staff publishing (009), quotations/invoices (010), solar planning (011), real de
 | 2026-10-26 | Henry accepted the proposed flow: guest inquiry, Mias review/acceptance, job creation, customer invitation or verified account linking, then customer job access. Existing self-registration remains available. |
 | 2026-10-26 | Henry requested confirmation of received requests, then selected **both email and SMS**. Receipt-channel choice is settled; the complete 008 specification, remaining workflow decisions and live sending provider/budget still need review. |
 | 2026-10-26 | Henry requested executing 008 and approved the recommended local job stages, core-first scope (uploads/shared access follow later), and acceptance by email/SMS with portal-only progress updates. Authorized core implementation proceeds through the plan, tests, build and review. |
+
+### Customer job workspace refinement
+
+A customer can open All, Messages, Documents & files, or Progress for an authorised job. Progress displays the business-recorded stage and shared updates. The standard stages appear in order, with hold and cancellation distinguished. Chat photo/file uploads share one private file record with the job library, use the existing upload limits, and appear in the staff conversation. Removing that file retires the download in both views.

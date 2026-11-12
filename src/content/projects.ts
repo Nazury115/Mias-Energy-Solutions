@@ -45,7 +45,7 @@ export const projectStories: ProjectStory[] = [
   {
     slug: "home-water-pressure", family: "water", category: "Water", province: "Lusaka", area: "Lusaka", title: "A better water supply at home",
     summary: "An example of how a pressure-boosting project could be explained, from the first concern to handover.",
-    image: "/images/stock/water-pipe-flow.jpg", alt: "Illustrative stock photograph of water flowing from a pipe, not evidence of this fictional story.", fictional: true,
+    image: "/images/stock/example-pipe.jpg", alt: "Illustrative stock photograph of industrial pipework, not evidence of this fictional story.", fictional: true,
     problem: "In this fictional scenario, a household experiences inconsistent water pressure when several taps are used together.",
     approach: "An example project could begin with a review of the water source and demand, followed by an appropriate booster-pump arrangement and checks at the outlets.",
     outcome: "A real case study would record the work actually completed, the checks performed and the customer's confirmed experience. No outcome is claimed for this example.",
@@ -53,7 +53,7 @@ export const projectStories: ProjectStory[] = [
   {
     slug: "control-panel-renewal", family: "electrical", category: "Electrical", province: "Copperbelt", area: "Kitwe", title: "Giving a pump system clearer control",
     summary: "A sample story showing how a control-panel upgrade might be presented for a business premises.",
-    image: "/images/stock/electrical-panel-testing.jpg", alt: "Illustrative stock photograph of a control panel being tested, not evidence of this fictional story.", fictional: true,
+    image: "/images/stock/example-electrical.jpg", alt: "Illustrative stock photograph of a control panel being tested, not evidence of this fictional story.", fictional: true,
     problem: "This fictional business wants to review the way its existing pump equipment is controlled and monitored.",
     approach: "A project story could explain the existing arrangement, the agreed control functions and the installation and checking of a suitable panel.",
     outcome: "The finished story would include verified panel functions and handover details. This preview does not claim an installation, certification or customer endorsement.",
@@ -61,7 +61,7 @@ export const projectStories: ProjectStory[] = [
   {
     slug: "home-solar-backup", family: "renewable-energy", category: "Renewable energy", province: "Southern", area: "Livingstone", title: "Planning solar around everyday life",
     summary: "An illustrative household solar story, starting with the appliances that matter most.",
-    image: "/images/stock/solar-installation.jpg", alt: "Illustrative stock photograph of solar panel installation, not evidence of this fictional story.", fictional: true,
+    image: "/images/stock/example-solar.jpg", alt: "Illustrative stock photograph of solar panel installation, not evidence of this fictional story.", fictional: true,
     problem: "In this fictional scenario, a household is considering solar power for a selected set of everyday appliances.",
     approach: "The story could describe a load assessment, a technically reviewed equipment choice and an installation planned around the property.",
     outcome: "A verified story would record the installed equipment and observed performance. No capacity, savings, runtime or price is invented for this example.",
@@ -89,7 +89,7 @@ export async function loadProjectContent() {
       category:categories[draft.family],province:draft.province as Province,area:draft.area || undefined,
       year:draft.year ? Number(draft.year) : undefined,fictional:entry.sample,
       approval:{by:entry.approvedBy!,on:entry.approvedAt!.toISOString().slice(0,10)},
-      image:gallery[0]?.src ?? "/images/stock/water-pipe-flow.jpg",
+      image:gallery[0]?.src ?? "",
       alt:gallery[0]?.alt ?? "Illustrative stock photograph for a fictional example.",
       problem:draft.problem,approach:draft.approach,outcome:draft.outcome,gallery};
   });

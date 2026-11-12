@@ -9,17 +9,23 @@ import { customerUpload } from "@/app/account/jobs/actions";
 
 const idle: JobFormState = { status: "idle" };
 
-export function UploadForm({ reference, submission, customer }: { reference: string; submission: string; customer: boolean }) {
+export function UploadForm({ reference, submission, customer, chat = false }: { reference: string; submission: string; customer: boolean; chat?: boolean }) {
   const { state, submit, pending, form } = useJobForm(customer ? customerUpload : staffUpload);
   const [problem, setProblem] = useState("");
+  const [camera, setCamera] = useState(false);
+  const id = chat ? "chat-file" : "job-file";
   return <form ref={form} action={submit} className="account-form job-form" onSubmit={event => {
     const file = (event.currentTarget.elements.namedItem("file") as HTMLInputElement).files?.[0];
     if (file && file.size > 5 * 1024 * 1024) { event.preventDefault(); setProblem("Choose a file of 5 MiB or less."); }
   }}>
     <Hidden reference={reference} /><input type="hidden" name="submission" value={submission} />
-    <label htmlFor="job-file">Choose a job file</label><p id="job-file-help">JPEG, PNG or PDF. Up to 5 MiB per file and 20 files per job.</p>
-    <input id="job-file" name="file" type="file" required accept=".png,.jpg,.jpeg,.pdf" aria-describedby="job-file-help" onChange={() => setProblem("")} />
-    {problem ? <p role="alert">{problem}</p> : <Feedback state={state} />}<Button pending={pending}>Upload file</Button>
+    {chat && <>
+      <input type="hidden" name="shareInChat" value="yes" />
+      <label><input type="checkbox" checked={camera} onChange={event => setCamera(event.target.checked)} /> Use camera</label>
+    </>}
+    <label htmlFor={id}>{chat ? "Choose an attachment" : "Choose a job file"}</label><p id={id + "-help"}>JPEG, PNG or PDF. Up to 5 MiB per file and 20 files per job.</p>
+    <input key={String(camera)} id={id} name="file" type="file" required accept={camera ? "image/jpeg,image/png" : "image/jpeg,image/png,application/pdf"} capture={camera ? "environment" : undefined} aria-describedby={id + "-help"} onChange={() => setProblem("")} />
+    {problem ? <p role="alert">{problem}</p> : <Feedback state={state} />}<Button pending={pending}>{chat ? "Send attachment" : "Upload file"}</Button>
   </form>;
 }
 
@@ -73,7 +79,7 @@ export function JobWorkflowForm({ job, people, accept = false }: { job: Workflow
     {!accept && <><label htmlFor="job-stage">Stage</label><select id="job-stage" name="stage" defaultValue={draft(state, "stage", job.stage)}>{Object.entries(jobStages).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></>}
     <label htmlFor="job-reason">Reason</label><textarea id="job-reason" name="reason" defaultValue={draft(state, "reason")} maxLength={500} required rows={2} aria-describedby="job-reason-help" />
     <p className="field-hint" id="job-reason-help">Recorded for staff only. Customers see the agreed scope, stage and next step.</p>
-    {accept && <p className="field-hint">Accept after agreeing the work and checking the supplied contacts. Acceptance sends email and SMS to those contacts where provided. Customer portal access is invited separately.</p>}
+    {accept && <p className="field-hint">Accept after agreeing the work and checking the supplied contacts. Acceptance sends an email confirmation when an email address is provided. Customer portal access is invited separately.</p>}
     <Button pending={pending}>{accept ? "Accept and create job" : "Update job"}</Button>
   </form>;
 }
@@ -126,7 +132,7 @@ export function JobMessageForm({ reference, kind, eventKey }: { reference: strin
   const label = kind === "note" ? "Internal note" : "Customer update";
   return <form ref={form} action={submit} className="account-form job-form"><Hidden reference={reference} /><input type="hidden" name="kind" value={kind} /><input type="hidden" name="eventKey" value={eventKey} /><Feedback state={state} />
     <label htmlFor={`job-${kind}`}>{label}</label><textarea id={`job-${kind}`} name="body" defaultValue={draft(state, "body")} maxLength={2000} rows={3} required aria-describedby={`job-${kind}-hint`} />
-    <p id={`job-${kind}-hint`} className="field-hint">{kind === "note" ? "Only Mias staff can see this note." : "Shared with Mias staff and all contacts who have access to this job. No email or SMS is sent for this update."}</p>
+    <p id={`job-${kind}-hint`} className="field-hint">{kind === "note" ? "Only Mias staff can see this note." : "Shared with Mias staff and all contacts who have access to this job. No email is sent for this update."}</p>
     <Button pending={pending}>{kind === "note" ? "Save private note" : "Publish update"}</Button>
   </form>;
 }

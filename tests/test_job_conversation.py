@@ -80,9 +80,17 @@ def test_job_conversation_views(browser, base_url):
             open_new_customer(second, other_invite)
             second.bring_to_front()
             second.locator(".chat-bubble", has_text="Can we visit tomorrow?").scroll_into_view_if_needed()
-            second.wait_for_function("""async url => (await (await fetch(url)).json())[0].seen""", arg=api + "?portal=customer", timeout=20000)
-            reads = staff.request.get(api + "?portal=staff").json()[0]["reads"]
+            # Wait for the sender to receive both distinct first-view receipts.
+            # A browser evaluation returning a Promise can resolve before a view is saved.
+            from time import monotonic, sleep
+            deadline = monotonic() + 20
+            while True:
+                reads = staff.request.get(api + "?portal=staff").json()[0]["reads"]
+                if len(reads) == 2 or monotonic() >= deadline:
+                    break
+                sleep(0.25)
             assert len(reads) == 2 and reads[0] == first[0]
+            assert second.request.get(api + "?portal=customer").json()[0]["seen"]
         finally:
             second.context.close()
         staff.goto(job, wait_until="networkidle")

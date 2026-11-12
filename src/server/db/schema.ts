@@ -171,6 +171,7 @@ export const jobEvents = pgTable("job_events", {
   id: uuid("id").primaryKey().defaultRandom(),
   jobId: uuid("job_id").notNull().references(() => jobs.id, { onDelete: "cascade" }),
   actorId: text("actor_id").references(() => user.id, { onDelete: "set null" }),
+  attachmentId: uuid("attachment_id").references(() => jobFiles.id, { onDelete: "set null" }),
   actorName: text("actor_name").notNull(),
   audience: text("audience").notNull(),
   kind: text("kind").notNull(),

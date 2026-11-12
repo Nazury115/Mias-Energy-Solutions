@@ -43,7 +43,7 @@ export default async function StaffJob({ params, searchParams }: { params: Promi
         <CustomerInviteForm reference={job.reference} version={job.version} company={job.company ?? ""} name={contacts.length ? "" : inquiry.name} email={contacts.length ? "" : inquiry.email ?? ""} />
         {pending.map(invite => <div className="job-pending-invite" key={invite.id}><p>Pending: {invite.email} · expires {new Intl.DateTimeFormat("en-GB", { timeZone: "Africa/Lusaka", dateStyle: "medium" }).format(invite.expiresAt)}</p><CancelCustomerInviteForm reference={job.reference} version={job.version} id={invite.id} /></div>)}
       </section>
-      <section className="account-card"><h2>Notification delivery</h2><p className="field-hint">Email and SMS are captured on this computer. No real messages are sent.</p>
+      <section className="account-card"><h2>Notification delivery</h2><p className="field-hint">Email notifications are captured on this computer. No real messages are sent.</p>
         <ul className="job-notifications">{notices.map(note => <li key={note.id}><strong>{note.kind === "request-receipt" ? "Receipt" : note.kind === "request-accepted" ? "Acceptance" : "Invitation"} · {note.channel.toUpperCase()}</strong><br />{note.recipient}<br />{labels[note.status] ?? note.status} · {note.attempts} / 4 attempts{note.status === "failed" && note.attempts >= 4 ? " · retries exhausted" : ""}</li>)}</ul>
         <RetryJobNotificationsForm reference={job.reference} />
       </section>

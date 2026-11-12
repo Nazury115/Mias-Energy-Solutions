@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Development inbox | Mias", robots: { index: false, follow: false } };
 
 const statusLabels: Record<string, string> = { sent: "Delivered to development inbox", failed: "Delivery failed (bounded retries)", pending: "Waiting to be delivered", sending: "Sending / outcome unknown; review before resending", cancelled: "Cancelled" };
-const switches: [Simulation, string][] = [[null, "Normal"], ["notify-failure", "Simulate notification failure"], ["db-failure", "Simulate database failure"], ["email-failure", "Simulate email failure"], ["sms-failure", "Simulate SMS failure"]];
+const switches: [Simulation, string][] = [[null, "Normal"], ["notify-failure", "Simulate notification failure"], ["db-failure", "Simulate database failure"], ["email-failure", "Simulate email failure"]];
 
 // Development-only view of saved inquiries and the notification emails Mias would receive (spec 006, DEV-01).
 const kindLabels: Record<string, string> = { "verify-email": "Email confirmation", "reset-password": "Password reset", invitation: "Invitation", "signup-notice": "Sign-up notice", "job-invitation": "Customer portal invitation" };
@@ -64,7 +64,7 @@ export default async function DevelopmentInbox({ searchParams }: { searchParams:
         {jobReference ? <p>This inquiry belongs to <a href={`/staff/jobs/${jobReference}`}>{jobReference}</a> and is retained with its job.</p> : <form action={removeInquiry}><input type="hidden" name="reference" value={inquiry.reference} /><button type="submit" className="text-button">Delete this inquiry</button></form>}
       </article>
     </li>)}</ol>
-    <h2 className="spaced">Customer email and SMS notifications</h2>
+    <h2 className="spaced">Customer email notifications</h2>
     <p>Local captures only. Opening this inbox retries eligible failed messages up to four attempts. An unknown outcome is not retried automatically.</p>
     <ol className="dev-inbox-list">{customerNotices.map(note => <li key={note.id}><article data-notification-kind={note.kind} data-channel={note.channel} data-delivery-status={note.status} data-attempts={note.attempts}>
       <header><strong>{note.kind === "request-receipt" ? "Request receipt" : "Request acceptance"} · {note.channel.toUpperCase()}</strong><span>{statusLabels[note.status] ?? note.status} · {note.attempts} attempts{note.attempts >= 4 && note.status === "failed" ? " · retries exhausted" : ""}</span></header>

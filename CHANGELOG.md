@@ -2,6 +2,22 @@
 
 Newest first. Each entry records what changed, where, and why, so work can continue in any tool (Claude, ChatGPT/Codex) or folder. For what is still to build, see [the feature backlog](docs/plans/feature-backlog.md).
 
+## Customer job workspace, 11 November 2026
+
+Customers can switch between All, Messages, Documents & files, and Progress. The stage tracker follows staff changes. Chat attachments use the same protected file record as the job library and support taking a photo on compatible devices.
+
+## Sectors and selected customers, 11 November 2026
+
+Added sector-specific challenges and Mias responses across water, electrical and renewable energy, with people-free sector imagery. The homepage now loops five customer names and three official logos, with a pause control and static reduced-motion layout.
+
+## Email-only notifications and workflow review, 11 November 2026
+
+Customer receipts and acceptance now use email only. Historical SMS rows are excluded from delivery and retries. Public pages use distinct editorial photographs, including a credited Keembe farm pump and Zambian classroom, business and housing scenes. See the [role checklist](docs/testing/role-review-checklist.md).
+
+## Who we serve, 11 November 2026
+
+Added Who we serve after Services in the navigation. Six photographic homepage links open the matching sector on the new page, where visitors can explore a practical problem, relevant services and an inquiry link. About also links to the page. Image credits are recorded in the inventory.
+
 ## Verification closure and reviewed baseline, 9 November 2026
 
 - Henry authorized diagnosis of the two blocked development journeys and committing the pending changes. Reviewed the workspace/document/publishing improvements, planner retirement, customer portal usability, security changes, migrations and supporting records from 5–8 November.

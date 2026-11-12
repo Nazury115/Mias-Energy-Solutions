@@ -119,7 +119,9 @@ export function JobConversation({ initial, endpoint, children }: { initial: Chat
               <div className="chat-bubble" data-unseen={!message.own && !message.seen ? message.id : undefined}>
                 <div className="chat-by"><strong>{message.author}{message.own && " · You"}</strong><time dateTime={message.at}>{time.format(date)}</time></div>
                 {message.update && <strong className="chat-update">Job update</strong>}
-                <p>{message.body}</p>
+                <p>{message.attachment ? (message.download
+                  ? <a href={message.download} download>{message.body}</a>
+                  : <span>Attachment removed</span>) : message.body}</p>
                 {message.own && <small className="chat-receipt">{message.reads.length ? message.reads.map((read, n) =>
                   <span key={n}>✓✓ Read by {read.name} · <time dateTime={read.at} title={day.format(new Date(read.at))}>{time.format(new Date(read.at))}</time></span>) : "✓ Sent"}</small>}
               </div>

@@ -63,9 +63,9 @@ def test_invalid_job_details_name_the_field(field, value):
 
 
 @pytest.mark.parametrize("contact,channels", [
-    ({"email": "customer@example.com", "phone": "+260977555123"}, ["email", "sms"]),
+    ({"email": "customer@example.com", "phone": "+260977555123"}, ["email"]),
     ({"email": "customer@example.com", "phone": None}, ["email"]),
-    ({"email": None, "phone": "+260977555123"}, ["sms"]),
+    ({"email": None, "phone": "+260977555123"}, []),
     ({"email": None, "phone": None}, []),
 ])
 def test_receipt_channels_match_supplied_destinations(contact, channels):

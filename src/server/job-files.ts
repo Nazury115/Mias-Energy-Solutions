@@ -14,7 +14,7 @@ export async function visibleFiles(viewer: Viewer, reference: string) {
     .from(jobFiles).innerJoin(jobs, eq(jobs.id, jobFiles.jobId)).where(scope(viewer, reference)).orderBy(jobFiles.createdAt, jobFiles.id);
 }
 
-export async function uploadJobFile(viewer: Viewer, reference: string, key: string, file: File) {
+export async function uploadJobFile(viewer: Viewer, reference: string, key: string, file: File, shareInChat = false) {
   if (!uuid.test(key)) throw new FileProblem("Reload this job and select the file again.");
   const db = await getDb();
   const [allowed] = await db.select({ id: jobs.id }).from(jobs).where(scope(viewer, reference));
@@ -31,8 +31,12 @@ export async function uploadJobFile(viewer: Viewer, reference: string, key: stri
     if (["completed", "cancelled"].includes(job.stage)) throw new FileProblem("This job is closed to uploads.");
     const [stored] = await tx.select({ total: count() }).from(jobFiles).where(eq(jobFiles.jobId, job.id));
     if (stored.total >= 20) throw new FileProblem("This job already has 20 files.");
-    await tx.insert(jobFiles).values({ jobId: job.id, submission, name: checked.name, mime: checked.mime, size: file.size,
-      uploader: viewer.name, bytes: sql`decode(${checked.bytes.toString("base64")}, 'base64')` });
+    const [storedFile] = await tx.insert(jobFiles).values({ jobId: job.id, submission, name: checked.name, mime: checked.mime, size: file.size,
+      uploader: viewer.name, bytes: sql`decode(${checked.bytes.toString("base64")}, 'base64')` }).returning({ id: jobFiles.id });
+    if (shareInChat) {
+      await tx.insert(jobEvents).values({ jobId: job.id, actorId: viewer.id, actorName: viewer.name,
+        kind: "attachment", audience: "customer", body: checked.name, attachmentId: storedFile.id });
+    }
   });
 }
 

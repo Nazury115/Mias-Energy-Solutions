@@ -21,7 +21,7 @@ export async function uploadForm(viewer: Viewer, form: FormData): Promise<JobFor
   try {
     const file = form.get("file");
     if (!(file instanceof File)) throw new FileProblem("Choose a file to upload.");
-    await uploadJobFile(viewer, reference, String(form.get("submission")), file);
+    await uploadJobFile(viewer, reference, String(form.get("submission")), file, form.get("shareInChat") === "yes");
     return fileSaved(reference, "File shared with this job.");
   } catch (error) { return fileFailed(error); }
 }

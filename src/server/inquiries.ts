@@ -135,7 +135,7 @@ export async function listAccountEmails(limit = 40) {
 }
 
 export async function listCustomerNotifications(limit = 150) {
-  return (await getDb()).select().from(notifications).where(or(eq(notifications.kind, "request-receipt"), eq(notifications.kind, "request-accepted"))).orderBy(desc(notifications.createdAt)).limit(limit);
+  return (await getDb()).select().from(notifications).where(and(eq(notifications.channel, "email"), or(eq(notifications.kind, "request-receipt"), eq(notifications.kind, "request-accepted")))).orderBy(desc(notifications.createdAt)).limit(limit);
 }
 
 /** Inquiries a signed-in customer sent while signed in (CUST-01). */

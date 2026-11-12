@@ -6,7 +6,7 @@ import { jobEvents, jobs, messageReads } from "@/server/db/schema";
 import { jobAccess } from "@/server/jobs";
 import type { Viewer } from "@/server/session";
 
-const sharedMessages = and(eq(jobEvents.audience, "customer"), inArray(jobEvents.kind, ["message", "update"]));
+const sharedMessages = and(eq(jobEvents.audience, "customer"), inArray(jobEvents.kind, ["message", "update", "attachment"]));
 const accessibleJob = (reference: string, viewer: Viewer) => and(eq(jobs.reference, reference), jobAccess(viewer));
 
 export async function readConversation(reference: string, viewer: Viewer): Promise<ChatMessage[]> {
@@ -14,7 +14,7 @@ export async function readConversation(reference: string, viewer: Viewer): Promi
     const [job] = await tx.select({ id: jobs.id }).from(jobs).where(accessibleJob(reference, viewer)).for("share");
     if (!job) notFound();
     const rows = await tx.select({ id: jobEvents.id, actorId: jobEvents.actorId, author: jobEvents.actorName, kind: jobEvents.kind,
-      body: jobEvents.body, at: jobEvents.createdAt, reader: messageReads.readerName, readAt: messageReads.readAt })
+      attachmentId: jobEvents.attachmentId, body: jobEvents.body, at: jobEvents.createdAt, reader: messageReads.readerName, readAt: messageReads.readAt })
       .from(jobEvents).leftJoin(messageReads, and(eq(messageReads.eventId, jobEvents.id),
         or(eq(jobEvents.actorId, viewer.id), eq(messageReads.readerId, viewer.id))))
       .where(and(eq(jobEvents.jobId, job.id), sharedMessages)).orderBy(jobEvents.createdAt, jobEvents.id, messageReads.readAt, messageReads.readerId);
@@ -23,6 +23,7 @@ export async function readConversation(reference: string, viewer: Viewer): Promi
       let message = thread.get(row.id);
       if (!message) {
         message = { id: row.id, author: row.author, own: row.actorId === viewer.id, seen: false, update: row.kind === "update",
+          attachment: row.kind === "attachment", download: row.attachmentId ? `/jobs/${reference}/files/${row.attachmentId}` : null,
           body: row.body, at: row.at.toISOString(), reads: [] };
         thread.set(row.id, message);
       }

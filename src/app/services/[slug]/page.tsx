@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { serviceFamilies, stockImages, workPhotos, type ServiceFamily } from "@/content/site";
+import { serviceFamilies, detailPhotos, stockImages, workPhotos, type ServiceFamily } from "@/content/site";
 import { ContactPanel } from "@/components/contact-panel";
 import { pageMetadata } from "@/lib/site-metadata";
 import { ParallaxImage } from "@/components/parallax-image";
@@ -16,7 +16,7 @@ const solarPumping: ServiceFamily = {
     { name: "Discuss installation and support", description: "Mias provides solar pumping installation, maintenance and related technical support. Contact us to discuss a new system or an existing installation." },
   ], questions: ["What is the water source?", "What water demand and pumping information do you have?", "Where is the installation located?"],
 };
-const pages = [...serviceFamilies, solarPumping];
+const pages = [...serviceFamilies.map((family, i) => ({ ...family, ...detailPhotos[i] })), solarPumping];
 export const dynamicParams = false;
 export function generateStaticParams() { return pages.map(page => ({ slug: page.slug })); }
 type Props = { params: Promise<{ slug: string }> };

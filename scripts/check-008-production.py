@@ -27,7 +27,7 @@ BASE = "http://127.0.0.1:3210"
 ENV = {**os.environ, "MIAS_SITE_URL": BASE, "MIAS_BUILD_DIR": os.environ.get("MIAS_VERIFY_BUILD_DIR", ".next-verification"),
        "MIAS_DB_DIR": str(ROOT / ".data/verification-008" / ("production-" + uuid.uuid4().hex[:8]) / "pglite"),
        "MIAS_FORM_SECRET": secrets.token_urlsafe(48), "BETTER_AUTH_SECRET": secrets.token_urlsafe(48),
-       "MIAS_EMAIL_TRANSPORT": "dev-inbox", "MIAS_SMS_TRANSPORT": "dev-inbox"}
+       "MIAS_EMAIL_TRANSPORT": "dev-inbox"}
 FLAGS = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
 
 
@@ -74,6 +74,19 @@ with socket.socket() as probe:
     if probe.connect_ex(("127.0.0.1", 3210)) == 0:
         raise RuntimeError("Port 3210 is occupied; stop that server before this isolated production check.")
 setup = run_node("scripts/db.mjs", "create-owner", "--email", "production-owner@example.com", "--name", "Production Test Owner")
+def legacy_sms_probe(statement):
+    # This disposable database is offline at both call sites.
+    return json.loads(run_node("--input-type=module", "--eval", """
+        import { PGlite } from '@electric-sql/pglite';
+        const db = await PGlite.create(process.env.MIAS_DB_DIR);
+        try { console.log(JSON.stringify((await db.query(process.argv[1])).rows)); }
+        finally { await db.close(); }
+    """, statement))
+
+
+legacy_sms_probe("""insert into notifications (kind, channel, recipient, subject, body, event_key, status, attempts)
+    values ('request-receipt','sms','test','test','test','legacy-pending','pending',0),
+           ('request-receipt','sms','test','test','test','legacy-failed','failed',1)""")
 owner_link = re.search(r"https?://\S+", setup).group()
 server = None
 try:
@@ -123,7 +136,11 @@ try:
         reference = re.search(r"MES-\d{2}-[0-9A-HJKMNP-TV-Z]{5}", guest.locator("main").inner_text()).group()
         job_url = accept_job(owner, BASE, reference)
         assert owner.locator("[data-solar-summary]").count()==0
-        assert owner.locator("main").get_by_text("Captured locally", exact=False).count() >= 4
+        deliveries = owner.locator(".job-notifications li")
+        assert deliveries.count() == 2
+        for kind in ("Receipt", "Acceptance"):
+            entry = deliveries.filter(has_text=kind + " · EMAIL")
+            assert entry.count() == 1 and "Captured locally" in entry.inner_text()
         owner.get_by_label("Internal note", exact=True).fill("PRODUCTION-PRIVATE-SENTINEL")
         owner.get_by_role("button", name="Save private note").click()
         owner.locator("main").get_by_role("status").wait_for()
@@ -133,7 +150,7 @@ try:
         form.get_by_label("I have checked this customer's identity and contact details").check()
         form.get_by_role("button", name="Invite customer").click()
         form.get_by_role("status").wait_for()
-        print("Production Owner setup, guest saving, acceptance, local email/SMS and invitation passed.", flush=True)
+        print("Production Owner setup, guest saving, acceptance, local email and invitation passed.", flush=True)
         # Stop the sole database owner before reading the captured invitation offline.
         # Close the live conversation first so the planned outage does not generate
         # a connection-refused error from a background refresh.
@@ -145,6 +162,12 @@ try:
                 raise RuntimeError("Refusing to open the database while its server still responds.")
         except URLError:
             pass
+        sms_history = legacy_sms_probe("select event_key, status, attempts from notifications where channel='sms' order by event_key")
+        assert sms_history == [
+            {"event_key": "legacy-failed", "status": "failed", "attempts": 1},
+            {"event_key": "legacy-pending", "status": "pending", "attempts": 0},
+        ]
+        print("Legacy SMS records unchanged after intake, acceptance and email retries.", flush=True)
         invite_link = run_node("--input-type=module", "--eval", "import {PGlite} from '@electric-sql/pglite'; const db=await PGlite.create(process.env.MIAS_DB_DIR); try { const result=await db.query(\"select body from notifications where kind='job-invitation' order by created_at desc limit 1\"); process.stdout.write(result.rows[0].body.match(/https?:\\/\\/\\S+/)[0]); } finally { await db.close(); }")
         saved=json.loads(run_node("--input-type=module","--eval","import {PGlite} from '@electric-sql/pglite';const db=await PGlite.create(process.env.MIAS_DB_DIR);try {const r=await db.query(\"select solar_plan from inquiries where email='production-customer@example.com'\");process.stdout.write(JSON.stringify(r.rows));}finally{await db.close();}"))
         assert len(saved)==1 and saved[0]["solar_plan"] is None
@@ -176,8 +199,8 @@ try:
             if width in [390, 1440]:
                 customer.screenshot(path=str(ROOT/f"test-results/customer-job-{width}.png"))
         customer.set_viewport_size({"width":390,"height":844})
-        customer.get_by_role("link",name="Message Mias").click()
-        assert customer.get_by_label("Message to Mias").evaluate("el => document.activeElement === el")
+        customer.get_by_role("link",name="Messages").click()
+        assert customer.get_by_label("Message to Mias").is_visible()
         customer.get_by_label("Message to Mias").fill("Production portal reply")
         customer.get_by_role("button", name="Send message", exact=True).click()
         customer.locator("main").get_by_role("status").wait_for()
@@ -289,7 +312,7 @@ try:
                 issue_document(owner)
             document_refs.append(owner.get_by_role("heading",level=1).inner_text())
             customer.goto(BASE+"/account/jobs/"+job_url.rsplit("/",1)[1], wait_until="networkidle")
-            customer.get_by_role("link",name="Documents",exact=True).click()
+            customer.get_by_role("link",name="Documents & files",exact=True).click()
             row = customer.locator(".portal-documents li").filter(has_text=document_refs[-1])
             assert "Issued " in row.inner_text() and "ZMW 28900.00" in row.inner_text()
             row.get_by_role("link").click()

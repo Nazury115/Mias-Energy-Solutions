@@ -2,6 +2,8 @@
 
 Responsive website and digital lead platform for Mias Energy Solutions, Lusaka, Zambia. This repository is an incremental, spec-driven engineering project. It has no fixed 16-week deadline.
 
+See the [customer, staff and Owner review checklist](docs/testing/role-review-checklist.md) for a hands-on walkthrough.
+
 ## Current increment
 
 Workspace review corrections add submission before template setup (Owner review is still required before issue), existing-project management with recoverable Owner-only Trash, and a development-only [mobile preview](http://127.0.0.1:3000/dev/mobile?path=%2Fstaff). See the [review walkthrough](docs/journal/workspace-corrections.md).
@@ -20,13 +22,13 @@ Increment 009 adds **Publishing** at `/staff/content`. Staff create project stor
 
 Increment 008 adds the core customer job portal on top of the accounts from 007.
 
-- A guest or signed-in request is saved with a reference and creates separate local email/SMS receipts for the supplied contacts.
+- A guest or signed-in request is saved with a reference and creates a local receipt email if the customer supplied an email address.
 - Staff use **Review / accept** beside an inquiry at `/staff`, then create a job with agreed work, responsible staff and a next step. The inquiry detail page also has an **Accept request** shortcut near the top.
 - `/staff/jobs` lists jobs. Each job has stages/history, customer updates/messages, private staff notes, notification delivery status and customer access controls.
 - Staff verify the customer contact and send a seven-day invitation. New customers set a password; existing customers sign in with the invited email before accepting. A matching inquiry email alone never grants access.
 - Customers see their authorized jobs under `/account` and open `/account/jobs/<reference>` for progress and messages. Staff notes never appear there.
 - **Job conversation** shows previous messages above the reply box in both portals. A saved outgoing message shows **Sent**. When a recipient views the bubble in a focused portal tab, its sender sees **Read by** with the recipient’s display name and Zambia time. The open thread checks for replies every three seconds. Scrolling up preserves your place and offers **New messages** when a reply arrives.
-- **Job files and company contacts.** On an active job, open **Job files**, choose a JPEG, PNG or PDF (up to 5 MiB), and select **Upload file**. A job holds up to 20 files. Downloads require current job access. Staff can remove a file with a private reason. On the staff job page, use **Customer access** to enter the company and invite each contact separately. Each person gets their own login and sees that job’s full customer-visible history and files. Revoke the selected person to end their access. Real email/SMS services remain for launch; all current messages are captured locally at `/dev/inbox`.
+- **Job files and company contacts.** On an active job, open **Job files**, choose a JPEG, PNG or PDF (up to 5 MiB), and select **Upload file**. A job holds up to 20 files. Downloads require current job access. Staff can remove a file with a private reason. On the staff job page, use **Customer access** to enter the company and invite each contact separately. Each person gets their own login and sees that job’s full customer-visible history and files. Revoke the selected person to end their access. Real email delivery remains for launch; all current messages are captured locally at `/dev/inbox`.
 
 Specs and plan: [008 specification](specs/008-requests-jobs-and-progress.md), [implementation/test plan](docs/plans/008-requests-jobs-and-progress.md). See the [verification record](docs/testing/008-results.md) for measured checks and the [review walkthrough](docs/journal/008-requests-jobs-and-progress.md) to try the complete journey.
 
@@ -38,7 +40,7 @@ Increment 007 provides the account foundation:
 
 Sign-in uses Better Auth, called only from server actions, and every protected page checks the role on the server. Account emails (confirmation, reset, invitation) land in the development inbox.
 
-**Approved 008 workflow:** Assessment → Awaiting quotation decision → Scheduled → In progress → Completed, with On hold and Cancelled where needed. These are the approved local-build stages; Israel confirms the actual operating process before real use. Acceptance sends local email/SMS captures; progress and messages stay in the portal. Portal invitations use email.
+**Approved 008 workflow:** Assessment → Awaiting quotation decision → Scheduled → In progress → Completed, with On hold and Cancelled where needed. These are the approved local-build stages; Israel confirms the actual operating process before real use. Acceptance sends a local email confirmation when an email address is available; progress and messages stay in the portal. Portal invitations use email.
 
 Increment 006 makes the Contact form work locally. Inquiries are saved with a reference number in a local PostgreSQL database (PGlite, created automatically in `.data/`), and notification emails are captured in a **development inbox at `/dev/inbox`** instead of being sent. The visitor is always told honestly whether the inquiry was received, saved without notification, or not saved. Nothing online is used or paid for yet.
 
@@ -147,7 +149,7 @@ Before the first browser test, the suite requests every page once so the develop
 | `src/server/auth.ts`, `session.ts`, `team.ts`, `attempts.ts`, `src/lib/accounts.ts` | Accounts: Better Auth configuration (no public endpoints), `requireViewer` role gate, invitations/roles/audit, sign-in lockout, and the pure account rules (unit-tested). |
 | `src/lib/jobs.ts`, `src/server/jobs.ts` | Job stage/validation rules and server transactions: acceptance, customer association, invitations, progress, messages and private-note filtering. |
 | `src/app/staff/jobs/`, `src/app/account/jobs/`, `src/app/job-invite/`, `src/components/job-forms.tsx`, `job-history.tsx` | Staff workflow, private customer job pages, invitation acceptance, draft/version handling and dated history. |
-| `src/server/mail/outbox.ts`, `transport.ts` | Independent email/SMS notification rows, conditional delivery claims, local capture and bounded retries. |
+| `src/server/mail/outbox.ts`, `transport.ts` | Email notification rows, conditional delivery claims, local capture and bounded retries. |
 | `src/app/{sign-in,sign-up,verify-email,forgot-password,reset-password,invite,account,staff}/`, `src/app/forbidden.tsx` | Account and company-workspace pages; `forbidden.tsx` is the 403 page. |
 | `src/lib/inquiry-submission.ts`, `src/app/contact/actions.ts`, `src/components/inquiry-composer.tsx` | Inquiry rules (unit-tested through Node), the server action, and the form. |
 | `drizzle/`, `drizzle.config.ts`, `scripts/db.mjs` | Versioned database migrations (`pnpm db:generate` after schema changes) and database maintenance. |

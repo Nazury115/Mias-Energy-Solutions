@@ -16,7 +16,7 @@ const version = (form: FormData) => { const result = parseVersion(read(form, "ex
 const simulation = async (): Promise<Simulation> => {
   if (process.env.NODE_ENV !== "development") return null;
   const value = (await cookies()).get("mias-simulate")?.value;
-  return ["db-failure", "notify-failure", "email-failure", "sms-failure"].includes(value ?? "") ? value as Simulation : null;
+  return ["db-failure", "notify-failure", "email-failure"].includes(value ?? "") ? value as Simulation : null;
 };
 const done = (reference: string, message: string, baseVersion?: number): JobFormState => {
   revalidatePath("/staff"); revalidatePath("/staff/jobs"); revalidatePath(`/staff/jobs/${reference}`); revalidatePath("/account"); revalidatePath(`/account/jobs/${reference}`);

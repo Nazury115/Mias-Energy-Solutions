@@ -81,7 +81,7 @@ def open_new_customer(page, invite):
     page.wait_for_url("**/account/jobs/*")
 
 
-@pytest.mark.parametrize("phone,email,channels", [(True, True, ["email", "sms"]), (False, True, ["email"]), (True, False, ["sms"])])
+@pytest.mark.parametrize("phone,email,channels", [(True, True, ["email"]), (False, True, ["email"]), (True, False, [])])
 def test_receipts_are_captured_once_per_available_channel(browser, base_url, phone, email, channels):
     ref, address, number = request_job(browser, base_url, phone, email)
     page = new_page(browser)
@@ -91,26 +91,22 @@ def test_receipts_are_captured_once_per_available_channel(browser, base_url, pho
             row = page.locator(f'[data-notification-kind="request-receipt"][data-channel="{channel}"]', has_text=ref)
             assert row.count() == 1
             assert row.get_attribute("data-delivery-status") == "sent"
-        if not phone:
-            assert page.locator('[data-notification-kind="request-receipt"][data-channel="sms"]', has_text=ref).count() == 0
+        assert page.locator('[data-notification-kind="request-receipt"]', has_text=ref).count() == int(email)
     finally:
         page.context.close()
 
 
-@pytest.mark.parametrize("failed,successful", [("sms", "email"), ("email", "sms")])
-def test_channel_failure_does_not_block_the_other_and_is_retried(browser, base_url, failed, successful):
-    ref, _, _ = request_job(browser, base_url, simulate=f"{failed}-failure")
+def test_email_failure_is_retried(browser, base_url):
+    ref, _, _ = request_job(browser, base_url, simulate="email-failure")
     page = new_page(browser)
     try:
-        page.context.add_cookies([{"name": "mias-simulate", "value": f"{failed}-failure", "url": base_url}])
+        page.context.add_cookies([{"name": "mias-simulate", "value": "email-failure", "url": base_url}])
         page.goto(base_url + "/dev/inbox", wait_until="networkidle")
-        receipt = '[data-notification-kind="request-receipt"]'
-        assert page.locator(receipt + f'[data-channel="{successful}"]', has_text=ref).get_attribute("data-delivery-status") == "sent"
-        assert page.locator(receipt + f'[data-channel="{failed}"]', has_text=ref).get_attribute("data-delivery-status") == "failed"
+        receipt = page.locator('[data-notification-kind="request-receipt"][data-channel="email"]', has_text=ref)
+        assert receipt.get_attribute("data-delivery-status") == "failed"
         page.context.clear_cookies()
         page.reload(wait_until="networkidle")
-        assert page.locator(receipt + f'[data-channel="{failed}"]', has_text=ref).get_attribute("data-delivery-status") == "sent"
-        assert page.locator(receipt + f'[data-channel="{successful}"]', has_text=ref).get_attribute("data-attempts") == "1"
+        assert receipt.get_attribute("data-delivery-status") == "sent"
     finally:
         page.context.close()
 
@@ -131,7 +127,7 @@ def test_guest_request_becomes_private_job_with_progress_and_messages(browser, b
         staff.get_by_role("button", name="Publish update").click()
         staff.get_by_text("Customer update saved.", exact=True).wait_for()
         invite = invite_customer(staff, base_url, job_url, email)
-        for channel in ["email", "sms"]:
+        for channel in ["email"]:
             assert staff.locator(f'[data-notification-kind="request-accepted"][data-channel="{channel}"]', has_text=job_url.rsplit("/", 1)[1]).count() == 1
         open_new_customer(visitor, invite)
         assert visitor.url == customer_url
@@ -144,11 +140,17 @@ def test_guest_request_becomes_private_job_with_progress_and_messages(browser, b
         assert visitor.get_by_label("Your name").is_visible()
         visitor.get_by_role("link", name=scope, exact=True).click()
         visitor.set_viewport_size({"width": 390, "height": 844})
-        visitor.get_by_role("link", name="Documents", exact=True).click()
+        visitor.get_by_role("link", name="Documents & files", exact=True).click()
         from playwright.sync_api import expect
-        expect(visitor.locator("#documents")).to_be_in_viewport()
-        visitor.get_by_role("link", name="Message Mias", exact=True).click()
-        assert visitor.get_by_label("Message to Mias").evaluate("el => document.activeElement === el")
+        expect(visitor.locator("#documents")).to_be_visible()
+        expect(visitor.locator("#files")).to_be_visible()
+        expect(visitor.locator(".chat-thread")).to_have_count(0)
+        visitor.get_by_role("link", name="Progress", exact=True).click()
+        expect(visitor.locator('[aria-current="step"]')).to_contain_text("Assessment")
+        expect(visitor.locator("#progress")).to_be_visible()
+        expect(visitor.locator("#files")).to_have_count(0)
+        visitor.get_by_role("link", name="Messages", exact=True).click()
+        expect(visitor.locator("#progress")).to_have_count(0)
         text = visitor.locator("main").inner_text()
         assert "Arrange a site visit" in text and "We are arranging your site assessment." in text
         assert "PRIVATE-008-SENTINEL" not in visitor.content()
@@ -355,3 +357,39 @@ def test_acceptance_shortcut_without_javascript_opens_new_job_at_top(browser, ba
     finally:
         plain_context.close()
         staff.context.close()
+
+
+def test_request_through_completion_visible_to_customer(browser, base_url):
+    from test_workspace_corrections import writer_account
+
+    reference, email, _ = request_job(browser, base_url)
+    admin, _ = owner(browser, base_url)
+    staff = writer_account(browser, admin, base_url)
+    customer_page = new_page(browser)
+    try:
+        job_url = accept_job(staff, base_url, reference)
+        open_new_customer(customer_page, invite_customer(staff, base_url, job_url, email))
+        for stage, label in [
+            ("awaiting-quotation", "Awaiting quotation decision"), ("scheduled", "Scheduled"),
+            ("on-hold", "On hold"), ("scheduled", "Scheduled"), ("in-progress", "In progress"),
+            ("completed", "Completed"),
+        ]:
+            staff.goto(job_url, wait_until="networkidle")
+            form = staff.locator("form[data-workflow-form]")
+            form.get_by_label("Stage", exact=True).select_option(stage)
+            form.get_by_label("Next step").fill("Review handover" if stage == "completed" else "Coordinate the site visit")
+            form.get_by_label("Reason").fill("Private staff decision for " + stage)
+            form.get_by_role("button", name="Update job").click()
+            if stage == "completed":
+                staff.get_by_text("This job is closed. Its history is retained.", exact=True).wait_for()
+            else:
+                form.get_by_text("Job updated.", exact=True).wait_for()
+            customer_page.reload(wait_until="networkidle")
+            main = customer_page.locator("main").inner_text()
+            assert customer_page.locator(".portal-stage").inner_text() == label
+            assert "Private staff decision" not in main
+        assert "Review handover" in main
+    finally:
+        admin.context.close()
+        staff.context.close()
+        customer_page.context.close()

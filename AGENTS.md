@@ -65,7 +65,7 @@ Spec-driven: **spec → implementation/test plan → tests first → build → r
 - `job_events.audience` separates customer-visible events from private staff notes. Customer queries must filter in SQL before selecting event bodies. Never pass staff event collections into a customer client component.
 - Job access includes the original individual grant and explicit per-job contact grants. Company names confer no permissions. Apply the shared job-access check to file lists, uploads and downloads. Keep file bytes in the private database and out of list queries. Replacing an invitation or revoking access affects only the selected contact.
 - Request acceptance and job edits use transactions/version checks. Preserve one job per inquiry, unique notification event keys and private change reasons. A saved inquiry attached to a job is retained; the development delete helper does not delete the linked job.
-- Email/SMS use separate notification rows. `sent` currently means captured locally, not delivered externally. Claimed `sending` rows with uncertain outcomes must not be blindly retried; failed rows have at most four attempts. Production ignores all `mias-simulate` values.
+- Notifications use email only. Never enqueue or retry historical SMS rows. `sent` currently means captured locally, not delivered externally. Claimed `sending` rows with uncertain outcomes must not be blindly retried; failed rows have at most four attempts. Production ignores all `mias-simulate` values.
 - An isolated verification server can set `MIAS_BUILD_DIR=.next-verification` plus its own `MIAS_DB_DIR` and `MIAS_SITE_URL`; keep both its database and build output separate from the normal preview. Do not edit `src/` while browser tests run.
 
 ## Design conventions

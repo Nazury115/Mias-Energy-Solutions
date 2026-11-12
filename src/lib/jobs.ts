@@ -2,7 +2,7 @@
 export const requestStages = { received: "Received", "under-review": "Under review", "awaiting-information": "Awaiting information", accepted: "Accepted", closed: "Closed" } as const;
 export const jobStages = { assessment: "Assessment", "awaiting-quotation": "Awaiting quotation decision", scheduled: "Scheduled", "in-progress": "In progress", "on-hold": "On hold", completed: "Completed", cancelled: "Cancelled" } as const;
 export type JobStage = keyof typeof jobStages;
-export type NotificationChannel = "email" | "sms";
+export type NotificationChannel = "email";
 const transitions: Record<JobStage, readonly JobStage[]> = {
   assessment: ["awaiting-quotation", "scheduled", "on-hold", "cancelled"],
   "awaiting-quotation": ["assessment", "scheduled", "on-hold", "cancelled"],
@@ -33,7 +33,7 @@ export function validateJobDetails(input: JobDetailsInput) {
   return Object.keys(errors).length ? { ok: false as const, errors } : { ok: true as const, value: { scope, nextStep, assigneeId, reason, expectedVersion: expectedVersion! } };
 }
 export function notificationDestinations(contact: { email: string | null; phone: string | null }): { channel: NotificationChannel; recipient: string }[] {
-  return [...(contact.email ? [{ channel: "email" as const, recipient: contact.email }] : []), ...(contact.phone ? [{ channel: "sms" as const, recipient: contact.phone }] : [])];
+  return contact.email ? [{ channel: "email", recipient: contact.email }] : [];
 }
 export function receiptText(reference: string) {
   return { subject: `Mias request received: ${reference}`, body: `Mias Energy Solutions has received your request. Reference: ${reference}. Our team will review it and contact you. Work has not yet been confirmed.` };
