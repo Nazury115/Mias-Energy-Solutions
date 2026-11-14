@@ -21,7 +21,7 @@ export default function Home() {
 
     <section className="customers-section" aria-labelledby="customers-heading">
       <div className="site-container customer-band">
-        <h2 id="customers-heading">Selected customers</h2>
+        <h2 id="customers-heading">Customers and partners</h2>
         <label className="customer-motion"><input type="checkbox" /> Pause motion</label>
         <div className="customer-window">
           <div className="customer-track">

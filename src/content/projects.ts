@@ -40,8 +40,18 @@ export type ProjectStory = CoverageStory & {
   image: string; alt: string; problem: string; approach: string; outcome: string;
   gallery?: { src: string; alt: string }[];
 };
-// Deliberate demo records; never attribute these to the real customers in site.ts.
+// Confirmed work and labelled demo records are filtered before publication.
 export const projectStories: ProjectStory[] = [
+  {
+    slug: "gwembe-booster-pumps", family: "water", category: "Water", province: "Southern", area: "Gwembe",
+    title: "Booster pumps in Gwembe", summary: "Inside the pump room at Gwembe, two vertical booster pumps run on INTV controllers. The project photographs also show the ground-mounted solar arrays on site.",
+    fictional: false, approval: { by: "Henry Masauso", on: "2026-11-14" },
+    image: "/images/work/gwembe-4.jpg", alt: "Two vertical booster pumps connected to blue pipework inside the Gwembe pump room.",
+    problem: "The work centred on the booster pumps at Gwembe.",
+    approach: "The pump-room photographs show the two units connected to shared pipework, with valves at the pump connections.",
+    outcome: "The project is complete and the booster pumps are running on INTV controllers.",
+    photos: ["/images/work/gwembe-4.jpg", "/images/work/gwembe-5.jpg", "/images/work/gwembe-3.jpg", "/images/work/gwembe-1.jpg", "/images/work/gwembe-2.jpg", "/images/work/gwembe-6.jpg", "/images/work/gwembe-7.jpg"],
+  },
   {
     slug: "home-water-pressure", family: "water", category: "Water", province: "Lusaka", area: "Lusaka", title: "A better water supply at home",
     summary: "An example of how a pressure-boosting project could be explained, from the first concern to handover.",

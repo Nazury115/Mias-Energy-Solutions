@@ -32,7 +32,7 @@ def test_coverage_map_markup(base_url):
     options = [attrs.get("data-province-option") for tag, attrs in doc.tags if attrs.get("data-province-option")]
     assert sorted(options) == PROVINCES
     text = " ".join(doc.text)
-    assert "Sample data — not real projects" in text
+    assert "Sample data" not in text and "Gwembe" in text
     assert "geoBoundaries" in text and "CC BY 4.0" in text
     assert re.search(r"of 10 provinces", text)
 
@@ -50,7 +50,7 @@ def test_sitemap_lists_publishable_routes(base_url):
     xml = fetch(base_url, "/sitemap.xml")
     locations = re.findall(r"<loc>([^<]+)</loc>", xml)
     paths = {re.sub(r"^https?://[^/]+", "", location) or "/" for location in locations}
-    assert {"/", "/services", "/services/water", "/services/solar-water-pumping", "/projects", "/about", "/contact"} <= paths
+    assert {"/", "/services", "/services/water", "/services/solar-water-pumping", "/projects", "/projects/gwembe-booster-pumps", "/about", "/contact"} <= paths
 
 
 @pytest.mark.integration

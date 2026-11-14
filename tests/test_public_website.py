@@ -8,7 +8,7 @@ from test_foundation import Document
 ROUTES = ["/services", "/services/water", "/services/electrical", "/services/renewable-energy",
           "/services/solar-water-pumping", "/projects", "/about", "/contact"]
 DEMOS = ["home-water-pressure", "control-panel-renewal", "home-solar-backup"]
-CUSTOMERS = ["Lusaka Water Supply and Sanitation Company", "Plumbfix", "Family Legacy", "Egyptian Embassy in Lusaka", "EastPark Mall"]
+CUSTOMERS = ["Lusaka Water Supply and Sanitation Company", "Plumbfix", "Family Legacy", "Egyptian Embassy in Lusaka", "EastPark Mall", "KSB", "Western Water Supply and Sanitation Company", "Miombo Water Supply", "Davis & Shirtliff"]
 
 
 def document(base_url, path):
@@ -43,12 +43,18 @@ def test_customers_and_private_contact_boundaries(base_url):
 @pytest.mark.integration
 @pytest.mark.parametrize("slug", DEMOS)
 def test_fictional_stories_are_not_customer_claims(base_url, slug):
-    doc = document(base_url, "/projects/" + slug)
+    with pytest.raises(HTTPError) as hidden:
+        urlopen(base_url + "/projects/" + slug)
+    assert hidden.value.code == 404
+
+
+@pytest.mark.integration
+def test_gwembe_story(base_url):
+    doc = document(base_url, "/projects/gwembe-booster-pumps")
     text = " ".join(doc.text)
-    assert "Fictional example" in text
-    assert "not a completed customer project" in text
-    assert "not verified as this example project" in text
-    assert all(name not in text for name in CUSTOMERS)
+    assert "Gwembe" in text and "INTV" in text and "Southern" in text
+    assert "Fictional example" not in text
+    assert sum("data-work-photo" in attrs for _, attrs in doc.tags) == 7
 
 
 @pytest.mark.integration
@@ -60,16 +66,15 @@ def test_unknown_content_returns_404(base_url, path):
 
 
 @pytest.mark.browser
-def test_project_filters(browser, base_url):
+def test_project_gallery(browser, base_url):
     page = browser.new_page(viewport={"width": 390, "height": 844})
     try:
         page.goto(base_url + "/projects", wait_until="networkidle")
-        assert page.locator("[data-project-card]").count() == 3
-        page.get_by_role("button", name="Water", exact=True).click()
-        assert page.locator("[data-project-card]").count() == 1
-        assert "1 project" in page.get_by_role("status").inner_text()
-        page.get_by_role("button", name="All projects", exact=True).click()
-        assert page.locator("[data-project-card]").count() == 3
+        card = page.locator('[data-project-card]').filter(has_text="Booster pumps in Gwembe")
+        card.get_by_role("link", name="Read project").click()
+        assert page.locator("h1").inner_text() == "Booster pumps in Gwembe"
+        page.locator("[data-work-photo]").first.click()
+        assert page.get_by_role("dialog").is_visible()
     finally:
         page.close()
 

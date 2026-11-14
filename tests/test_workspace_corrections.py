@@ -68,13 +68,13 @@ def test_existing_project_preview_edit_publish_trash_restore_and_permissions(bro
     writer=writer_account(browser,admin,base_url)
     public=new_page(browser)
     outsider,_=customer(browser,base_url)
-    source="home-water-pressure"
+    source="gwembe-booster-pumps"
     try:
         writer.goto(base_url+"/staff/content",wait_until="networkidle")
         row=writer.locator(f'[data-repository-project="{source}"]')
         row.get_by_role("link",name="Preview project",exact=True).click()
-        writer.get_by_role("heading",name="A better water supply at home",exact=True).wait_for()
-        assert "Fictional" in writer.locator("main").inner_text()
+        writer.get_by_role("heading",name="Booster pumps in Gwembe",exact=True).wait_for()
+        assert "Gwembe" in writer.locator("main").inner_text()
         assert outsider.request.get(writer.url).status==403
         writer.get_by_role("button",name="Edit project",exact=True).click()
         writer.wait_for_url(lambda url:"/staff/content/" in str(url) and "/repository/" not in str(url))
@@ -82,12 +82,14 @@ def test_existing_project_preview_edit_publish_trash_restore_and_permissions(bro
         assert writer.get_by_role("button",name="Publish saved draft").count()==0
         writer.get_by_label("Photo",exact=True).set_input_files({"name":"workspace.png","mimeType":"image/png","buffer":PNG})
         writer.get_by_label("Photo description",exact=True).fill("Synthetic workspace photo")
+        writer.get_by_label("Photo permission evidence").fill("Generated test image in disposable database")
         writer.get_by_label("Photo source",exact=True).fill("Synthetic regression fixture")
         writer.get_by_role("button",name="Register photo",exact=True).click()
         writer.get_by_text("Photo registered. Select it in the draft and save.",exact=True).wait_for()
         private_image=writer.locator(".content-photo img").get_attribute("src")
         public_image="/media/publishing/"+private_image.rsplit("/",1)[1]
         form=writer.locator("[data-content-editor]")
+        form.get_by_label("Publication permission evidence").fill("Isolated test copy")
         form.get_by_label("Synthetic workspace photo",exact=True).check()
         form.get_by_label("Summary",exact=True).fill("Fictional managed replacement for the existing example")
         form.get_by_role("button",name="Save draft",exact=True).click()

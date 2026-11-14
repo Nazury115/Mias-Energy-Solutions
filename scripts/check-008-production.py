@@ -108,6 +108,31 @@ try:
     print("Production routes and development-inbox protection passed.", flush=True)
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(channel="msedge")
+        review = browser.new_page(reduced_motion="reduce")
+        review.goto(BASE + "/")
+        strip = review.locator(".customer-track ul").first
+        for name in ["KSB", "Miombo Water Supply", "Davis & Shirtliff", "Western Water Supply and Sanitation Company"]:
+            logo = strip.locator("li").filter(has_text=name).locator("img")
+            logo.evaluate("img => { img.loading = 'eager'; return img.decode() }")
+            assert logo.evaluate("img => img.naturalWidth > 0")
+        review.goto(BASE + "/projects")
+        review.locator('[data-project-card] a[href="/projects/gwembe-booster-pumps"]').click()
+        assert review.locator("h1").inner_text() == "Booster pumps in Gwembe"
+        assert "INTV" in review.locator("main").inner_text()
+        for width in [320,390,768,1440]:
+            review.set_viewport_size({"width":width,"height":900})
+            review.evaluate("new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))")
+            assert review.evaluate("document.documentElement.scrollWidth <= innerWidth")
+        tiles = review.locator("[data-work-photo]")
+        assert tiles.count() == 7
+        for tile in tiles.all():
+            tile.click()
+            review.locator("dialog[open] img").evaluate("img => img.decode()")
+            review.keyboard.press("Escape")
+        assert "/projects/gwembe-booster-pumps" in review.request.get(BASE + "/sitemap.xml").text()
+        assert review.request.get(BASE + "/projects/home-water-pressure").status == 404
+        review.close()
+        print("Production Gwembe story, seven photographs, sitemap, responsive layout and four logos passed.",flush=True)
         owner_context = browser.new_context(viewport={"width": 1440, "height": 1000}, reduced_motion="reduce")
         owner = owner_context.new_page()
         errors = []
@@ -230,6 +255,7 @@ try:
         payload = b"Comment\0".ljust(5 * 1024 * 1024 - len(PNG) - 12, b"A")
         chunk = b"tEXt" + payload
         image = PNG[:-12] + struct.pack(">I", len(payload)) + chunk + struct.pack(">I", zlib.crc32(chunk)) + PNG[-12:]
+        customer.get_by_role("link",name="Documents & files",exact=True).click()
         customer.get_by_label("Choose a job file").set_input_files({"name": "site-check.png", "mimeType": "image/png", "buffer": image})
         customer.get_by_role("button", name="Upload file").click()
         customer.get_by_role("link", name="site-check.png").wait_for()
@@ -249,7 +275,7 @@ try:
         owner.get_by_label("Issue reason",exact=True).fill("Unreviewed settings must block issue")
         owner.get_by_label("I reviewed the saved draft and its PDF preview").check()
         owner.get_by_role("button",name="Approve and issue",exact=True).click()
-        owner.get_by_role("alert").wait_for()
+        owner.locator("main").get_by_role("alert").wait_for()
         owner.goto(BASE+"/staff",wait_until="networkidle")
         assert "1 awaiting Owner review" in owner.locator("[data-document-review]").inner_text()
         configure_documents(owner, BASE)
@@ -339,13 +365,15 @@ try:
         assert not errors,errors
         # Increment 009 publication must also work without a development inbox.
         owner.goto(BASE + "/staff/content", wait_until="networkidle")
-        owner.get_by_label("Title", exact=True).fill("Fictional production publishing check")
+        owner.get_by_label("Fictional test content").uncheck()
+        owner.get_by_label("Title", exact=True).fill("Isolated production publishing check")
         owner.get_by_role("button", name="Create draft").click()
         owner.wait_for_url("**/staff/content/*")
         draft_url = owner.url
         photo_form = owner.get_by_role("button", name="Register photo").locator("..")
         photo_form.get_by_label("Photo", exact=True).set_input_files({"name": "test.png", "mimeType": "image/png", "buffer": PNG})
         photo_form.get_by_label("Photo description").fill("Synthetic production image")
+        photo_form.get_by_label("Photo permission evidence").fill("Generated fixture in disposable production database")
         photo_form.get_by_label("Photo source").fill("Synthetic test fixture")
         photo_form.get_by_role("button", name="Register photo").click()
         photo_form.get_by_role("status").wait_for()
@@ -353,6 +381,7 @@ try:
         for label, value in [("Summary", "Fictional production summary"), ("Challenge", "Fictional challenge"),
                              ("Work carried out", "Fictional work"), ("Outcome", "Fictional outcome")]:
             editor.get_by_label(label, exact=True).fill(value)
+        editor.get_by_label("Publication permission evidence").fill("Disposable test fixture")
         editor.get_by_label("Synthetic production image", exact=True).check()
         editor.get_by_role("button", name="Save draft").click()
         editor.get_by_role("status").wait_for()
@@ -378,10 +407,11 @@ try:
         assert guest.request.get(BASE + media_path).status == 404
         # Existing repository projects retain their URL and do not reappear after Trash/restore.
         owner.goto(BASE+"/staff/content",wait_until="networkidle")
-        owner.locator('[data-repository-project="home-water-pressure"]').get_by_role("link",name="Preview project",exact=True).click()
+        owner.locator('[data-repository-project="gwembe-booster-pumps"]').get_by_role("link",name="Preview project",exact=True).click()
         owner.get_by_role("button",name="Edit project",exact=True).click()
         owner.wait_for_url(lambda url:"/staff/content/" in str(url) and "/repository/" not in str(url))
         source_draft=owner.url
+        owner.get_by_label("Publication permission evidence").fill("Isolated test copy of supplied project")
         owner.get_by_label("Summary",exact=True).fill("Fictional production repository replacement")
         owner.get_by_role("button",name="Save draft",exact=True).click()
         owner.get_by_text("Draft saved.",exact=True).wait_for()
@@ -389,7 +419,7 @@ try:
         owner.get_by_label("I checked the facts and publication permissions").check()
         owner.get_by_role("button",name="Publish saved draft",exact=True).click()
         owner.get_by_text("Publication updated.",exact=True).wait_for()
-        source_path="/projects/home-water-pressure"
+        source_path="/projects/gwembe-booster-pumps"
         assert "Fictional production repository replacement" in guest.request.get(BASE+source_path).text()
         assert customer.request.get(source_draft).status==403
         owner.get_by_label("Delete reason",exact=True).fill("Check recoverable deletion")
@@ -403,7 +433,7 @@ try:
         assert source_path not in guest.request.get(BASE+"/sitemap.xml").text()
         print("Production existing-project replacement, stable URL, Owner Trash and unpublished restore passed.",flush=True)
         owner.goto(draft_url,wait_until="networkidle")
-        # Republish the sample, then check the launch-mode filter on the same data.
+        # Republish this verified-mode fixture and confirm launch filtering on the same data.
         owner.get_by_label("Approval reason").fill("Republish for launch filter check")
         owner.get_by_label("I checked the facts and publication permissions").check()
         owner.get_by_role("button", name="Publish saved draft").click()
@@ -423,9 +453,10 @@ try:
         server = None
         ENV["MIAS_PUBLIC_LAUNCH"] = "true"
         server = start()
-        assert guest.request.get(BASE + public_path).status == 404
-        assert guest.request.get(BASE + media_path).status == 404
-        assert public_path not in guest.request.get(BASE + "/sitemap.xml").text()
+        assert guest.request.get(BASE + public_path).status == 200
+        assert guest.request.get(BASE + media_path).status == 200
+        assert public_path in guest.request.get(BASE + "/sitemap.xml").text()
+        assert guest.request.get(BASE + "/projects/home-water-pressure").status == 404
         assert "Fictional example" not in guest.request.get(BASE + "/projects").text()
         assert not errors, errors
         print("Production publishing, private preview, snapshot isolation, unpublish and launch filtering passed.", flush=True)

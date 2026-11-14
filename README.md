@@ -4,6 +4,8 @@ Responsive website and digital lead platform for Mias Energy Solutions, Lusaka, 
 
 See the [customer, staff and Owner review checklist](docs/testing/role-review-checklist.md) for a hands-on walkthrough.
 
+For the Gwembe release, verification results and online review setup, see the [14 November launch review](docs/testing/2026-11-14-launch-review.md).
+
 ## Current increment
 
 Workspace review corrections add submission before template setup (Owner review is still required before issue), existing-project management with recoverable Owner-only Trash, and a development-only [mobile preview](http://127.0.0.1:3000/dev/mobile?path=%2Fstaff). See the [review walkthrough](docs/journal/workspace-corrections.md).

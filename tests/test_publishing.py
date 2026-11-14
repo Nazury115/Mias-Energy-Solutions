@@ -23,19 +23,21 @@ def test_owner_publishes_snapshot_and_unpublishes(browser, base_url):
         staff.goto(base_url + "/staff/content", wait_until="networkidle")
         staff.get_by_label("Content type").select_option("project")
         staff.get_by_label("Title",exact=True).fill("Fictional publishing assessment")
-        staff.get_by_label("Fictional test content").check()
+        staff.get_by_label("Fictional test content").uncheck()
         staff.get_by_role("button",name="Create draft").click()
         staff.wait_for_url("**/staff/content/*")
         draft_url = staff.url
         assert public.goto(draft_url, wait_until="networkidle").url.split("?")[0].endswith("/sign-in")
         staff.get_by_label("Photo",exact=True).set_input_files({"name":"site.png","mimeType":"image/png","buffer":PNG})
         staff.get_by_label("Photo description").fill("Fictional test image")
+        staff.get_by_label("Photo permission evidence").fill("Generated fixture in isolated database")
         staff.get_by_label("Photo source").fill("Synthetic test fixture")
         staff.get_by_role("button",name="Register photo").click()
         staff.get_by_text("Photo registered. Select it in the draft and save.",exact=True).wait_for()
         private_image = staff.locator(".content-photo img").get_attribute("src")
         assert public.request.get(base_url + private_image, max_redirects=0).status == 307
         editor = staff.locator("[data-content-editor]")
+        editor.get_by_label("Publication permission evidence").fill("Disposable test fixture")
         editor.get_by_label("Fictional test image",exact=True).check()
         for label, value in [("Summary","Fictional test summary"),("Challenge","Fictional challenge"),("Work carried out","Fictional assessment"),("Outcome","Fictional handover")]:
             editor.get_by_label(label,exact=True).fill(value)
@@ -121,8 +123,8 @@ def test_staff_draft_owner_review_and_customer_denial(browser,base_url):
         assert writer.request.post(entry_url,data=request.post_data,headers=headers).status==403
         assert outsider.request.post(entry_url,data=request.post_data,headers=headers).status==403
         outsider.goto(base_url+"/projects",wait_until="networkidle")
-        assert "Fictional customer quotation for testing." in outsider.locator("main").inner_text()
-        assert "Fictional test testimonial" in outsider.locator("main").inner_text()
+        assert "Fictional customer quotation for testing." not in outsider.locator("main").inner_text()
+        assert "Fictional test testimonial" not in outsider.locator("main").inner_text()
         # A second editor must not overwrite a newer saved draft.
         writer.goto(entry_url,wait_until="networkidle")
         admin.locator("[data-content-editor]").get_by_label("Title",exact=True).fill("Revised testimonial title")

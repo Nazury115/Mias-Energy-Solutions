@@ -102,3 +102,22 @@ Local customer identity assets under `public/brand/customers/` come from the org
 | Family Legacy | [Official logo](https://familylegacy.com/wp-content/themes/familylegacy/assets/fl_logo_color.png) |
 | EastPark Mall | [Official logo](https://eastparkmallzambia.com/wp-content/uploads/2024/09/EastPark-Mall-Logo-black.png) |
 | Plumbfix and Egyptian Embassy in Lusaka | Text names. No verified organisation-specific logo sourced for this strip. |
+
+## Gwembe booster pumps and organization logos, 14 November 2026
+
+Henry supplied seven project photographs and confirmed completion in Gwembe and INTV operation. The date records his confirmation. Public copies are resized JPEGs without source metadata.
+
+- `public/images/work/gwembe-4.jpg` — supplied Photo 4. Twin vertical booster pumps connected to blue pipework.
+- `public/images/work/gwembe-5.jpg` — supplied Photo 5. Pump connections and valves viewed from the front.
+- `public/images/work/gwembe-3.jpg` — supplied Photo 3. The booster set beside a horizontal motor.
+- `public/images/work/gwembe-1.jpg` — supplied Photo 1. Two banks of ground-mounted solar panels.
+- `public/images/work/gwembe-2.jpg` — supplied Photo 2. Panel rows with vegetation beyond the array.
+- `public/images/work/gwembe-6.jpg` — supplied Photo 6. Solar panels on metal legs beside a tree.
+- `public/images/work/gwembe-7.jpg` — supplied Photo 7. Rear view of the array showing its steel supports.
+
+- KSB header mark, from [KSB Zambia](https://www.ksb.com/en-zm/about-ksb).
+- Davis & Shirtliff header logo, from the [Zambia shop](https://shop.zambia.davisandshirtliff.com/).
+- Miombo Water Supply header logo, from [Miombo Water Supply](https://www.miombowater.co.zm/).
+- Western Water Supply and Sanitation Company logo, isolated from the title page of the Ministry’s [September 2025 management plans](https://www.mwds.gov.zm/wp-content/uploads/2025/12/Environmental-and-Social-Management-Plans-September-2025.pdf).
+
+Henry confirmed working relationships for the homepage. The list does not assign these organizations to the Gwembe project.

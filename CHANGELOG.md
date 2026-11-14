@@ -2,6 +2,10 @@
 
 Newest first. Each entry records what changed, where, and why, so work can continue in any tool (Claude, ChatGPT/Codex) or folder. For what is still to build, see [the feature backlog](docs/plans/feature-backlog.md).
 
+## Gwembe project and homepage partners, 14 November 2026
+
+Added the completed booster-pump installation in Gwembe with seven supplied photographs. The coverage map now draws on the confirmed Southern Province project. Added KSB, Western Water, Miombo Water and Davis & Shirtliff to the homepage logo strip.
+
 ## Customer job workspace, 11 November 2026
 
 Customers can switch between All, Messages, Documents & files, and Progress. The stage tracker follows staff changes. Chat attachments use the same protected file record as the job library and support taking a photo on compatible devices.

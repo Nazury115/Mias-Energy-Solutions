@@ -15,6 +15,10 @@ export const customers = [
   { name: "Plumbfix", logo: null },
   { name: "Family Legacy", logo: "/brand/customers/family-legacy.png" },
   { name: "Egyptian Embassy in Lusaka", logo: null },
+  { name: "KSB", logo: "/brand/customers/ksb.svg" },
+  { name: "Western Water Supply and Sanitation Company", logo: "/brand/customers/western-water.png" },
+  { name: "Miombo Water Supply", logo: "/brand/customers/miombo.png" },
+  { name: "Davis & Shirtliff", logo: "/brand/customers/davis-shirtliff.png" },
   { name: "EastPark Mall", logo: "/brand/customers/eastpark.png" },
 ] as const;
 
@@ -161,4 +165,11 @@ export const workPhotos: WorkPhoto[] = [
   { src: "/images/work/pumping-set.jpeg", caption: "Horizontal pumping set and pipe manifold", family: "water", width: 1080, height: 486, shape: "wide" },
   { src: "/images/work/pipe-assemblies.jpeg", caption: "Pump assemblies laid out during work", family: "water", width: 1080, height: 486, shape: "wide" },
   { src: "/images/work/manifold-wide.jpeg", caption: "Outdoor pumping manifold", family: "water", width: 1080, height: 486, shape: "wide" },
+  { src: "/images/work/gwembe-4.jpg", caption: "Twin vertical booster pumps connected to blue pipework", family: "water", width: 1080, height: 487, shape: "wide" },
+  { src: "/images/work/gwembe-5.jpg", caption: "Pump connections and valves viewed from the front", family: "water", width: 1080, height: 487, shape: "wide" },
+  { src: "/images/work/gwembe-3.jpg", caption: "The booster set beside a horizontal motor", family: "water", width: 1080, height: 487, shape: "wide" },
+  { src: "/images/work/gwembe-1.jpg", caption: "Two banks of ground-mounted solar panels", family: "renewable-energy", width: 1080, height: 487, shape: "wide" },
+  { src: "/images/work/gwembe-2.jpg", caption: "Panel rows with vegetation beyond the array", family: "renewable-energy", width: 1080, height: 487, shape: "wide" },
+  { src: "/images/work/gwembe-6.jpg", caption: "Solar panels on metal legs beside a tree", family: "renewable-energy", width: 1080, height: 487, shape: "wide" },
+  { src: "/images/work/gwembe-7.jpg", caption: "Rear view of the array showing its steel supports", family: "renewable-energy", width: 1080, height: 487, shape: "wide" },
 ];
