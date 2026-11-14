@@ -7,7 +7,7 @@ The release build uses Next.js with webpack. A separate database and build direc
 | Check | Result |
 | --- | --- |
 | Production build, TypeScript and static page generation | Passed. |
-| Unit suite | 192 passed. |
+| Regression suite | 192 unit checks and 125 integration/browser checks passed across the initial, resumed and targeted runs. The final rerun covered both gallery layouts and the staff publishing/restore journey. |
 | Production dependency audit | The registry reported zero known advisories in the locked production dependency tree on 14 November. |
 | Public project and homepage assets | Microsoft Edge opened Gwembe from Projects, decoded all seven photos and four new logos, and checked the project layout at 320, 390, 768 and 1440 px. The sitemap included Gwembe and the old fictional project URL returned 404. |
 | Production Owner/customer walkthrough | Passed ten route checks plus inquiry acceptance, invitation, read receipts, private-note isolation, 5 MiB private download, quotation and invoice approval/return, PDF/Excel exports, project publishing, Trash/restore, and launch-mode filtering. No runtime errors were recorded by the harness. |

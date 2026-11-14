@@ -43,7 +43,7 @@ def test_submission_visible_before_template_setup_but_issue_requires_review(brow
         admin.get_by_label("Issue reason",exact=True).fill("Attempt before settings review")
         admin.get_by_label("I reviewed the saved draft and its PDF preview").check()
         admin.get_by_role("button",name="Approve and issue",exact=True).click()
-        admin.get_by_role("alert").wait_for()
+        admin.locator("main").get_by_role("alert").wait_for()
         assert not admin.get_by_role("heading",level=1).inner_text().startswith("TEST-")
         configure(admin,base_url)
         admin.goto(url,wait_until="networkidle")
@@ -53,7 +53,7 @@ def test_submission_visible_before_template_setup_but_issue_requires_review(brow
         stale.get_by_label("Issue reason",exact=True).fill("Stale template preview")
         stale.get_by_label("I reviewed the saved draft and its PDF preview").check()
         stale.get_by_role("button",name="Approve and issue",exact=True).click()
-        stale.get_by_role("alert").wait_for()
+        stale.locator("main").get_by_role("alert").wait_for()
         approve(admin)
         assert admin.get_by_role("heading",level=1).inner_text().startswith("TEST-I-")
         assert writer.request.get(base_url+"/staff/documents/settings").status==403
@@ -127,7 +127,7 @@ def test_existing_project_preview_edit_publish_trash_restore_and_permissions(bro
         assert writer.request.get(base_url+"/staff/content?view=trash").status==403
         stale.get_by_label("Summary",exact=True).fill("Stale edit after deletion")
         stale.get_by_role("button",name="Save draft",exact=True).click()
-        stale.get_by_role("alert").wait_for()
+        stale.locator("main").get_by_role("alert").wait_for()
         admin.get_by_role("button",name="Restore as draft",exact=True).click()
         admin.get_by_text("Content restored as a draft.",exact=True).wait_for()
         assert public.request.get(base_url+"/projects/"+source).status==404

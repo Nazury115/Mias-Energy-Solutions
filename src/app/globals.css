@@ -240,12 +240,12 @@ form .button { margin-top: 25px; }
 .work-wide { grid-column: span 2; }
 .work-tall { grid-row: span 2; }
 .work-large { grid-column: span 2; grid-row: span 2; }
-.work-tile button { position: relative; display: block; width: 100%; height: 100%; padding: 0; border: 0; border-radius: 18px; overflow: hidden; background: #dde5eb; cursor: zoom-in; }
+.work-tile [data-work-photo] { position: relative; display: block; width: 100%; height: 100%; padding: 0; border: 0; border-radius: 18px; overflow: hidden; background: #dde5eb; cursor: zoom-in; }
 .work-tile img { object-fit: cover; transition: transform .9s var(--ease); }
-.work-tile button::after { content: ""; position: absolute; inset: 45% 0 0; background: linear-gradient(transparent, #071d33cc); opacity: 0; transition: opacity .4s var(--ease); pointer-events: none; }
+.work-tile [data-work-photo]::after { content: ""; position: absolute; inset: 45% 0 0; background: linear-gradient(transparent, #071d33cc); opacity: 0; transition: opacity .4s var(--ease); pointer-events: none; }
 .work-caption { position: absolute; z-index: 1; left: 16px; right: 16px; bottom: 14px; color: white; font-size: 13px; font-weight: 600; line-height: 1.35; text-align: left; opacity: 0; translate: 0 8px; transition: opacity .4s var(--ease), translate .4s var(--ease); }
-.work-tile button:hover img, .work-tile button:focus-visible img { transform: scale(1.05); }
-.work-tile button:hover::after, .work-tile button:focus-visible::after, .work-tile button:hover .work-caption, .work-tile button:focus-visible .work-caption { opacity: 1; translate: none; }
+.work-tile [data-work-photo]:hover img, .work-tile [data-work-photo]:focus-visible img { transform: scale(1.05); }
+.work-tile [data-work-photo]:hover::after, .work-tile [data-work-photo]:focus-visible::after, .work-tile [data-work-photo]:hover .work-caption, .work-tile [data-work-photo]:focus-visible .work-caption { opacity: 1; translate: none; }
 .work-viewer { width: 100vw; max-width: none; height: 100dvh; max-height: none; margin: 0; padding: 0; border: 0; background: rgb(7 20 34 / .94); color: white; }
 .work-viewer[open] { display: grid; place-items: center; animation: viewer-in .35s var(--ease); }
 .work-viewer::backdrop { background: rgb(7 20 34 / .5); }
@@ -452,7 +452,7 @@ form.search-bar .button { margin-top: 0; }
 .account-jobs a { color: var(--blue); font-weight: 700; text-decoration: underline; }
 @media (max-width: 900px) { .job-columns { grid-template-columns: minmax(0, 1fr); gap: 0; } }
 @media (hover: none) {
-  .work-tile button::after, .work-caption { opacity: 1; translate: none; }
+  .work-tile [data-work-photo]::after, .work-caption { opacity: 1; translate: none; }
 }
 @media (max-width: 1100px) {
   .site-container { width: calc(100% - 64px); }
@@ -521,7 +521,7 @@ form.search-bar .button { margin-top: 0; }
   .page-intro-large h1 { font-size: clamp(40px, 11vw, 58px); }
   .brief-card { position: static; }
   .work-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 150px; gap: 10px; }
-  .work-tile button { border-radius: 14px; }
+  .work-tile [data-work-photo] { border-radius: 14px; }
   .work-caption { left: 12px; right: 12px; bottom: 10px; font-size: 11px; }
   .viewer-step { top: auto; bottom: 24px; translate: none; }
   .about-banner { border-radius: 20px; }

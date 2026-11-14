@@ -15,10 +15,14 @@ export function WorkGallery({ photos, layout = "grid" }: { photos: WorkPhoto[]; 
   const scroll = (direction: number) => strip.current?.scrollBy({ left: direction * strip.current.clientWidth * .8, behavior: "smooth" });
   const tiles = photos.map((photo, photoIndex) => <li key={photo.src} className={`work-tile work-${photo.shape}`}
     style={layout === "strip" ? { aspectRatio: Math.min(1.8, Math.max(.72, photo.width / photo.height)) } : undefined}>
-    <button type="button" data-work-photo onClick={() => open(photoIndex)} aria-label={`View photo: ${photo.caption}`}>
+    <a href={photo.src} data-work-photo onClick={event => {
+      if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      open(photoIndex);
+    }} aria-label={`View photo: ${photo.caption}`}>
       <Image src={photo.src} alt={`${photo.caption}, from a Mias work site.`} fill sizes="(max-width: 767px) 100vw, 50vw" />
       <span className="work-caption" aria-hidden="true">{photo.caption}</span>
-    </button>
+    </a>
   </li>);
 
   return <>

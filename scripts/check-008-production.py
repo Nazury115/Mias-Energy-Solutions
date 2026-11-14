@@ -317,7 +317,7 @@ try:
                 stale.get_by_label("Issue reason",exact=True).fill("Outdated approval")
                 stale.get_by_label("I reviewed the saved draft and its PDF preview").check()
                 stale.get_by_role("button",name="Approve and issue",exact=True).click()
-                stale.get_by_role("alert").wait_for()
+                stale.locator("main").get_by_role("alert").wait_for()
                 stale.close()
                 owner.get_by_role("button",name="Submit for review",exact=True).click()
                 owner.get_by_text("Draft submitted for Owner review.",exact=True).wait_for()

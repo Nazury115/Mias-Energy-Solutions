@@ -73,8 +73,11 @@ def test_project_gallery(browser, base_url):
         card = page.locator('[data-project-card]').filter(has_text="Booster pumps in Gwembe")
         card.get_by_role("link", name="Read project").click()
         assert page.locator("h1").inner_text() == "Booster pumps in Gwembe"
-        page.locator("[data-work-photo]").first.click()
-        assert page.get_by_role("dialog").is_visible()
+        tile = page.locator("[data-work-photo]").first
+        assert page.request.get(base_url + tile.get_attribute("href")).headers["content-type"] == "image/jpeg"
+        page.wait_for_load_state("networkidle")
+        tile.click()
+        page.get_by_role("dialog", name="Work photo viewer").wait_for()
     finally:
         page.close()
 
